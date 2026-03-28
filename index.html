@@ -3050,75 +3050,50 @@ async function sendToWeb3Forms(data){
 
 // ── PARENT SIGNUP ──
 async function submitParentSignup(){
-  var modal = $$('signup-modal');
-  var inputs = modal ? modal.querySelectorAll('#tab-parent .form-input') : [];
-  var firstName='', lastName='', email='', phone='', plan='Free';
-  if(inputs[0]) firstName = inputs[0].value.trim();
-  if(inputs[1]) lastName  = inputs[1].value.trim();
-  if(inputs[2]) email     = inputs[2].value.trim();
-  if(inputs[3]) phone     = inputs[3].value.trim();
-  var selCard = modal ? modal.querySelector('.plan-card.sel') : null;
-  if(selCard){ var pn=selCard.querySelector('.plan-name'); if(pn) plan=pn.textContent.trim(); }
-
-  // Validation
-  if(!firstName){ showToast('⚠️ Please enter your first name!'); return; }
-  if(!email || email.indexOf('@') < 1){ showToast('⚠️ Please enter a valid email address!'); return; }
-
-  // Show sending state on button
-  var btn = modal ? modal.querySelector('#tab-parent .btn-mint') : null;
-  if(btn){ btn.textContent = '⏳ Sending...'; btn.disabled = true; }
-
-  // Send to Web3Forms — arrives in your email inbox instantly
-  var sent = await sendToWeb3Forms({
-    subject:    '🎉 New MathChamp Parent Signup — ' + plan + ' Plan',
-    name:       firstName + (lastName ? ' '+lastName : ''),
-    email:      email,
-    message:    [
-      'NEW PARENT ACCOUNT REGISTERED',
-      '─────────────────────────────',
-      'Name:    ' + firstName + ' ' + lastName,
-      'Email:   ' + email,
-      'Phone:   ' + (phone || 'Not provided'),
-      'Plan:    ' + plan,
-      'Date:    ' + new Date().toLocaleString(),
-      '─────────────────────────────',
-      'Action needed: Follow up with ' + email + ' when full launch is ready.',
-      'They are on the Founding Family list — their plan price locks in forever.'
-    ].join('\n')
+  var modal=$$('signup-modal');
+  var inputs=modal?modal.querySelectorAll('#tab-parent .form-input'):[];
+  var firstName='',lastName='',email='',phone='',plan='Free';
+  if(inputs[0])firstName=inputs[0].value.trim();
+  if(inputs[1])lastName=inputs[1].value.trim();
+  if(inputs[2])email=inputs[2].value.trim();
+  if(inputs[3])phone=inputs[3].value.trim();
+  var selCard=modal?modal.querySelector('.plan-card.sel'):null;
+  if(selCard){var pn=selCard.querySelector('.plan-name');if(pn)plan=pn.textContent.trim();}
+  if(!firstName){showToast('Please enter your first name!');return;}
+  if(!email||email.indexOf('@')<1){showToast('Please enter a valid email address!');return;}
+  var btn=modal?modal.querySelector('#tab-parent .btn-mint'):null;
+  if(btn){btn.textContent='Sending...';btn.disabled=true;}
+  var sent=await sendToWeb3Forms({
+    subject:'New MathChamp Parent Signup - '+plan+' Plan',
+    name:firstName+(lastName?' '+lastName:''),
+    email:email,
+    message:'NEW PARENT SIGNUP'+'\nName: '+firstName+' '+lastName+'\nEmail: '+email+'\nPhone: '+(phone||'Not provided')+'\nPlan: '+plan+'\nDate: '+new Date().toLocaleString()
   });
-
-  // Show confirmation to parent — honest about demo status
-  var tabParent = $$('tab-parent');
+  var tabParent=$$('tab-parent');
   if(tabParent){
-    tabParent.innerHTML = ''
-      +'<div style="text-align:center;padding:20px 10px">'
-      +'<div style="font-size:52px;margin-bottom:14px;animation:bounce-gentle 1s infinite">'+(sent?'🎉':'✅')+'</div>'
-      +'<div style="font-family:\'Fredoka One\',cursive;font-size:26px;color:var(--sun);margin-bottom:12px">You\'re Registered!</div>'
-      +'<div style="color:var(--text2);font-size:14px;line-height:1.9;margin-bottom:20px">'
-      +'Welcome, <strong style="color:var(--mint)">'+firstName+'</strong>! 👋<br><br>'
-      +'<span class="badge b-sun" style="font-size:12px">📋 Plan selected: '+plan+'</span><br><br>'
-      +'<strong style="color:var(--sky)">📌 Important — Please Note:</strong><br>'
-      +'MathChamp is currently in <strong>beta/demo</strong> phase. Full accounts with real logins, payments, and prizes are coming very soon.<br><br>'
-      +(sent
-        ? '✅ <strong style="color:var(--mint)">Your details have been saved.</strong> We will email <strong>'+email+'</strong> the moment we launch with your founding member link and locked-in price.'
-        : '📝 <strong style="color:var(--sun)">Note your email:</strong> <strong>'+email+'</strong> — we will contact you at launch with your founding member offer.'
-      )+'<br><br>'
-      +'<strong style="color:var(--mint)">🔒 Founding Family Benefit:</strong> Your '+plan+' price is locked in forever — even if we raise rates.'
-      +'</div>'
-      +'<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
-      +'<button class="btn btn-sun btn-sm" onclick="closeModal();previewApp()">👁️ Explore the App Now</button>'
-      +'<button class="btn btn-ghost btn-sm" onclick="closeModal()">✕ Close</button>'
-      +'</div></div>';
+    var confirmMsg=sent
+      ?'Your details have been saved. We will email '+email+' the moment we launch with your founding member link.'
+      :'We have your email: '+email+' and will contact you at launch with your founding member offer.';
+    var html='<div style="text-align:center;padding:20px 10px">';
+    html+='<div style="font-size:52px;margin-bottom:14px">&#127881;</div>';
+    html+='<div style="font-size:26px;font-weight:800;color:var(--sun);margin-bottom:12px">You are Registered!</div>';
+    html+='<div style="color:var(--text2);font-size:14px;line-height:1.9;margin-bottom:20px">';
+    html+='Welcome, <strong style="color:var(--mint)">'+firstName+'</strong>! &#128075;<br><br>';
+    html+='<span class="badge b-sun" style="font-size:12px">Plan selected: '+plan+'</span><br><br>';
+    html+='<strong style="color:var(--sky)">Important Note:</strong><br>';
+    html+='MathChamp is currently in beta/demo phase. Full accounts with real logins and payments are coming very soon.<br><br>';
+    html+='<span style="color:var(--mint)">'+confirmMsg+'</span><br><br>';
+    html+='<strong style="color:var(--mint)">Founding Family Benefit:</strong> Your '+plan+' price is locked in forever.';
+    html+='</div>';
+    html+='<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">';
+    html+='<button class="btn btn-sun btn-sm" onclick="closeModal();previewApp()">Explore the App</button>';
+    html+='<button class="btn btn-ghost btn-sm" onclick="closeModal()">Close</button>';
+    html+='</div></div>';
+    tabParent.innerHTML=html;
   }
-
-  showToast(sent
-    ? '🎉 Registered! We will email '+email+' at launch!'
-    : '✅ Registered, '+firstName+'! We will be in touch soon!',
-    4000
-  );
+  showToast(sent?'Registered! We will email '+email+' at launch!':'Registered, '+firstName+'! We will be in touch!',4000);
 }
 
-// ── WAITLIST ──
 async function joinWaitlist(){
   var name  = ($$('wl-name')  || {}).value || '';
   var email = ($$('wl-email') || {}).value || '';
