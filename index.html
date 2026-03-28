@@ -1344,7 +1344,7 @@ body{
 <div class="screen" id="s-app">
 
   <!-- SIDEBAR -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sb-brand">
       <div class="sb-icon">🧮</div>
       <div>
@@ -1767,8 +1767,8 @@ body{
       <div class="wallet-hero">
         <div class="wallet-bg">💰</div>
         <div class="wallet-label">MathCoins Balance</div>
-        <div class="wallet-bal" id="wallet-coins">2,450</div>
-        <div class="wallet-sub">= $24.50 prize value · Parent-managed · Never expires</div>
+        <div class="wallet-bal" id="wallet-coins">0</div>
+        <div class="wallet-sub" id="wallet-sub">Earn MathCoins by playing! · Parent-managed · Never expires</div>
         <div class="wallet-actions">
           <button class="btn btn-sun btn-sm" onclick="showToast('🎁 Opening prize store...')">🎁 Redeem Prizes</button>
           <button class="btn btn-ghost btn-sm" onclick="showToast('📊 Earnings history...')">📜 History</button>
@@ -1978,7 +1978,7 @@ const QUESTION_BANK = {
       {q:'lim(x→2) of (x²−4)/(x−2)?',a:['0','4','undefined','2'],c:1,src:'AP Calculus AB'},
       {q:'Derivative of sin(x)?',a:['-cos(x)','cos(x)','-sin(x)','tan(x)'],c:1,src:'AP Calculus BC'},
       {q:'Derivative of e^x?',a:['xe^(x-1)','e^x','e^(x-1)','1/e^x'],c:1,src:'AP Calculus AB'},
-      {q:'Product rule: d/dx[f·g] = ?',a:["f'g-fg'","f'g'","f'g+fg'","fg'-f'g"],c:2,src:'AP Calculus AB'},
+      {q:'Product rule: d/dx[fg] = ?',a:['f times gprime plus fprime times g','f times gprime','fprime times g','f plus g'],c:0,src:'AP Calculus AB'},
       {q:'Derivative of ln(x)?',a:['1/x','ln(x)/x','x·ln(x)','e^x'],c:0,src:'AP Calculus AB'},
     ],
     'AP Statistics':[
