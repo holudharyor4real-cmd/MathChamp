@@ -2393,7 +2393,7 @@ function renderQuestion(){
   var opts="";
   var letters=["A","B","C","D"];
   for(var i=0;i<(q.a||[]).length;i++){
-    opts+="<button class='q-opt' onclick='answerQ("+i+","+q.c+",this)'><span class='opt-letter'>"+letters[i]+"</span>"+(q.a[i]||"")+"</button>";
+    opts+="<button class=\"q-opt\" onclick=\"answerQ("+i+","+q.c+",this)\"><span class=\"opt-letter\">"+letters[i]+"</span>"+(q.a[i]||"")+"</button>";
   }
   arena.innerHTML="<div class='q-header'><div class='q-dots'>"+dots+"</div>"
     +"<div class='timer-ring' id='timer-ring' style='--p:100'><div class='timer-inner' id='timer-num'>20</div></div></div>"
@@ -2472,7 +2472,7 @@ function showTriviaResult(){
     +"</div>"
     +"<div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap'>"
     +"<button class='btn btn-sun btn-sm' onclick='session.qs=[];session.loading=false;loadTrivia()'>New Questions</button>"
-    +"<button class='btn btn-ghost btn-sm' onclick='setMode("practice",null)'>Practice Mode</button>"
+    +"<button class=\"btn btn-ghost btn-sm\" onclick=\"setMode('practice',null)\">Practice Mode</button>"
     +"</div></div>";
 }
 
@@ -2480,7 +2480,7 @@ function showTriviaResult(){
 function renderChallenge(){
   var el=$$("opp-list");
   if(el)el.innerHTML=OPPS.map(function(o){
-    return "<div class='opp-card' onclick='challengeOpp(""+o.n+"",""+o.e+"",""+o.bg+"")'>"
+    return "<div class=\"opp-card\" onclick=\"challengeOpp('"+o.n+"','"+o.e+"','"+o.bg+"')\">"
       +"<div class='opp-avatar' style='background:"+o.bg+";color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900'>"+o.e+"</div>"
       +"<div class='opp-info'><div class='opp-name'>"+o.n+"</div><div class='opp-meta'>"+o.meta+"</div><div class='opp-wr'>"+o.wr+"</div></div>"
       +"<button class='btn btn-coral btn-xs'>Challenge</button>"
@@ -2554,7 +2554,7 @@ function nextBattleRound(){
   var wrap=$$("battle-q-wrap");if(!wrap)return;
   var opts="";var letters=["A","B","C","D"];
   for(var i=0;i<(q.a||[]).length;i++){
-    opts+="<button class='q-opt' onclick='battleAnswer("+i+","+q.c+",this)'><span class='opt-letter'>"+letters[i]+"</span>"+(q.a[i]||"")+"</button>";
+    opts+="<button class=\"q-opt\" onclick=\"battleAnswer("+i+","+q.c+",this)\"><span class=\"opt-letter\">"+letters[i]+"</span>"+(q.a[i]||"")+"</button>";
   }
   wrap.innerHTML="<div style='background:rgba(0,0,0,0.3);border-radius:14px;padding:18px;margin-bottom:12px'>"
     +"<div class='q-topic'>"+(q.topic||"Math")+" "+(q.ai?"(AI)":"(Curated)")+"</div>"
@@ -2661,7 +2661,7 @@ function renderTournaments(){
       +"<div class='t-card-row'>"
       +"<div><div class='t-name'>"+t.n+"</div><div class='t-meta'>"+t.date+" - "+t.spots+" registered - "+t.grades+"</div></div>"
       +"<div><div class='t-prize'>"+t.prize+"</div><div class='t-pplace'>1st place</div></div>"
-      +"<button class='btn btn-sun btn-xs' onclick='showToast("Registered for "+t.n+"!")'>Join Free</button>"
+    +"<button class=\"btn btn-sun btn-xs\" onclick=\"showToast('Registered for "+t.n+"!')\">Join Free</button>"
       +"</div></div>";
   }).join("");
 }
@@ -2670,7 +2670,7 @@ function renderTournaments(){
 function renderTutor(){
   var qp=$$("quick-prompts");
   if(qp)qp.innerHTML=QUICK_PROMPTS.map(function(p){
-    return "<div class='card card-purple skill-card' onclick='askTutor(""+p.t+"")'>"
+    return "<div class=\"card card-purple skill-card\" onclick=\"askTutor('"+p.t+"')\">"
       +"<span class='skill-icon'>"+p.emoji+"</span>"
       +"<div class='skill-name'>"+p.t+"</div>"
       +"</div>";
@@ -2733,7 +2733,7 @@ function renderPractice(){
   var el=$$("topic-picker");if(!el)return;
   var band=QUESTION_BANK[gradeBand(S.gradeNum)];
   el.innerHTML=Object.keys(band).map(function(t){
-    return "<div class='card skill-card' onclick='startPractice(""+t+"")' style='cursor:pointer'>"
+    return "<div class=\"card skill-card\" onclick=\"startPractice('"+t+"')\" style=\"cursor:pointer\">"
       +"<span class='skill-icon'>"+(TOPIC_ICONS[t]||"?")+"</span>"
       +"<div class='skill-name'>"+t+"</div>"
       +"<div style='font-size:12px;color:var(--text2)'>"+(band[t].length||0)+"+ questions</div>"
@@ -2769,7 +2769,7 @@ function renderPracticeQ(){
   }
   var opts="";var letters=["A","B","C","D"];
   for(var i=0;i<(q.a||[]).length;i++){
-    opts+="<button class='q-opt' onclick='answerPractice("+i+","+q.c+",this)'><span class='opt-letter'>"+letters[i]+"</span>"+(q.a[i]||"")+"</button>";
+    opts+="<button class=\"q-opt\" onclick=\"answerPractice("+i+","+q.c+",this)\"><span class=\"opt-letter\">"+letters[i]+"</span>"+(q.a[i]||"")+"</button>";
   }
   wrap.innerHTML="<div class='q-header'><div class='q-dots'>"+dots+"</div>"
     +"<div class='timer-ring' id='p-timer-ring' style='--p:100'><div class='timer-inner' id='p-timer-num'>15</div></div></div>"
@@ -2831,7 +2831,7 @@ function showPracticeResult(){
     +"</div>"
     +"<div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap'>"
     +"<button class='btn btn-sun btn-sm' onclick='renderPractice()'>Pick Another Topic</button>"
-    +"<button class='btn btn-ghost btn-sm' onclick='goPage("room",null)'>Try Daily Trivia</button>"
+    +"<button class=\"btn btn-ghost btn-sm\" onclick=\"goPage('room',null)\">Try Daily Trivia</button>"
     +"</div></div>";
 }
 
@@ -2848,7 +2848,7 @@ function renderWallet(){
   }).join("");
   var ps=$$("prize-store");
   if(ps)ps.innerHTML=PRIZES.map(function(p){
-    return "<div class='card prize-card' onclick='showToast(""+p.n+" costs "+p.cost+" MathCoins - parent redeems!")'>"
+    return "<div class=\"card prize-card\" onclick=\"showToast('"+p.n+" costs "+p.cost+" MathCoins - parent redeems!')\"><div class=\"prize-emo\">"+p.e+"</div><div class=\"prize-name\">"+p.n+"</div><div class=\"prize-cost\">"+p.cost+" coins</div></div>";
       +"<div class='prize-emo'>"+p.e+"</div>"
       +"<div class='prize-name'>"+p.n+"</div>"
       +"<div class='prize-cost'>"+p.cost+" coins</div>"
@@ -2872,12 +2872,15 @@ function renderSkills(){
     var locked=!s.unlocked;
     var bar=s.unlocked
       ?"<div class=\"prog-wrap\"><div class=\"prog-fill\" style=\"width:"+s.m+"%;background:"+(s.m>80?"var(--mint)":s.m>60?"var(--sun)":"var(--coral)")+"\"\"></div></div><div class=\"skill-pct\">"+s.m+"% mastery</div>"
-      :"<span class='badge b-purple' style='margin-top:6px'>Locked</span>";
-    return "<div class='card skill-card"+(locked?" skill-locked":"")+"' onclick='"+(s.unlocked?"showToast("Practice "+s.n+" - go to Practice Mode!")":"")+"' style='cursor:"+(s.unlocked?"pointer":"default")+"'>"
-      +"<span class='skill-icon'>"+s.i+"</span>"
-      +"<div class='skill-name'>"+s.n+"</div>"
-      +bar
-      +"</div>";
+      :"<span class=\"badge b-purple\" style=\"margin-top:6px\">Locked</span>";
+    var cls="card skill-card"+(locked?" skill-locked":"");
+    var cur=s.unlocked?"pointer":"default";
+    var div=document.createElement("div");
+    div.className=cls;
+    div.style.cursor=cur;
+    if(s.unlocked){div.addEventListener("click",function(){showToast("Practice "+s.n+" - go to Practice Mode!");});}
+    div.innerHTML="<span class=\"skill-icon\">"+s.i+"</span><div class=\"skill-name\">"+s.n+"</div>"+bar;
+    return div.outerHTML;
   }).join("");
 }
 
