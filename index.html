@@ -1446,8 +1446,11 @@ body{
       <div class="consent">
         <strong>🔒 COPPA Compliant.</strong> You control all data. Prizes are delivered to your account only. Students never handle money directly. Cancel anytime.
       </div>
-      <button class="btn btn-mint" style="width:100%" onclick="submitParentSignupWithDash()">✅ Create Parent Account</button>
+      <button class="btn btn-mint" style="width:100%" onclick="submitParentSignup()">✅ Create Parent Account</button>
     </div>
+    <button class="mob-item" onclick="logout()" style="color:var(--coral)">
+      <span class="mob-icon">🚪</span>Exit
+    </button>
   </div>
 </div>
 
@@ -1618,10 +1621,10 @@ body{
         <div class="sb-uname" id="sb-name">Player</div>
         <div class="sb-ulevel" id="sb-ulevel">🌱 Level 1 · Beginner</div>
       </div>
-      <button onclick="logout()" title="Log out" style="background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.3);border-radius:8px;padding:6px 8px;cursor:pointer;color:var(--coral);font-size:12px;font-weight:800;flex-shrink:0">
-        Exit
-      </button>
     </div>
+    <button onclick="logout()" style="width:100%;background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);border-radius:12px;padding:10px;cursor:pointer;color:var(--coral);font-size:13px;font-weight:800;margin-top:8px;font-family:Nunito,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">
+      🚪 Log Out &amp; Return to Home
+    </button>
   </div>
 
   <!-- MAIN CONTENT -->
@@ -2434,11 +2437,11 @@ var FUN_FACTS = [
 ];
 
 var MUSIC_TRACKS = [
-  {name:"Chill Study Lofi",    artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2024/11/13/audio_2aadff8a20.mp3"},
-  {name:"Lofi Hip Hop Vibes",  artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2024/03/10/audio_13e1ff0939.mp3"},
-  {name:"Coffee Shop Beats",   artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2023/10/30/audio_a1f75e9c7d.mp3"},
-  {name:"Smooth Focus Flow",   artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2024/02/15/audio_b8e6c3e31e.mp3"},
-  {name:"Rainy Day Lofi",      artist:"Pixabay Free Music", url:"https://cdn.pixabay.com/audio/2023/11/13/audio_94cb5f71a4.mp3"}
+  {name:"Lofi Study Beat 1",   artist:"Free Music - CC0", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
+  {name:"Lofi Study Beat 2",   artist:"Free Music - CC0", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
+  {name:"Lofi Study Beat 3",   artist:"Free Music - CC0", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
+  {name:"Lofi Study Beat 4",   artist:"Free Music - CC0", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
+  {name:"Lofi Study Beat 5",   artist:"Free Music - CC0", url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"}
 ];
 
 var SOURCES = [
@@ -2670,14 +2673,23 @@ function loginStudent(){
 
 function logout(){
   saveSession();
+  // Reset student state
   S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false;
+  // Reset parent state
+  PARENT.isLoggedIn=false;
+  // Hide parent nav
+  var parentNav=$$("nav-parent-dash"); if(parentNav) parentNav.style.display="none";
+  // Switch back to landing page
   var app=$$("s-app"); if(app) app.classList.remove("active");
   var land=$$("s-land"); if(land) land.classList.add("active");
   var nav=$$("mob-nav"); if(nav) nav.style.display="none";
   var banner=$$("preview-banner"); if(banner) banner.remove();
+  // Stop music
   showMusicBtn(false);
-  var audio=$$("music-audio"); if(audio){ audio.pause(); MUSIC.playing=false; }
-  showToast("Logged out. See you soon!");
+  var audio=$$("music-audio"); if(audio){ audio.pause(); MUSIC.playing=false; MUSIC.userInteracted=false; }
+  // Scroll to top of landing
+  window.scrollTo(0,0);
+  showToast("Logged out successfully. See you soon!");
 }
 
 // ── HOME ───────────────────────────────────────────────
@@ -2873,7 +2885,7 @@ function renderOppList(){
   var myBand=getGradeBandNum(S.gradeNum||7);
   var myGrade=S.gradeNum||7;
   var filtered=OPPS.filter(function(o){
-    if(CHALLENGE_FILTER==="same") return o.band===myBand;
+    if(CHALLENGE_FILTER==="same") return o.gradeN===myGrade;
     if(CHALLENGE_FILTER==="higher") return o.gradeN>myGrade;
     return true;
   });
@@ -3559,13 +3571,27 @@ function togglePlay(){
   MUSIC.userInteracted=true;
   if(MUSIC.playing){
     audio.pause(); MUSIC.playing=false; MUSIC.muted=true;
+    updateMusicUI();
   } else {
     if(MUSIC.userManuallyStopped) return;
     MUSIC.muted=false; MUSIC.playing=true;
     audio.volume=MUSIC.volume;
-    audio.play().catch(function(){ MUSIC.playing=false; MUSIC.muted=true; });
+    // Ensure a track is loaded
+    if(!audio.src || audio.src==="") loadTrack(0);
+    var playPromise = audio.play();
+    if(playPromise !== undefined){
+      playPromise.then(function(){
+        updateMusicUI();
+      }).catch(function(e){
+        console.warn("Play failed:", e.message);
+        MUSIC.playing=false; MUSIC.muted=true;
+        updateMusicUI();
+        showToast("Tap the music button to start playing!");
+      });
+    } else {
+      updateMusicUI();
+    }
   }
-  updateMusicUI();
 }
 
 function turnMusicOff(){
