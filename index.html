@@ -1537,9 +1537,13 @@ body{
           <option value="11">11th Grade</option><option value="12">12th Grade</option>
         </select>
       </div>
-      <div class="consent" style="background:rgba(78,205,196,0.08);border-color:rgba(78,205,196,0.25);margin-bottom:16px">
-        <strong style="color:var(--sky)">Progress saves on this device and browser.</strong>
-        Full cross-device login with password coming soon with Firebase!
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="l-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="l-password" placeholder="Your password">
       </div>
       <button class="btn btn-sun" style="width:100%;margin-bottom:12px" onclick="loginStudent()">
         🚀 Go to My Dashboard
@@ -1594,7 +1598,7 @@ body{
     </button>
     <button class="nav-item" onclick="goPage('room',this)">
       <span class="nav-icon">🌐</span> Common Room
-      <span class="nav-badge" id="room-badge">3</span>
+      <span class="nav-badge" id="room-badge" style="display:none">0</span>
     </button>
     <button class="nav-item" onclick="goPage('challenge',this)">
       <span class="nav-icon">⚔️</span> Challenge
@@ -2088,10 +2092,7 @@ body{
     <div class="page" id="p-parentdash">
       <div class="page-title">👨‍👩‍👧 Parent Dashboard</div>
       <div class="page-sub" id="parent-dash-sub">Manage your children's learning, prizes and rewards</div>
-      <div class="card card-sky" style="margin-bottom:16px;padding:12px 16px;display:flex;align-items:center;gap:10px">
-        <span style="font-size:20px">ℹ️</span>
-        <div style="font-size:12px;color:var(--text2)"><strong style="color:var(--sky)">Beta Dashboard:</strong> Child progress shown is a preview. Once Firebase launches, this dashboard will show your child's <strong>real live progress, actual weak spots, and true coin balance</strong> updated in real time across all devices.</div>
-      </div>
+
 
       <!-- Parent Hero -->
       <div class="parent-hero">
@@ -2593,16 +2594,31 @@ function enterApp(name, grade, gradeNum, isPreview){
   renderHome();
 }
 
-function signupStudent(){
+async function signupStudent(){
   var fn=$$("s-fn")?$$("s-fn").value.trim():"";
   var ln=$$("s-ln")?$$("s-ln").value.trim():"";
   var gr=$$("s-grade")?$$("s-grade").value:"";
+  var dob=$$("s-dob")?$$("s-dob").value:"";
   if(!fn||!gr){ showToast("Please fill in all fields!"); return; }
   S.xp=0; S.level=1; S.streak=0; S.coins=0;
+  var fullName=fn+(ln?" "+ln:"");
+  // Try Firebase signup if available
+  if(window.firebaseSignUp){
+    // Generate a temp email if none provided (student accounts)
+    var tempEmail=fn.toLowerCase().replace(/\s/g,"")+(ln?ln[0].toLowerCase():"")+gr+"@student.mathchamp.com";
+    var tempPass="MC"+fn+gr+"2026!";
+    try{
+      await window.firebaseSignUp(tempEmail, tempPass, fullName, "student");
+      showToast("Account created! Welcome, "+fn+"!");
+    }catch(e){
+      // Account may already exist - continue anyway
+      console.log("Firebase signup note:", e.message);
+    }
+  }
   closeModal();
-  registerPlayer(fn+(ln?" "+ln:""), gr+"th");
+  registerPlayer(fullName, gr+"th");
   saveSession();
-  enterApp(fn+(ln?" "+ln:""), gr+"th Grade", parseInt(gr)||7, false);
+  enterApp(fullName, gr+"th Grade", parseInt(gr)||7, false);
   showToast("Welcome to MathChamp, "+fn+"! Math is Fun!");
 }
 
@@ -2670,12 +2686,33 @@ function loginParent(){
   showToast("Welcome back, "+fn+"! Here is your parent dashboard.");
 }
 
-function loginStudent(){
+async function loginStudent(){
   var fn=$$("l-fn")?$$("l-fn").value.trim():"";
   var gr=$$("l-grade")?$$("l-grade").value:"";
+  var email=$$("l-email")?$$("l-email").value.trim():"";
+  var password=$$("l-password")?$$("l-password").value:"";
   if(!fn){ showToast("Please enter your first name!"); return; }
   if(!gr){ showToast("Please select your grade!"); return; }
   S.xp=0; S.level=1; S.streak=0; S.coins=0;
+  // Try Firebase login if email+password provided
+  if(email && password && window.firebaseLogin){
+    try{
+      var user = await window.firebaseLogin(email, password);
+      var data = await window.loadProgress();
+      if(data){
+        S.xp=data.xp||0; S.level=data.level||1; S.streak=data.streak||0; S.coins=data.coins||0;
+        fn = data.displayName||fn; gr = data.grade||gr;
+      }
+      closeLoginModal();
+      enterApp(fn, gr+"th Grade", parseInt(gr)||7, false);
+      showToast("Welcome back, "+fn+"! Progress loaded from all devices!");
+      return;
+    }catch(e){
+      showToast("Login failed: "+e.message.replace("Firebase: ","").replace(" (auth/invalid-credential).",""));
+      return;
+    }
+  }
+  // Fallback: name+grade local login
   try{
     var saved = localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
     if(saved){
@@ -3512,7 +3549,7 @@ async function submitParentSignup(){
       +"<div style='color:var(--text2);font-size:14px;line-height:1.9;margin-bottom:20px'>"
       +"Welcome, <strong style='color:var(--mint)'>"+firstName+"</strong>!<br><br>"
       +"<span class='badge b-sun' style='font-size:12px'>Plan: "+plan+"</span><br><br>"
-      +"MathChamp is currently in beta. Full accounts coming very soon.<br><br>"
+      +"Your MathChamp account is now live and ready!<br><br>"
       +"<span style='color:var(--mint)'>"+(sent?"We will email "+email+" at launch!":"We have your details and will be in touch!")+"</span><br><br>"
       +"<strong style='color:var(--mint)'>Founding Family:</strong> Your "+plan+" price is locked forever."
       +"</div>"
