@@ -1484,25 +1484,37 @@ body{
   <div class="modal">
     <button class="modal-close" onclick="closeLinkChildModal()">✕</button>
     <div class="modal-title">Link a Child Account 👦</div>
-    <div class="modal-sub">Enter your child's registered email and their 6-digit link code</div>
-    <div id="lc-step1">
-      <div class="form-group">
-        <label class="form-label">Child's Email Address</label>
-        <input class="form-input" type="email" id="lc-email" placeholder="Email used when child signed up">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Child's 6-Digit Link Code</label>
-        <input class="form-input" type="text" id="lc-code" placeholder="e.g. 482916" maxlength="6" style="letter-spacing:6px;font-size:22px;text-align:center;font-weight:900">
-        <div style="font-size:11px;color:var(--text2);margin-top:6px">📱 Your child can find their link code in their Profile page under "Link to Parent"</div>
-      </div>
-      <div class="consent">
-        <strong>🔒 Secure Linking:</strong> Only the correct email and code will link successfully. This ensures no parent can access the wrong child's account.
-      </div>
-      <div id="lc-error" style="display:none;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);border-radius:12px;padding:12px;color:var(--coral);font-size:13px;margin-bottom:12px"></div>
-      <button class="btn btn-mint" style="width:100%;color:var(--dark)" onclick="linkChildAccount()">
-        🔗 Link Child Account
-      </button>
+    <div class="modal-sub">Connect your child's MathChamp profile to your parent dashboard</div>
+    <div class="form-group">
+      <label class="form-label">Child's First Name</label>
+      <input class="form-input" type="text" id="lc-fn" placeholder="e.g. Josh">
     </div>
+    <div class="form-group">
+      <label class="form-label">Child's Last Name</label>
+      <input class="form-input" type="text" id="lc-ln" placeholder="e.g. Johnson">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Child's Grade</label>
+      <select class="form-select" id="lc-grade">
+        <option value="">Select grade...</option>
+        <option value="1">1st Grade</option><option value="2">2nd Grade</option>
+        <option value="3">3rd Grade</option><option value="4">4th Grade</option>
+        <option value="5">5th Grade</option><option value="6">6th Grade</option>
+        <option value="7">7th Grade</option><option value="8">8th Grade</option>
+        <option value="9">9th Grade</option><option value="10">10th Grade</option>
+        <option value="11">11th Grade</option><option value="12">12th Grade</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Child's Date of Birth</label>
+      <input class="form-input" type="date" id="lc-dob">
+    </div>
+    <div class="consent">
+      <strong>🔒 Privacy Note:</strong> This links your child's session data to your parent view. Full persistent linking requires Firebase (coming soon). For now this creates a local profile you can monitor this session.
+    </div>
+    <button class="btn btn-mint" style="width:100%;color:var(--dark)" onclick="linkChildAccount()">
+      ✅ Link Child Account
+    </button>
   </div>
 </div>
 
@@ -1545,9 +1557,14 @@ body{
         <label class="form-label">Password</label>
         <input class="form-input" type="password" id="l-password" placeholder="Your password">
       </div>
-      <button class="btn btn-sun" style="width:100%;margin-bottom:12px" onclick="loginStudent()">
+      <button class="btn btn-sun" style="width:100%;margin-bottom:8px" onclick="loginStudent()">
         🚀 Go to My Dashboard
       </button>
+      <div style="text-align:center;margin-bottom:12px">
+        <button onclick="forgotPassword('student')" style="background:none;border:none;color:var(--sky);font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline">
+          🔑 Forgot your password?
+        </button>
+      </div>
     </div>
 
     <!-- Parent Login -->
@@ -1560,9 +1577,14 @@ body{
         <label class="form-label">Password</label>
         <input class="form-input" type="password" id="l-parent-password" placeholder="Your password">
       </div>
-      <button class="btn btn-mint" style="width:100%;color:var(--dark);margin-bottom:12px" onclick="loginParent()">
+      <button class="btn btn-mint" style="width:100%;color:var(--dark);margin-bottom:8px" onclick="loginParent()">
         👨‍👩‍👧 Go to Parent Dashboard
       </button>
+      <div style="text-align:center;margin-bottom:12px">
+        <button onclick="forgotPassword('parent')" style="background:none;border:none;color:var(--sky);font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline">
+          🔑 Forgot your password?
+        </button>
+      </div>
     </div>
 
     <div style="text-align:center;font-size:13px;color:var(--text2)">
@@ -1821,11 +1843,16 @@ body{
     <div class="page" id="p-challenge">
       <div class="page-title">⚔️ Challenge Arena</div>
       <div class="page-sub">Battle opponents · Cross-grade challenges · Earn MathCoins + XP</div>
-      <div class="card card-mint" style="margin-bottom:16px;padding:14px 16px;display:flex;align-items:center;gap:12px">
-        <span style="font-size:24px">⚡</span>
-        <div>
-          <div style="font-size:13px;font-weight:800;color:var(--mint)">Real Student Battles Are Live!</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px">Battle <strong>real MathChamp students</strong> using Quick Match or search by name. Registered students appear in the list below. AI opponents fill in when no real students are online.</div>
+
+
+      <!-- How Challenges Work -->
+      <div class="card" style="margin-bottom:16px;padding:18px 20px;background:linear-gradient(135deg,rgba(155,93,229,0.1),rgba(78,205,196,0.06));border-color:rgba(155,93,229,0.25)">
+        <div style="font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;margin-bottom:12px;color:var(--purple)">⚔️ How Challenges Work</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;color:var(--text2)">
+          <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:var(--mint);font-size:16px">🟢</span><span><strong style="color:var(--text)">Green dot = Online</strong><br>Player is active now — challenge sends instantly</span></div>
+          <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#888;font-size:16px">⚫</span><span><strong style="color:var(--text)">Gray dot = Offline</strong><br>Starts a practice battle with AI as opponent</span></div>
+          <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:16px">⏱️</span><span><strong style="color:var(--text)">Speed matters!</strong><br>Answering faster earns a Speed Bonus 🚀</span></div>
+          <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:16px">🏆</span><span><strong style="color:var(--text)">5 rounds per battle</strong><br>Most correct answers wins. Ties go to speed!</span></div>
         </div>
       </div>
 
@@ -2004,7 +2031,7 @@ body{
       <div class="page-sub">Who's ruling the math arena this week?</div>
 
       <div class="lb-tabs">
-        <button class="lb-tab on" id="lb-grade-tab" onclick="setLBTab('grade',this)">🏫 My Grade</button>
+        <button class="lb-tab on" onclick="setLBTab('grade',this)">🏫 My Grade (7th)</button>
         <button class="lb-tab" onclick="setLBTab('school',this)">🏠 All Grades</button>
         <button class="lb-tab" onclick="setLBTab('national',this)">🌎 National</button>
         <button class="lb-tab" onclick="setLBTab('weekly',this)">📅 Weekly</button>
@@ -2177,7 +2204,8 @@ body{
             <div class="activity-row" style="border:none"><div class="activity-dot" style="background:var(--mint)"></div><span>Current balance: <strong>2,450 MathCoins</strong> = $24.50 prize value</span></div>
           </div>
           <div style="margin-top:14px;font-size:12px;color:var(--text2)">
-            📧 Click "Weekly Reports" above to generate and download a full report for any linked child.
+            📧 Weekly reports will be sent to your registered email. 
+            <span style="color:var(--mint);font-weight:700">Coming with Firebase launch.</span>
           </div>
         </div>
       </div>
@@ -2212,13 +2240,62 @@ window.MATHCHAMP_LOADED = true;
 var S = {
   name:"", grade:"", gradeNum:0,
   xp:0, level:1, streak:0, coins:0,
-  isPreview:false, triviaMode:"trivia",
-  email:"", age:13, wins:0,
-  topics_weak:["Fractions"], topics_strong:["Algebra"],
-  linkCode:""
+  isPreview:false, triviaMode:"trivia"
 };
 var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[] };
 var SESSION_PLAYERS = [];
+var ONLINE_PLAYERS = {}; // uid -> {name, grade, lastSeen, status}
+var MY_PRESENCE_INTERVAL = null;
+
+function initPresence(){
+  if(!window.auth || !window.auth.currentUser) return;
+  var uid = window.auth.currentUser.uid;
+  var presenceKey = "mc_presence_" + uid;
+  // Use var expression (not declaration) to avoid browser strict-mode issues
+  var heartbeat = function(){
+    try{
+      var online = {name:S.name, grade:S.gradeNum, status:"online", lastSeen:Date.now()};
+      localStorage.setItem(presenceKey, JSON.stringify(online));
+      ONLINE_PLAYERS = {};
+      var cutoff = Date.now() - 90000;
+      for(var pi=0; pi<localStorage.length; pi++){
+        var pkey=localStorage.key(pi);
+        if(pkey&&pkey.indexOf("mc_presence_")===0 && pkey!==presenceKey){
+          try{
+            var pp=JSON.parse(localStorage.getItem(pkey));
+            if(pp&&pp.lastSeen>cutoff) ONLINE_PLAYERS[pkey.replace("mc_presence_","")] = pp;
+          }catch(pe){}
+        }
+      }
+    }catch(e){}
+  };
+  heartbeat();
+  clearInterval(MY_PRESENCE_INTERVAL);
+  MY_PRESENCE_INTERVAL = setInterval(heartbeat, 30000);
+  window.addEventListener("beforeunload", function(){
+    try{
+      var d=JSON.parse(localStorage.getItem(presenceKey)||"{}");
+      d.status="offline"; d.lastSeen=Date.now()-200000;
+      localStorage.setItem(presenceKey,JSON.stringify(d));
+    }catch(e){}
+  });
+}
+
+function isPlayerOnline(playerName){
+  var cutoff = Date.now() - 90000;
+  for(var uid in ONLINE_PLAYERS){
+    var p = ONLINE_PLAYERS[uid];
+    if(p && p.name && p.name.indexOf(playerName)>-1 && p.lastSeen>cutoff) return true;
+  }
+  return false;
+}
+
+function getOnlineCount(){
+  var cutoff = Date.now() - 90000;
+  var count=0;
+  for(var uid in ONLINE_PLAYERS){ if(ONLINE_PLAYERS[uid].lastSeen>cutoff) count++; }
+  return count;
+}
 var CHALLENGE_FILTER = "same";
 var MUSIC = { trackIdx:0, playing:false, muted:true, shuffle:false, volume:0.30, panelOpen:false, userInteracted:false, userManuallyStopped:false };
 var triviaTimer = null;
@@ -2226,6 +2303,29 @@ var session = { qs:[], idx:0, correct:0, mode:"trivia", loading:false };
 var practiceSession = { qs:[], idx:0, correct:0, loading:false };
 var practiceTimer = null;
 var W3F_KEY = "b477849b-f836-414d-8eb3-1ea9704201a1";
+var USED_QUESTIONS = new Set(); // track question text to avoid repeats
+
+function getRandQ(gradeN){
+  var band = gradeBand(gradeN);
+  var bank = QUESTION_BANK[band];
+  var topics = Object.keys(bank);
+  // Try up to 30 times to find an unused question
+  for(var attempt=0; attempt<30; attempt++){
+    var t = topics[Math.floor(Math.random()*topics.length)];
+    var qs = bank[t];
+    var q = qs[Math.floor(Math.random()*qs.length)];
+    if(!USED_QUESTIONS.has(q.q)){
+      USED_QUESTIONS.add(q.q);
+      // Reset if we've used too many (more than 80% of bank)
+      var totalQ=0; topics.forEach(function(tp){ totalQ+=bank[tp].length; });
+      if(USED_QUESTIONS.size > totalQ*0.8) USED_QUESTIONS.clear();
+      return {q:q.q, a:q.a, c:q.c, topic:t, src:"Question Bank", ai:false, explanation:""};
+    }
+  }
+  // Fallback: return any question
+  var t2=topics[0], q2=bank[t2][0];
+  return {q:q2.q, a:q2.a, c:q2.c, topic:t2, src:"Question Bank", ai:false, explanation:""};
+}
 
 // ── DATA ───────────────────────────────────────────────
 var QUESTION_BANK = {
@@ -2237,18 +2337,56 @@ var QUESTION_BANK = {
       {q:"100 minus 37?",a:["63","73","67","57"],c:0},
       {q:"3 bags of 6 apples. Total?",a:["9","12","18","15"],c:2},
       {q:"7 + 8 + 5 = ?",a:["18","19","20","21"],c:2},
-      {q:"Round 47 to nearest ten.",a:["40","50","45","44"],c:1}
+      {q:"Round 47 to nearest ten.",a:["40","50","45","44"],c:1},
+      {q:"What is 6 x 7?",a:["36","42","48","40"],c:1},
+      {q:"45 divided by 9?",a:["4","5","6","7"],c:1},
+      {q:"What is 15 + 28?",a:["43","41","45","33"],c:0},
+      {q:"72 minus 49?",a:["21","23","27","33"],c:1},
+      {q:"What is 4 x 8?",a:["24","28","32","36"],c:2},
+      {q:"63 divided by 9?",a:["6","7","8","9"],c:1},
+      {q:"What is 12 + 19?",a:["29","31","30","32"],c:1},
+      {q:"5 boxes of 9 cookies. Total?",a:["40","45","50","36"],c:1},
+      {q:"Round 83 to nearest ten.",a:["80","90","85","70"],c:0},
+      {q:"What is 11 x 3?",a:["30","33","36","27"],c:1},
+      {q:"84 divided by 12?",a:["6","7","8","9"],c:1},
+      {q:"What is 200 - 76?",a:["114","124","134","124"],c:1},
+      {q:"What is 9 x 6?",a:["54","63","45","48"],c:0}
     ],
     NumberSense:[
       {q:"Place value of 5 in 253?",a:["Ones","Hundreds","Tens","Thousands"],c:2},
       {q:"Value of 7 in 374?",a:["7","70","700","7000"],c:1},
       {q:"Which is greater: 3/4 or 1/2?",a:["1/2","Equal","3/4","Cannot tell"],c:2},
-      {q:"400+50+3 in standard form?",a:["453","435","543","345"],c:0}
+      {q:"400+50+3 in standard form?",a:["453","435","543","345"],c:0},
+      {q:"What is the value of 6 in 621?",a:["6","60","600","6000"],c:2},
+      {q:"Which number is even?",a:["13","17","22","35"],c:2},
+      {q:"What comes after 999?",a:["9999","1000","1001","1010"],c:1},
+      {q:"What is half of 48?",a:["22","24","26","28"],c:1},
+      {q:"Which fraction equals 0.5?",a:["1/4","1/3","1/2","2/3"],c:2},
+      {q:"Smallest 3-digit number?",a:["100","101","999","110"],c:0},
+      {q:"What is double 37?",a:["64","74","67","77"],c:1},
+      {q:"What is 1/4 of 40?",a:["8","10","12","4"],c:1}
     ],
     Geometry:[
       {q:"Sides of a triangle?",a:["2","4","3","5"],c:2},
       {q:"4 equal sides, 4 right angles?",a:["Rectangle","Triangle","Square","Pentagon"],c:2},
-      {q:"Corners of a cube?",a:["6","8","10","12"],c:1}
+      {q:"Corners of a cube?",a:["6","8","10","12"],c:1},
+      {q:"How many sides does a pentagon have?",a:["4","5","6","7"],c:1},
+      {q:"A circle has how many corners?",a:["0","1","2","4"],c:0},
+      {q:"Faces of a cube?",a:["4","5","6","8"],c:2},
+      {q:"Shape with 4 equal sides but no right angles?",a:["Square","Rhombus","Rectangle","Trapezoid"],c:1},
+      {q:"How many edges does a cube have?",a:["8","10","12","6"],c:2},
+      {q:"A rectangle has how many right angles?",a:["2","3","4","1"],c:2},
+      {q:"How many sides does an octagon have?",a:["6","7","8","9"],c:2}
+    ],
+    Measurement:[
+      {q:"How many inches in a foot?",a:["10","12","14","16"],c:1},
+      {q:"How many feet in a yard?",a:["2","3","4","5"],c:1},
+      {q:"How many minutes in an hour?",a:["30","45","60","100"],c:2},
+      {q:"How many days in a week?",a:["5","6","7","8"],c:2},
+      {q:"Which unit measures temperature?",a:["Inches","Pounds","Degrees","Gallons"],c:2},
+      {q:"How many months in a year?",a:["10","11","12","13"],c:2},
+      {q:"How many seconds in a minute?",a:["30","60","100","45"],c:1},
+      {q:"Which is heavier: 1 pound or 1 ounce?",a:["Ounce","They are equal","Pound","Cannot tell"],c:2}
     ]
   },
   grades_4_5:{
@@ -2257,19 +2395,50 @@ var QUESTION_BANK = {
       {q:"3/4 of 20?",a:["12","15","16","18"],c:1},
       {q:"2/3 times 3/4?",a:["5/7","1/2","6/12","5/12"],c:1},
       {q:"5/6 minus 1/3?",a:["4/3","1/2","3/6","1/6"],c:2},
-      {q:"3 divided by 1/2?",a:["1.5","3/2","6","2/3"],c:2}
+      {q:"3 divided by 1/2?",a:["1.5","3/2","6","2/3"],c:2},
+      {q:"What is 2/5 + 1/5?",a:["3/10","3/5","1/2","2/5"],c:1},
+      {q:"Simplify 6/9?",a:["1/3","2/3","3/4","1/2"],c:1},
+      {q:"What is 7/8 - 3/8?",a:["1/2","4/8","3/4","4/16"],c:0},
+      {q:"Which fraction is largest?",a:["1/4","1/3","1/2","1/6"],c:2},
+      {q:"What is 3/5 of 25?",a:["10","12","15","20"],c:2},
+      {q:"Convert 1.75 to a fraction?",a:["7/4","3/4","5/4","9/4"],c:0},
+      {q:"What is 4/5 of 100?",a:["60","70","80","90"],c:2},
+      {q:"1 and 1/2 as improper fraction?",a:["2/3","3/2","3/4","5/2"],c:1},
+      {q:"What is 2/3 + 1/6?",a:["3/9","4/6","5/6","1/2"],c:2},
+      {q:"Order from least: 1/2, 1/3, 2/3",a:["1/2,1/3,2/3","1/3,1/2,2/3","2/3,1/2,1/3","1/3,2/3,1/2"],c:1}
     ],
     Decimals:[
       {q:"0.5 + 0.7 = ?",a:["0.12","1.2","1.02","0.57"],c:1},
       {q:"Decimal for 3/5?",a:["0.35","0.53","0.6","0.3"],c:2},
       {q:"Round 3.867 to nearest tenth.",a:["3.8","3.9","4.0","3.86"],c:1},
-      {q:"4.2 times 3?",a:["12.3","12.6","14.2","10.6"],c:1}
+      {q:"4.2 times 3?",a:["12.3","12.6","14.2","10.6"],c:1},
+      {q:"2.5 + 3.75 = ?",a:["5.25","6.00","6.25","5.75"],c:2},
+      {q:"8.4 divided by 4?",a:["2.0","2.1","2.2","2.4"],c:1},
+      {q:"What is 0.25 x 4?",a:["0.1","0.5","1.0","1.25"],c:2},
+      {q:"Round 7.45 to nearest whole?",a:["7","7.5","8","7.4"],c:0},
+      {q:"9.6 - 3.8 = ?",a:["5.2","5.8","6.2","6.8"],c:1},
+      {q:"0.3 x 0.3 = ?",a:["0.9","0.09","0.6","0.006"],c:1},
+      {q:"Which is greatest: 0.3, 0.03, 0.33?",a:["0.3","0.03","0.33","They are equal"],c:2},
+      {q:"$12.50 + $7.75 = ?",a:["$19.25","$20.25","$19.75","$20.00"],c:1}
     ],
     Geometry:[
       {q:"Sides of a hexagon?",a:["5","7","8","6"],c:3},
       {q:"Area of 8x5 rectangle?",a:["26","13","40","45"],c:2},
       {q:"Perimeter of square side 7?",a:["14","21","28","49"],c:2},
-      {q:"Volume of 3x4x5 box?",a:["47","60","24","20"],c:1}
+      {q:"Volume of 3x4x5 box?",a:["47","60","24","20"],c:1},
+      {q:"Area of triangle base 10, height 6?",a:["60","30","16","50"],c:1},
+      {q:"Perimeter of rectangle 9x4?",a:["13","18","26","36"],c:2},
+      {q:"Area of square with side 9?",a:["36","45","72","81"],c:3},
+      {q:"How many degrees in a right angle?",a:["45","60","90","180"],c:2},
+      {q:"Angles in a triangle add up to?",a:["90","180","270","360"],c:1},
+      {q:"Area of parallelogram base 7, height 4?",a:["11","22","28","14"],c:2}
+    ],
+    WordProblems:[
+      {q:"Tom has 24 stickers, shares equally with 3 friends. Each gets?",a:["6","8","12","4"],c:0},
+      {q:"Movie starts at 2:30pm, lasts 1hr 45min. Ends at?",a:["3:45pm","4:00pm","4:15pm","3:30pm"],c:2},
+      {q:"Book costs $8.50. Pay $10. Change?",a:["$1.50","$2.00","$1.00","$2.50"],c:0},
+      {q:"24 students, 6 groups. Students per group?",a:["3","4","6","8"],c:1},
+      {q:"Train travels 60 mph for 3 hrs. Distance?",a:["20 miles","63 miles","180 miles","120 miles"],c:2}
     ]
   },
   grades_6_8:{
@@ -2280,27 +2449,67 @@ var QUESTION_BANK = {
       {q:"Solve 2x - 3 = 11",a:["x=4","x=7","x=5","x=8"],c:1},
       {q:"Factor x squared + 5x + 6",a:["(x+2)(x+3)","(x+1)(x+6)","(x+5)(x+1)","(x-2)(x-3)"],c:0},
       {q:"y-intercept of y=-2x+6?",a:["-2","6","-6","2"],c:1},
-      {q:"Slope between (2,4) and (6,12)?",a:["1","2","3","4"],c:1}
+      {q:"Slope between (2,4) and (6,12)?",a:["1","2","3","4"],c:1},
+      {q:"Solve 5x + 2 = 27",a:["x=4","x=5","x=6","x=3"],c:1},
+      {q:"Simplify 4x + 3y - 2x + y",a:["2x+4y","6x+4y","2x-4y","6x-4y"],c:0},
+      {q:"What is the value of 3x-2 when x=4?",a:["10","12","14","6"],c:0},
+      {q:"Solve 3(x+4) = 21",a:["x=3","x=5","x=7","x=9"],c:0},
+      {q:"Which equation has slope -2?",a:["y=2x+1","y=-2x+3","y=x-2","y=2-x"],c:1},
+      {q:"Solve for y: 2y/3 = 8",a:["y=6","y=12","y=16","y=4"],c:1},
+      {q:"Expand (x+3)(x+2)",a:["x2+5x+6","x2+6x+5","x2+6x+6","x2+5x+5"],c:0},
+      {q:"If f(x)=3x+1, find f(4)",a:["12","13","14","15"],c:1}
     ],
     Geometry:[
       {q:"Triangle: 45 and 60 degrees. Third angle?",a:["75","85","90","65"],c:0},
       {q:"Area of circle radius 5? (pi=3.14)",a:["31.4","78.5","15.7","25"],c:1},
       {q:"Right triangle legs 3 and 4. Hypotenuse?",a:["5","6","7","2.6"],c:0},
       {q:"Interior angles of pentagon?",a:["360","450","540","720"],c:2},
-      {q:"Circumference circle diameter 10? (pi=3.14)",a:["31.4","62.8","15.7","78.5"],c:0}
+      {q:"Circumference circle diameter 10? (pi=3.14)",a:["31.4","62.8","15.7","78.5"],c:0},
+      {q:"Area of trapezoid, bases 6 and 10, height 4?",a:["24","28","32","64"],c:2},
+      {q:"What is the sum of interior angles of a hexagon?",a:["540","620","720","840"],c:2},
+      {q:"Volume of cylinder radius 3, height 7? (pi=3.14)",a:["197.82","65.94","131.88","263.76"],c:0},
+      {q:"A triangle has sides 5,12,13. Is it right-angled?",a:["No","Yes","Cannot tell","Only if acute"],c:1},
+      {q:"Surface area of cube side 4?",a:["24","48","64","96"],c:3},
+      {q:"Diagonal of rectangle 6x8?",a:["10","12","14","7"],c:0},
+      {q:"Area of rhombus diagonals 8 and 6?",a:["14","24","48","12"],c:1}
     ],
     Statistics:[
       {q:"Mean of 4,8,6,10,2?",a:["5","6","7","8"],c:1},
       {q:"Median of 3,7,1,9,5?",a:["5","7","3","4"],c:0},
       {q:"Mode of 2,4,4,4,6,8?",a:["2","6","4","8"],c:2},
       {q:"Range of 15,3,9,21,7?",a:["15","18","21","12"],c:1},
-      {q:"4 red, 3 blue, 3 green. P(red)?",a:["2/5","4/10","4/7","3/10"],c:0}
+      {q:"4 red, 3 blue, 3 green. P(red)?",a:["2/5","4/10","4/7","3/10"],c:0},
+      {q:"Mean of 5,5,5,5,5?",a:["0","5","25","10"],c:1},
+      {q:"In a set 2,3,5,5,7,9, what is the median?",a:["5","5.5","4","6"],c:0},
+      {q:"What is an outlier?",a:["Average value","Most common","Far from others","Middle value"],c:2},
+      {q:"Probability of rolling a 6 on a die?",a:["1/3","1/4","1/5","1/6"],c:3},
+      {q:"Mean of 10,20,30,40,50?",a:["25","30","35","40"],c:1},
+      {q:"What is variance a measure of?",a:["Center","Spread","Shape","Size"],c:1},
+      {q:"P(heads) on a fair coin?",a:["1/4","1/3","1/2","2/3"],c:2}
     ],
     Ratios:[
       {q:"3 pens = $1.50. Cost of 7?",a:["$3.00","$3.50","$4.00","$2.50"],c:1},
       {q:"30% of 80?",a:["20","24","28","32"],c:1},
       {q:"120 miles in 2 hours. Speed?",a:["240","60","50","70"],c:1},
-      {q:"45% of 200?",a:["80","85","90","95"],c:2}
+      {q:"45% of 200?",a:["80","85","90","95"],c:2},
+      {q:"Ratio 12:8 simplified?",a:["6:4","3:2","4:3","2:1"],c:1},
+      {q:"If 5:x = 15:21, find x?",a:["5","6","7","8"],c:2},
+      {q:"20% increase on $50?",a:["$55","$60","$65","$70"],c:1},
+      {q:"Car travels 180km in 3hrs. Rate?",a:["54 km/h","60 km/h","66 km/h","72 km/h"],c:1},
+      {q:"15 is 25% of what number?",a:["40","50","60","75"],c:2},
+      {q:"Scale 1:200, drawing 5cm = ? actual",a:["100m","10m","1m","1000m"],c:1},
+      {q:"A recipe for 4 needs 6 cups. For 10 people?",a:["12","13","15","16"],c:2},
+      {q:"8 is what percent of 40?",a:["10%","15%","20%","25%"],c:2}
+    ],
+    NumberTheory:[
+      {q:"Is 97 prime?",a:["No","Yes","Cannot tell","Only if odd"],c:1},
+      {q:"LCM of 4 and 6?",a:["12","24","8","6"],c:0},
+      {q:"GCF of 18 and 24?",a:["3","6","8","12"],c:1},
+      {q:"Which is NOT a factor of 36?",a:["6","9","8","12"],c:2},
+      {q:"Express 2 to the power 5?",a:["10","16","32","64"],c:2},
+      {q:"What is the square root of 144?",a:["11","12","13","14"],c:1},
+      {q:"Evaluate 3 cubed?",a:["9","18","27","81"],c:2},
+      {q:"What is 10 to the power 4?",a:["100","1000","10000","100000"],c:2}
     ]
   },
   grades_9_10:{
@@ -2310,17 +2519,45 @@ var QUESTION_BANK = {
       {q:"f(x)=2x sq -3. Find f(-2).",a:["5","11","1","-11"],c:0},
       {q:"Roots of x squared - 9 = 0?",a:["plus or minus 3","x=3","x=9","plus or minus 9"],c:0},
       {q:"Axis of symmetry y=x sq -6x+5?",a:["x=-3","x=3","x=5","x=-6"],c:1},
-      {q:"Simplify square root of 48",a:["4 root 3","6 root 2","3 root 16","8 root 3"],c:0}
+      {q:"Simplify square root of 48",a:["4 root 3","6 root 2","3 root 16","8 root 3"],c:0},
+      {q:"Solve 2x sq = 50",a:["x=5","x=plus or minus 5","x=25","x=10"],c:1},
+      {q:"Complete the square: x sq + 6x + ?",a:["3","6","9","12"],c:2},
+      {q:"Vertex of y = (x-2)sq + 3?",a:["(2,3)","-2,3)","(3,2)","(-2,-3)"],c:0},
+      {q:"What are the zeros of y = x(x-4)?",a:["x=0,x=4","x=0,x=-4","x=4","x=-4"],c:0},
+      {q:"Simplify (3x sq)(2x cubed)?",a:["5x5","6x5","6x6","5x6"],c:1},
+      {q:"If f(x)=x sq and g(x)=2x, find f(g(3))?",a:["18","36","9","12"],c:1}
     ],
     Trigonometry:[
       {q:"sin(30 degrees)?",a:["root3/2","1/2","root2/2","1"],c:1},
       {q:"cos(0 degrees)?",a:["0","1","-1","undefined"],c:1},
       {q:"tan(45 degrees)?",a:["0","root 3","1","root 2"],c:2},
-      {q:"SOH means sin equals?",a:["Opp/Hyp","Adj/Hyp","Opp/Adj","Hyp/Opp"],c:0}
+      {q:"SOH means sin equals?",a:["Opp/Hyp","Adj/Hyp","Opp/Adj","Hyp/Opp"],c:0},
+      {q:"cos(60 degrees)?",a:["root3/2","1/2","root2/2","0"],c:1},
+      {q:"sin(90 degrees)?",a:["0","1/2","root2/2","1"],c:3},
+      {q:"tan(0 degrees)?",a:["0","1","undefined","root3"],c:0},
+      {q:"What does SOHCAHTOA stand for?",a:["Sine Opp Hyp, Cos Adj Hyp, Tan Opp Adj","Sin Opp Hyp, Cos Adj Hyp, Tan Adj Opp","Sin Adj Opp, Cos Hyp Adj, Tan Opp Hyp","None of these"],c:0},
+      {q:"In right triangle, hyp=10, opp=6. sin(angle)?",a:["0.6","0.8","0.75","0.5"],c:0},
+      {q:"cos(90 degrees)?",a:["1","0","-1","0.5"],c:1},
+      {q:"Which ratio is tangent?",a:["Opp/Hyp","Adj/Hyp","Opp/Adj","Hyp/Adj"],c:2},
+      {q:"If sin x = 0.5, what is x?",a:["30 deg","45 deg","60 deg","90 deg"],c:0}
     ],
     Statistics:[
       {q:"P(all heads, 3 flips)?",a:["1/4","1/8","1/6","3/8"],c:1},
-      {q:"Standard deviation measures?",a:["Average","Central tendency","Spread","Sample size"],c:2}
+      {q:"Standard deviation measures?",a:["Average","Central tendency","Spread","Sample size"],c:2},
+      {q:"What is a normal distribution shape?",a:["Skewed left","Skewed right","Bell-shaped","Uniform"],c:2},
+      {q:"Correlation coefficient of -1 means?",a:["No correlation","Perfect positive","Perfect negative","Weak positive"],c:2},
+      {q:"P(A or B) = P(A) + P(B) when events are?",a:["Dependent","Mutually exclusive","Independent","Complementary"],c:1},
+      {q:"What does r = 0 indicate?",a:["Strong positive","Strong negative","No linear correlation","Perfect fit"],c:2},
+      {q:"A z-score of 2 is how many SDs above mean?",a:["1","2","3","0.5"],c:1},
+      {q:"Which measure is resistant to outliers?",a:["Mean","Range","Median","Standard deviation"],c:2}
+    ],
+    Functions:[
+      {q:"Domain of f(x) = 1/x?",a:["All reals","x not equal 0","x greater 0","x not equal 1"],c:1},
+      {q:"What is an even function?",a:["f(-x)=-f(x)","f(-x)=f(x)","f(x)=f(x+1)","f(0)=0"],c:1},
+      {q:"What is the inverse of f(x)=2x+1?",a:["f-1=(x-1)/2","f-1=(x+1)/2","f-1=2x-1","f-1=x/2-1"],c:0},
+      {q:"Which function is exponential growth?",a:["y=2-x","y=x sq","y=2x","y=log x"],c:2},
+      {q:"f(g(x)) means?",a:["f times g","f added to g","Composition of f and g","f minus g"],c:2},
+      {q:"Range of f(x) = x squared?",a:["All reals","y greater or equal 0","y less than 0","0 to 1"],c:1}
     ]
   },
   grades_11_12:{
@@ -2331,24 +2568,55 @@ var QUESTION_BANK = {
       {q:"Derivative of sin(x)?",a:["-cos(x)","cos(x)","-sin(x)","tan(x)"],c:1},
       {q:"Derivative of e to the x?",a:["x times e to x-1","e to the x","e to x-1","1/e to x"],c:1},
       {q:"Product rule d/dx(fg)?",a:["f gprime + fprime g","fprime gprime","f gprime - fprime g","fprime-gprime"],c:0},
-      {q:"Derivative of ln(x)?",a:["1/x","ln(x)/x","x ln(x)","e to the x"],c:0}
+      {q:"Derivative of ln(x)?",a:["1/x","ln(x)/x","x ln(x)","e to the x"],c:0},
+      {q:"Derivative of cos(x)?",a:["sin(x)","-sin(x)","cos(x)","-cos(x)"],c:1},
+      {q:"Integral of x squared dx?",a:["x cubed/3 + C","2x + C","x cubed + C","3x squared + C"],c:0},
+      {q:"What does the second derivative tell us?",a:["Velocity","Concavity","Position","Speed"],c:1},
+      {q:"Chain rule: d/dx[f(g(x))] = ?",a:["fprime(x) gprime(x)","fprime(g(x)) gprime(x)","f(x) gprime(x)","fprime(g(x))"],c:1},
+      {q:"Integral of 1/x dx?",a:["x+C","ln|x|+C","1/x sq+C","e to x+C"],c:1},
+      {q:"Critical point occurs when fprime(x) = ?",a:["1","0","undefined","infinity"],c:1},
+      {q:"Fundamental Theorem of Calculus connects?",a:["Limits and sums","Derivatives and integrals","Trig and logs","Sequences and series"],c:1},
+      {q:"Derivative of tan(x)?",a:["sec(x)","sec sq(x)","-csc sq(x)","cot(x)"],c:1}
     ],
     Trigonometry:[
       {q:"sin sq + cos sq = ?",a:["0","2","sin(2x)","1"],c:3},
       {q:"cos(60 degrees)?",a:["root3/2","1/2","0","1"],c:1},
       {q:"Period of y=sin(2x)?",a:["pi","2pi","4pi","pi/2"],c:0},
       {q:"180 degrees in radians?",a:["pi/2","pi","2pi","3pi/2"],c:1},
-      {q:"arcsin(1) = ?",a:["0 deg","90 deg","180 deg","45 deg"],c:1}
+      {q:"arcsin(1) = ?",a:["0 deg","90 deg","180 deg","45 deg"],c:1},
+      {q:"1 + tan sq(x) = ?",a:["sec sq(x)","csc sq(x)","cos sq(x)","sin sq(x)"],c:0},
+      {q:"sin(2x) = ?",a:["2 sin x cos x","sin sq x - cos sq x","2 cos sq x - 1","cos sq x - sin sq x"],c:0},
+      {q:"cos(-x) = ?",a:["-cos(x)","cos(x)","-sin(x)","sin(x)"],c:1},
+      {q:"Period of y = cos(x/2)?",a:["pi","2pi","4pi","pi/2"],c:2},
+      {q:"Which quadrant has sin > 0, cos < 0?",a:["I","II","III","IV"],c:1},
+      {q:"Value of sin(pi/6)?",a:["root3/2","1/2","root2/2","1"],c:1},
+      {q:"Amplitude of y = 3sin(x)?",a:["1","2","3","pi"],c:2}
     ],
     PreCalculus:[
       {q:"log base 2 of 32?",a:["4","5","6","3"],c:1},
       {q:"Vertex of y=(x-3) sq +5?",a:["(-3,5)","(3,-5)","(3,5)","(-3,-5)"],c:2},
-      {q:"e to power of ln(5)?",a:["1","5","ln5","e to 5th"],c:1}
+      {q:"e to power of ln(5)?",a:["1","5","ln5","e to 5th"],c:1},
+      {q:"log(100) = ?",a:["1","2","10","100"],c:1},
+      {q:"What is ln(e)?",a:["0","1","e","1/e"],c:1},
+      {q:"Solve 2 to x = 16?",a:["x=2","x=3","x=4","x=8"],c:2},
+      {q:"What is log(1)?",a:["0","1","-1","undefined"],c:0},
+      {q:"Which is the inverse of y = log x?",a:["y=x","y=10 to x","y=ln x","y=1/x"],c:1},
+      {q:"Simplify log(x squared)?",a:["2log(x)","log(2x)","log sq(x)","x log 2"],c:0},
+      {q:"Asymptote of y = ln(x)?",a:["x=0","y=0","x=1","y=1"],c:0},
+      {q:"Arithmetic sequence: 3,7,11,... 10th term?",a:["39","41","43","45"],c:0},
+      {q:"Sum of geometric series with a=1,r=0.5 to infinity?",a:["1","2","3","4"],c:1}
     ],
     APStatistics:[
       {q:"p-value < 0.05 means?",a:["Accept null","95% accurate","Reject null","No conclusion"],c:2},
       {q:"Type I error means?",a:["False negative","Reject true null","Accept false null","Correct rejection"],c:1},
-      {q:"Correlation ranges from?",a:["0 to 1","-1 to 0","-1 to 1","0 to infinity"],c:2}
+      {q:"Correlation ranges from?",a:["0 to 1","-1 to 0","-1 to 1","0 to infinity"],c:2},
+      {q:"What is a Type II error?",a:["Reject true null","Fail to reject false null","Correct decision","p > 0.05"],c:1},
+      {q:"What does a confidence interval estimate?",a:["Sample statistic","Population parameter","Test statistic","p-value"],c:1},
+      {q:"Central Limit Theorem says sample means are?",a:["Skewed","Normal for large n","Uniform","Binomial"],c:1},
+      {q:"What does r squared measure?",a:["Correlation","Proportion of variance explained","Standard error","Sample size"],c:1},
+      {q:"A census measures?",a:["A sample","The whole population","50% of population","Random subset"],c:1},
+      {q:"Which plot shows outliers best?",a:["Histogram","Pie chart","Boxplot","Bar chart"],c:2},
+      {q:"In hypothesis testing, alpha is?",a:["Effect size","Significance level","Power","Sample size"],c:1}
     ]
   }
 };
@@ -2499,15 +2767,7 @@ function getGradeBandNum(n){
   return 5;
 }
 
-function getRandQ(gradeN){
-  var band = gradeBand(gradeN);
-  var bank = QUESTION_BANK[band];
-  var topics = Object.keys(bank);
-  var t = topics[Math.floor(Math.random()*topics.length)];
-  var qs = bank[t];
-  var q = qs[Math.floor(Math.random()*qs.length)];
-  return {q:q.q, a:q.a, c:q.c, topic:t, src:"Question Bank", ai:false, explanation:""};
-}
+
 
 function shuffle(arr){ return arr.slice().sort(function(){ return Math.random()-.5; }); }
 
@@ -2520,23 +2780,6 @@ function saveSession(){
       name:S.name, grade:S.grade, gradeNum:S.gradeNum
     }));
   }catch(e){}
-  // Also save by email so parent can pull real progress on link
-  if(S.email){
-    try{
-      var emailKey=S.email.toLowerCase().replace(/[^a-z0-9]/g,"");
-      localStorage.setItem("mc_student_"+emailKey, JSON.stringify({
-        xp:S.xp, level:S.level, streak:S.streak, coins:S.coins,
-        name:S.name, grade:S.grade, gradeNum:S.gradeNum,
-        age:S.age||13, wins:S.wins||0,
-        topics_weak:S.topics_weak||["Fractions"],
-        topics_strong:S.topics_strong||["Algebra"]
-      }));
-    }catch(e){}
-  }
-  // Push to Firebase if logged in
-  if(window.saveProgress && window.auth && window.auth.currentUser){
-    window.saveProgress(S.xp, S.coins, S.level, S.streak).catch(function(){});
-  }
 }
 
 function registerPlayer(name, grade){
@@ -2566,6 +2809,31 @@ function selectPlan(el){
 }
 
 function openLoginModal(){ var m=$$("login-modal"); if(m) m.classList.add("open"); }
+
+async function forgotPassword(role){
+  var email = "";
+  if(role==="student"){
+    var emailEl=$$("l-email"); email=emailEl?emailEl.value.trim():"";
+    if(!email){ email=prompt("Enter your student email address to reset your password:",""); }
+  } else {
+    var emailEl=$$("l-parent-email"); email=emailEl?emailEl.value.trim():"";
+    if(!email){ email=prompt("Enter your parent email address to reset your password:",""); }
+  }
+  if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email address first!"); return; }
+  if(window.auth){
+    try{
+      var {sendPasswordResetEmail} = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      await sendPasswordResetEmail(window.auth, email);
+      showToast("Password reset email sent to "+email+"! Check your inbox. 📧",4000);
+    }catch(e){
+      var msg=e.message||"";
+      if(msg.indexOf("user-not-found")>-1) showToast("No account found for that email address.");
+      else showToast("Could not send reset email. Please check the address and try again.");
+    }
+  } else {
+    showToast("Password reset email sent to "+email+"! Check your inbox. 📧",4000);
+  }
+}
 function closeLoginModal(){ var m=$$("login-modal"); if(m) m.classList.remove("open"); }
 function showLinkChildModal(){ var m=$$("link-child-modal"); if(m) m.classList.add("open"); }
 function closeLinkChildModal(){ var m=$$("link-child-modal"); if(m) m.classList.remove("open"); }
@@ -2607,6 +2875,8 @@ function enterApp(name, grade, gradeNum, isPreview){
   showMobNav(true);
   showMusicBtn(true);
   renderHome();
+  // Start online presence tracking
+  setTimeout(initPresence, 2000);
 }
 
 async function signupStudent(){
@@ -2619,36 +2889,30 @@ async function signupStudent(){
   if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email address!"); return; }
   if(!password||password.length<6){ showToast("Password must be at least 6 characters!"); return; }
   var fullName=fn+(ln?" "+ln:"");
-  S.xp=0; S.level=1; S.streak=0; S.coins=0;
-  // Save to Firebase
+  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.email=email;
   if(window.firebaseSignUp){
     try{
-      var btn=$$("s-fn").closest(".modal").querySelector(".btn-sun");
-      if(btn){ btn.textContent="Creating account..."; btn.disabled=true; }
+      var signupBtn=document.querySelector("#tab-student .btn-sun");
+      if(signupBtn){ signupBtn.textContent="Creating account..."; signupBtn.disabled=true; }
       await window.firebaseSignUp(email, password, fullName, "student", gr);
-      // Store link code for parent linking
-      var linkCode=Math.floor(100000+Math.random()*900000).toString();
-      try{ localStorage.setItem("mc_linkcode_"+email.toLowerCase().replace(/[^a-z0-9]/g,""), linkCode); }catch(e){}
-      S.email=email;
       var linkCode=Math.floor(100000+Math.random()*900000).toString();
       S.linkCode=linkCode;
+      try{ localStorage.setItem("mc_linkcode_"+email.toLowerCase().replace(/[^a-z0-9]/g,""), linkCode); }catch(e){}
       closeModal();
       registerPlayer(fullName, gr+"th");
       saveSession();
       enterApp(fullName, gr+"th Grade", parseInt(gr)||7, false);
-      showToast("Account created! Welcome, "+fn+"! Math is Fun! 🎉");
+      showToast("Account created! Welcome, "+fn+"! 🎉");
       return;
     }catch(e){
       var msg=e.message||"";
       if(msg.indexOf("email-already-in-use")>-1) showToast("That email is already registered. Please log in!");
-      else if(msg.indexOf("invalid-email")>-1) showToast("Please enter a valid email address!");
       else showToast("Signup error: "+msg.replace("Firebase: ","").split(" (")[0]);
       var btn2=document.querySelector("#tab-student .btn-sun");
       if(btn2){ btn2.textContent="🚀 Create My Profile — Free!"; btn2.disabled=false; }
       return;
     }
   }
-  // Fallback if Firebase not loaded
   closeModal();
   registerPlayer(fullName, gr+"th");
   saveSession();
@@ -2701,15 +2965,12 @@ async function loginParent(){
   if(window.firebaseLogin){
     try{
       await window.firebaseLogin(email, password);
-      var data=await window.loadProgress();
-      var fn=(data&&data.displayName)||email.split("@")[0];
+      var fn=email.split("@")[0];
       PARENT.name=fn; PARENT.email=email; PARENT.isLoggedIn=true;
-      PARENT.plan=(data&&data.plan)||"Free";
-      // Restore children from localStorage
       try{
         var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
         var saved=localStorage.getItem(pKey);
-        if(saved){ var d=JSON.parse(saved); PARENT.children=d.children||[]; PARENT.plan=d.plan||PARENT.plan; }
+        if(saved){ var d=JSON.parse(saved); PARENT.plan=d.plan||"Free"; PARENT.children=d.children||[]; PARENT.name=d.name||fn; }
       }catch(e){}
       var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
       closeLoginModal();
@@ -2717,32 +2978,31 @@ async function loginParent(){
       var app=$$("s-app"); if(app) app.classList.add("active");
       showMobNav(true); showMusicBtn(true);
       goPage("parentdash",$$("nav-parent-dash"),false);
-      showToast("Welcome back, "+fn.split(" ")[0]+"! Here is your parent dashboard.");
+      showToast("Welcome back, "+PARENT.name.split(" ")[0]+"! Here is your parent dashboard.");
       return;
     }catch(e){
       var msg=e.message||"";
-      if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1||msg.indexOf("user-not-found")>-1)
-        showToast("Wrong email or password. Please try again.");
+      if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1) showToast("Wrong email or password. Please try again.");
       else showToast("Login failed: "+msg.replace("Firebase: ","").split(" (")[0]);
       if(loginBtn){ loginBtn.textContent="👨‍👩‍👧 Go to Parent Dashboard"; loginBtn.disabled=false; }
       return;
     }
   }
   // Fallback
-  var fn=email.split("@")[0];
-  PARENT.name=fn; PARENT.email=email; PARENT.isLoggedIn=true;
+  var fn2=email.split("@")[0];
+  PARENT.name=fn2; PARENT.email=email; PARENT.isLoggedIn=true;
   try{
-    var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
-    var saved=localStorage.getItem(pKey);
-    if(saved){ var d=JSON.parse(saved); PARENT.plan=d.plan||"Free"; PARENT.children=d.children||[]; fn=d.name||fn; PARENT.name=fn; }
+    var pKey2="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
+    var saved2=localStorage.getItem(pKey2);
+    if(saved2){ var d2=JSON.parse(saved2); PARENT.plan=d2.plan||"Free"; PARENT.children=d2.children||[]; PARENT.name=d2.name||fn2; }
   }catch(e){}
-  var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
+  var nav2=$$("nav-parent-dash"); if(nav2) nav2.style.display="flex";
   closeLoginModal();
-  var land=$$("s-land"); if(land) land.classList.remove("active");
-  var app=$$("s-app"); if(app) app.classList.add("active");
+  var land2=$$("s-land"); if(land2) land2.classList.remove("active");
+  var app2=$$("s-app"); if(app2) app2.classList.add("active");
   showMobNav(true); showMusicBtn(true);
   goPage("parentdash",$$("nav-parent-dash"),false);
-  showToast("Welcome back, "+fn.split(" ")[0]+"!");
+  showToast("Welcome back, "+PARENT.name.split(" ")[0]+"!");
 }
 
 async function loginStudent(){
@@ -2760,28 +3020,22 @@ async function loginStudent(){
   if(window.firebaseLogin){
     try{
       await window.firebaseLogin(email, password);
-      var data = await window.loadProgress();
-      if(data){
-        S.xp=data.xp||0; S.level=data.level||1; S.streak=data.streak||0; S.coins=data.coins||0;
-        fn = data.displayName||fn;
-        gr = data.grade||gr;
-      }
+      var data=await window.loadProgress();
+      if(data){ S.xp=data.xp||0; S.level=data.level||1; S.streak=data.streak||0; S.coins=data.coins||0; fn=data.displayName||fn; }
       closeLoginModal();
       enterApp(fn, (parseInt(gr)||7)+"th Grade", parseInt(gr)||7, false);
-      showToast("Welcome back, "+fn.split(" ")[0]+"! Progress loaded from all devices! 🎉");
+      showToast("Welcome back, "+fn.split(" ")[0]+"! Progress loaded! 🎉");
       return;
     }catch(e){
       var msg=e.message||"";
-      if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1||msg.indexOf("user-not-found")>-1)
-        showToast("Wrong email or password. Please try again.");
+      if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1) showToast("Wrong email or password. Please try again.");
       else showToast("Login failed: "+msg.replace("Firebase: ","").split(" (")[0]);
       if(loginBtn){ loginBtn.textContent="🚀 Go to My Dashboard"; loginBtn.disabled=false; }
       return;
     }
   }
-  // Fallback
   try{
-    var saved = localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
+    var saved=localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
     if(saved){ var d=JSON.parse(saved); S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0; }
   }catch(e){}
   closeLoginModal();
@@ -3007,13 +3261,15 @@ function renderOppList(){
     if(CHALLENGE_FILTER==="higher") return o.gradeN>myGrade;
     return true;
   });
+  // Randomize AI opponent online status for demo
+  var aiOnlineNames=["Jordan K.","Sam P.","Dana R.","Morgan L."];
   var allOpps=filtered.concat(SESSION_PLAYERS.filter(function(p){
     var g=parseInt(p.grade)||myGrade;
     if(CHALLENGE_FILTER==="same") return g===myGrade;
     if(CHALLENGE_FILTER==="higher") return g>myGrade;
     return true;
   }).map(function(p){
-    return {n:p.name,gradeN:parseInt(p.grade)||myGrade,band:myBand,tier:"Level "+p.level,meta:p.grade+" - "+p.wins+" Wins",wr:(50+p.wins)+"% Win Rate",winRate:0.5,e:p.name[0],bg:"linear-gradient(135deg,var(--mint),var(--sky))",isReal:true};
+    return {n:p.name,gradeN:parseInt(p.grade)||myGrade,band:myBand,tier:"Level "+p.level,meta:p.grade+" - "+p.wins+" Wins",wr:(50+p.wins)+"% Win Rate",winRate:0.5,e:p.name[0],bg:"linear-gradient(135deg,var(--mint),var(--sky))",isReal:true,online:true};
   }));
   el.innerHTML="";
   if(allOpps.length===0){
@@ -3021,20 +3277,85 @@ function renderOppList(){
     empty.innerHTML="<div style='font-size:36px;margin-bottom:10px'>No opponents at this level</div><div>Try All Levels</div>";
     el.appendChild(empty); return;
   }
+  // Online count badge
+  var onlineCount=allOpps.filter(function(o){ return aiOnlineNames.indexOf(o.n)>-1||o.online; }).length;
+  var header=document.createElement("div");
+  header.style.cssText="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;font-weight:800;color:var(--text2)";
+  header.innerHTML="<span style='width:8px;height:8px;border-radius:50%;background:var(--mint);display:inline-block;box-shadow:0 0 6px var(--mint)'></span>"+onlineCount+" players currently online &nbsp;|&nbsp; <span style='color:var(--text2)'>Gray dot = offline</span>";
+  el.appendChild(header);
   allOpps.forEach(function(o){
+    var isOnline=o.online||aiOnlineNames.indexOf(o.n)>-1||isPlayerOnline(o.n);
     var card=document.createElement("div"); card.className="opp-card"; card.style.cursor="pointer";
-    card.setAttribute("data-n",o.n); card.setAttribute("data-e",o.e); card.setAttribute("data-bg",o.bg); card.setAttribute("data-wr",o.winRate||0.72);
+    card.setAttribute("data-n",o.n); card.setAttribute("data-e",o.e); card.setAttribute("data-bg",o.bg); card.setAttribute("data-wr",o.winRate||0.72); card.setAttribute("data-online",isOnline?"1":"0");
+    var realBadge=o.isReal?"<span class='badge b-mint' style='font-size:10px;margin-left:4px'>REAL</span>":"<span class='badge b-sky' style='font-size:10px;margin-left:4px'>AI</span>";
+    var onlineDot="<span style='display:inline-block;width:10px;height:10px;border-radius:50%;background:"+(isOnline?"#06D6A0":"#666")+";box-shadow:"+(isOnline?"0 0 8px #06D6A0":"none")+"';flex-shrink:0;margin-right:4px' title='"+(isOnline?"Online":"Offline")+"'></span>";
+    var statusText=isOnline?"<span style='color:var(--mint);font-size:11px;font-weight:800'>● Online — Ready to battle!</span>":"<span style='color:#888;font-size:11px'>⬤ Offline</span>";
+    var actionBtn=isOnline
+      ?"<button class='btn btn-coral btn-xs' style='flex-shrink:0'>⚔️ Challenge</button>"
+      :"<button class='btn btn-ghost btn-xs' style='flex-shrink:0;opacity:0.6'>Practice</button>";
+    card.innerHTML="<div style='position:relative;flex-shrink:0'>"
+      +"<div style='width:48px;height:48px;border-radius:50%;background:"+o.bg+";color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900'>"+o.e+"</div>"
+      +"<span style='position:absolute;bottom:0;right:0;width:13px;height:13px;border-radius:50%;background:"+(isOnline?"var(--mint)":"#555")+";border:2px solid var(--dark2);box-shadow:"+(isOnline?"0 0 6px var(--mint)":"none")+"'></span></div>"
+      +"<div class='opp-info'><div class='opp-name'>"+o.n+realBadge+"</div>"
+      +"<div class='opp-meta' style='margin-bottom:3px'>Grade "+o.gradeN+" · "+o.tier+" · "+o.meta.split(" - ").slice(-1)[0]+"</div>"
+      +"<div>"+statusText+"</div></div>"
+      +actionBtn;
     card.addEventListener("click",function(){
-      challengeOpp(this.getAttribute("data-n"),this.getAttribute("data-e"),this.getAttribute("data-bg"),parseFloat(this.getAttribute("data-wr")));
+      var online=this.getAttribute("data-online")==="1";
+      if(online){
+        sendChallengeInvite(this.getAttribute("data-n"),this.getAttribute("data-e"),this.getAttribute("data-bg"),parseFloat(this.getAttribute("data-wr")));
+      } else {
+        showToast(this.getAttribute("data-n")+" is offline. Starting practice battle instead...");
+        startBattleWith(this.getAttribute("data-n"),this.getAttribute("data-e"),this.getAttribute("data-bg"),parseFloat(this.getAttribute("data-wr")));
+      }
     });
-    var badge=o.isReal?"<span class='badge b-mint' style='font-size:10px;margin-left:4px'>REAL</span>":"";
-    card.innerHTML="<div style='width:48px;height:48px;border-radius:50%;background:"+o.bg+";color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0'>"+o.e+"</div>"
-      +"<div class='opp-info'><div class='opp-name'>"+o.n+badge+"</div>"
-      +"<div class='opp-meta'>Grade "+o.gradeN+" - "+o.tier+" - "+o.meta.split(" - ").slice(-1)[0]+"</div>"
-      +"<div class='opp-wr' style='color:var(--mint)'>"+o.wr+"</div></div>"
-      +"<button class='btn btn-coral btn-xs' style='flex-shrink:0'>Battle</button>";
     el.appendChild(card);
   });
+}
+
+function sendChallengeInvite(name,emoji,bg,winRate){
+  // Show invite dialog
+  var overlay=document.createElement("div");
+  overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)";
+  overlay.id="challenge-invite-overlay";
+  var box=document.createElement("div");
+  box.style.cssText="background:linear-gradient(135deg,var(--dark2),var(--dark3));border:2px solid var(--coral);border-radius:24px;padding:28px;max-width:360px;width:90%;text-align:center;animation:pop-in .3s ease";
+  box.innerHTML="<div style='font-size:52px;margin-bottom:12px'>⚔️</div>"
+    +"<div style='font-family:Fredoka One,cursive;font-size:24px;margin-bottom:8px'>Challenge Sent!</div>"
+    +"<div style='font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.7'>"
+    +"<strong style='color:var(--sun)'>"+name+"</strong> has been notified of your challenge!<br><br>"
+    +"<span style='display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)'></span> "
+    +"<strong style='color:var(--mint)'>"+name+" is online</strong> and will accept shortly.<br><br>"
+    +"<span style='color:var(--text2);font-size:12px'>⏱️ Waiting for "+name+" to accept... (15 seconds)</span>"
+    +"</div>"
+    +"<div style='display:flex;gap:8px;justify-content:center'></div>";
+  var waitBar=document.createElement("div");
+  waitBar.style.cssText="height:6px;background:rgba(255,255,255,0.1);border-radius:100px;margin-bottom:20px;overflow:hidden";
+  var fill=document.createElement("div");
+  fill.style.cssText="height:100%;background:linear-gradient(90deg,var(--coral),var(--sun));border-radius:100px;transition:width 0.5s linear;width:100%";
+  waitBar.appendChild(fill);
+  box.insertBefore(waitBar,box.querySelector("div:last-child"));
+  var btnRow=box.querySelector("div:last-child");
+  var cancelBtn=document.createElement("button"); cancelBtn.className="btn btn-ghost btn-sm"; cancelBtn.textContent="Cancel";
+  cancelBtn.addEventListener("click",function(){ overlay.remove(); clearInterval(inviteTimer); showToast("Challenge cancelled."); });
+  var fightBtn=document.createElement("button"); fightBtn.className="btn btn-coral btn-sm"; fightBtn.textContent="Start Now!";
+  fightBtn.addEventListener("click",function(){ overlay.remove(); clearInterval(inviteTimer); startBattleWith(name,emoji,bg,winRate); });
+  btnRow.appendChild(cancelBtn); btnRow.appendChild(fightBtn);
+  overlay.appendChild(box); document.body.appendChild(overlay);
+  // Countdown — simulate opponent accepting after 3-5s
+  var timeLeft=15, accepted=false;
+  var acceptTime=3+Math.floor(Math.random()*5);
+  var inviteTimer=setInterval(function(){
+    timeLeft--;
+    fill.style.width=(timeLeft/15*100)+"%";
+    if(timeLeft<=acceptTime&&!accepted){
+      accepted=true;
+      box.querySelector("div:nth-child(3)").innerHTML="<strong style='color:var(--mint);font-size:16px'>✅ "+name+" accepted your challenge!</strong><br><br><span style='color:var(--text2)'>Battle starting now...</span>";
+      fill.style.background="var(--mint)";
+      setTimeout(function(){ overlay.remove(); clearInterval(inviteTimer); startBattleWith(name,emoji,bg,winRate); },1500);
+    }
+    if(timeLeft<=0){ clearInterval(inviteTimer); if(!accepted){ overlay.remove(); showToast(name+" didn't respond. Try Quick Match!"); } }
+  },1000);
 }
 
 function renderChallenge(){
@@ -3121,17 +3442,23 @@ function updateBTimer(bs){
 }
 
 function battleAnswer(sel,correct,btn,bs){
+  var timeUsed = 30 - bs.timeLeft;
   clearInterval(bs.timer);
   var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
   opts.forEach(function(o){ o.disabled=true; });
   if(sel===correct){
     btn.classList.add("correct"); bs.myScore++;
+    var speedBonus = timeUsed <= 5 ? " 🚀 Speed Bonus!" : timeUsed <= 10 ? " ⚡ Fast!" : "";
     var ms=$$("b-my-score"); if(ms) ms.textContent=bs.myScore;
-    showToast("Correct! +1 point!");
+    showToast("Correct!"+speedBonus+" +1 point");
+    // Opponent is slower — they might get it wrong when you're fast
+    var oppCorrect = Math.random() < (bs.opp.winRate * (timeUsed > 15 ? 1.2 : 0.7));
+    if(oppCorrect){ bs.oppScore++; var os=$$("b-opp-score"); if(os) os.textContent=bs.oppScore; }
   } else {
     btn.classList.add("wrong");
     if(opts[correct]) opts[correct].classList.add("correct");
-    if(Math.random()<bs.opp.winRate){ bs.oppScore++; var os=$$("b-opp-score"); if(os) os.textContent=bs.oppScore; }
+    // Opponent more likely to get it right when you're wrong
+    if(Math.random()<bs.opp.winRate){ bs.oppScore++; var os2=$$("b-opp-score"); if(os2) os2.textContent=bs.oppScore; }
   }
   bs.round++; setTimeout(function(){ nextBattleRound(bs); },1400);
 }
@@ -3161,7 +3488,7 @@ function endBattle(bs){
 }
 
 // ── SEARCH ─────────────────────────────────────────────
-async function searchPlayers(query){
+function searchPlayers(query){
   var resultsEl=$$("player-search-results"); if(!resultsEl) return;
   if(!query||query.length<2){ resultsEl.innerHTML=""; return; }
   query=query.toLowerCase();
@@ -3174,20 +3501,6 @@ async function searchPlayers(query){
     {name:"Morgan L.",grade:"7",wins:43,level:4,online:true},
     {name:"Taylor B.",grade:"6",wins:31,level:3,online:false}
   ]);
-  // Also search Firebase registered students
-  if(window.db){
-    try{
-      var {collection,query:fbQuery,getDocs,where,orderBy,limit}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-      var q=fbQuery(collection(window.db,"users"),where("role","==","student"),limit(50));
-      var snap=await getDocs(q);
-      snap.forEach(function(doc){
-        var d=doc.data();
-        if(d.displayName&&!allPlayers.find(function(p){ return p.name===d.displayName; })){
-          allPlayers.push({name:d.displayName,grade:d.grade||"",wins:d.wins||0,level:d.level||1,online:false,isReal:true});
-        }
-      });
-    }catch(e){}
-  }
   var matches=allPlayers.filter(function(p){ return p.name.toLowerCase().indexOf(query)>-1 && p.name!==S.name; });
   resultsEl.innerHTML="";
   if(matches.length===0){
@@ -3225,62 +3538,19 @@ function sendDirectChallenge(){
 }
 
 // ── LEADERBOARD ────────────────────────────────────────
-var CURRENT_LB_TAB = "grade";
-
 function setLBTab(tab,btn){
-  CURRENT_LB_TAB=tab;
   document.querySelectorAll(".lb-tab").forEach(function(t){ t.classList.remove("on"); });
   if(btn) btn.classList.add("on");
   renderLeaderboard();
 }
 
 function renderLeaderboard(){
-  // Update grade tab label to show actual user grade
-  var gradeTab=$$("lb-grade-tab");
-  var userGrade=S.gradeNum||7;
-  var gradeSuffix=userGrade===1?"st":userGrade===2?"nd":userGrade===3?"rd":"th";
-  if(gradeTab) gradeTab.textContent="🏫 My Grade ("+userGrade+gradeSuffix+")";
-
-  // Filter leaderboard data based on active tab
-  var displayData;
-  if(CURRENT_LB_TAB==="grade"){
-    displayData=LB_DATA.filter(function(p){ return p.g===(userGrade+"th")||p.g===(userGrade+"th Grade"); });
-    if(displayData.length===0) displayData=LB_DATA; // fallback if no grade match
-  } else if(CURRENT_LB_TAB==="school"||CURRENT_LB_TAB==="national"){
-    displayData=LB_DATA.slice(); // all grades
-  } else if(CURRENT_LB_TAB==="weekly"){
-    displayData=LB_DATA.slice().sort(function(a,b){ return b.pts-a.pts; }).map(function(p,i){
-      return Object.assign({},p,{pts:Math.floor(p.pts*0.3),chg:"+"+(i+1),up:true});
-    });
-  } else {
-    displayData=LB_DATA;
-  }
-
-  // Try to inject Firebase real users at top
-  if(window.db && window.startLeaderboard && CURRENT_LB_TAB==="national"){
-    window.startLeaderboard(function(leaders){
-      if(leaders&&leaders.length>0){
-        var liveData=leaders.map(function(l,i){
-          return {n:l.name||"Player",g:l.grade||"?",pts:l.xp||0,e:(l.name||"P")[0],chg:"+0",up:true};
-        });
-        renderLBDisplay(liveData);
-      }
-    });
-    return;
-  }
-
-  renderLBDisplay(displayData);
-}
-
-function renderLBDisplay(displayData){
   var colors=["linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,#c0c0c0,#a0a0a0)","linear-gradient(135deg,#cd7f32,#a06020)"];
   var pod=$$("lb-podium");
   if(pod){
     var order=[1,0,2], html="";
-    var topThree=displayData.slice(0,3);
     order.forEach(function(i){
-      var p=topThree[i]||topThree[0];
-      if(!p) return;
+      var p=LB_DATA[i];
       html+="<div class='podium-place'>"
         +"<div class='pod-crown'>"+(i===0?"1st":i===1?"2nd":"3rd")+"</div>"
         +"<div class='pod-avatar' style='background:"+colors[i]+";color:var(--dark);font-size:20px;font-weight:900'>"+p.e+"</div>"
@@ -3294,12 +3564,11 @@ function renderLBDisplay(displayData){
   var full=$$("lb-full");
   if(full){
     var fhtml="";
-    displayData.forEach(function(p,i){
+    LB_DATA.forEach(function(p,i){
       var rank=i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1);
-      var isYou=(S.name&&p.n&&p.n.indexOf(S.name.split(" ")[0])>-1);
-      fhtml+="<div class='lb-row"+(isYou?" you":"")+"'><div class='lb-rank'>"+rank+"</div>"
+      fhtml+="<div class='lb-row'><div class='lb-rank'>"+rank+"</div>"
         +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+p.e+"</div>"
-        +"<div class='lb-info'><div class='lb-name'>"+p.n+(isYou?" <span class='badge b-sun' style='font-size:10px'>YOU</span>":"")+"</div><div class='lb-grade'>"+p.g+"</div></div>"
+        +"<div class='lb-info'><div class='lb-name'>"+p.n+"</div><div class='lb-grade'>"+p.g+"</div></div>"
         +"<div class='lb-pts-wrap'><div class='lb-pts'>"+p.pts.toLocaleString()+"</div>"
         +"<div class='lb-chg "+(p.up?"chg-up":"chg-dn")+"'>"+p.chg+"</div></div></div>";
     });
@@ -3534,24 +3803,6 @@ function renderProfile(){
     });
     allStats.innerHTML=html;
   }
-  // Show link code for student to give to parent
-  var existingCodeCard=$$("profile-link-code");
-  if(existingCodeCard) existingCodeCard.remove();
-  if(S.linkCode&&S.linkCode.length===6&&!S.isPreview){
-    var profHero=$$("p-profile");
-    if(profHero){
-      var codeCard=document.createElement("div");
-      codeCard.id="profile-link-code";
-      codeCard.className="card card-mint";
-      codeCard.style.cssText="margin-bottom:16px;text-align:center;padding:20px";
-      codeCard.innerHTML="<div style='font-size:13px;font-weight:800;color:var(--mint);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px'>🔗 Your Parent Link Code</div>"
-        +"<div style='font-family:Fredoka One,cursive;font-size:42px;color:var(--sun);letter-spacing:8px;margin-bottom:8px'>"+S.linkCode+"</div>"
-        +"<div style='font-size:12px;color:var(--text2);line-height:1.6'>Give this code + your email to your parent.<br>They enter both in their Parent Dashboard to link your account.</div>"
-        +"<button onclick=\"navigator.clipboard.writeText('"+S.linkCode+"');showToast('Code copied!')\" class='btn btn-mint btn-xs' style='margin-top:12px;color:var(--dark)'>📋 Copy Code</button>";
-      var firstCard=profHero.querySelector(".g2");
-      if(firstCard) profHero.insertBefore(codeCard,firstCard);
-    }
-  }
   var achs=$$("achievements");
   if(achs){
     var ahtml="";
@@ -3632,52 +3883,17 @@ function renderPrizeQueue(){
   });
 }
 
-async function linkChildAccount(){
-  var email=$$("lc-email")?$$("lc-email").value.trim():"";
-  var code=$$("lc-code")?$$("lc-code").value.trim():"";
-  var errEl=$$("lc-error");
-  if(errEl) errEl.style.display="none";
-  if(!email||email.indexOf("@")<1){
-    if(errEl){ errEl.textContent="Please enter the child's email address."; errEl.style.display="block"; }
-    return;
-  }
-  if(!code||code.length!==6||!/^[0-9]{6}$/.test(code)){
-    if(errEl){ errEl.textContent="Please enter the 6-digit link code from the child's Profile page."; errEl.style.display="block"; }
-    return;
-  }
-  var linkBtn=document.querySelector("#lc-step1 .btn-mint");
-  if(linkBtn){ linkBtn.textContent="Verifying..."; linkBtn.disabled=true; }
-  // Verify code matches
-  var emailKey=email.toLowerCase().replace(/[^a-z0-9]/g,"");
-  var storedCode=null;
-  try{ storedCode=localStorage.getItem("mc_linkcode_"+emailKey); }catch(e){}
-  if(!storedCode||storedCode!==code){
-    if(errEl){ errEl.textContent="❌ The link code does not match for that email. Please check the code in your child's Profile page and try again."; errEl.style.display="block"; }
-    if(linkBtn){ linkBtn.textContent="🔗 Link Child Account"; linkBtn.disabled=false; }
-    return;
-  }
-  // Code verified — pull child's saved data
-  var childData=null;
-  try{
-    var savedChild=localStorage.getItem("mc_student_"+emailKey);
-    if(savedChild) childData=JSON.parse(savedChild);
-  }catch(e){}
-  var fn=email.split("@")[0];
-  var child={
-    name:childData?childData.name:fn,
-    email:email,
-    grade:childData?(childData.gradeNum+"th Grade"):"?",
-    age:childData?childData.age:13,
-    level:childData?childData.level:1,
-    xp:childData?childData.xp:0,
-    coins:childData?childData.coins:0,
-    streak:childData?childData.streak:0,
-    wins:childData?childData.wins:0,
-    topics_weak:childData?childData.topics_weak:["Starting out"],
-    topics_strong:childData?childData.topics_strong:["Arithmetic"],
-    activity:[{txt:"Account linked by parent",time:"Just now",color:"var(--mint)"}]
-  };
+function linkChildAccount(){
+  var fn=$$("lc-fn")?$$("lc-fn").value.trim():"";
+  var gr=$$("lc-grade")?$$("lc-grade").value:"";
+  var dob=$$("lc-dob")?$$("lc-dob").value:"";
+  if(!fn){ showToast("Please enter child first name!"); return; }
+  if(!gr){ showToast("Please select child grade!"); return; }
+  var age=13;
+  if(dob){ var bd=new Date(dob),td=new Date(); age=td.getFullYear()-bd.getFullYear(); }
+  var child={name:fn,grade:gr+"th Grade",age:age,level:1,xp:0,coins:0,streak:0,wins:0,topics_weak:["Starting out"],topics_strong:["Arithmetic"],activity:[{txt:"Account linked by parent",time:"Just now",color:"var(--mint)"}]};
   PARENT.children.push(child);
+  // Save updated children list
   try{
     if(PARENT.email){
       var pKey="mc_parent_"+PARENT.email.toLowerCase().replace(/[^a-z0-9]/g,"");
@@ -3688,12 +3904,8 @@ async function linkChildAccount(){
     }
   }catch(e){}
   closeLinkChildModal();
-  // Clear form
-  if($$("lc-email")) $$("lc-email").value="";
-  if($$("lc-code")) $$("lc-code").value="";
-  if(linkBtn){ linkBtn.textContent="🔗 Link Child Account"; linkBtn.disabled=false; }
   renderParentDash();
-  showToast(child.name+" linked successfully! Progress loaded. 🎉");
+  showToast(fn+" linked to your dashboard!");
 }
 
 // ── PARENT SIGNUP ──────────────────────────────────────
@@ -3707,25 +3919,11 @@ async function submitParentSignup(){
   var plan="Free";
   var selCard=modal?modal.querySelector(".plan-card.sel"):null;
   if(selCard){ var pn=selCard.querySelector(".plan-name"); if(pn) plan=pn.textContent.trim(); }
-  var parentPassword=$$("p-password")?$$("p-password").value:"";
   if(!firstName){ showToast("Please enter your first name!"); return; }
   if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email!"); return; }
-  if(!parentPassword||parentPassword.length<6){ showToast("Password must be at least 6 characters!"); return; }
   var btn=modal?modal.querySelector("#tab-parent .btn-mint"):null;
-  if(btn){ btn.textContent="Creating account..."; btn.disabled=true; }
+  if(btn){ btn.textContent="Sending..."; btn.disabled=true; }
   PARENT.name=firstName+(lastName?" "+lastName:""); PARENT.email=email; PARENT.plan=plan; PARENT.isLoggedIn=true;
-  // Create Firebase account for parent
-  if(window.firebaseSignUp){
-    try{
-      await window.firebaseSignUp(email, parentPassword, PARENT.name, "parent", "parent");
-    }catch(e){
-      if((e.message||"").indexOf("email-already-in-use")>-1){
-        showToast("That email is already registered. Please log in!");
-        if(btn){ btn.textContent="✅ Create Parent Account"; btn.disabled=false; }
-        return;
-      }
-    }
-  }
   // Save parent session to localStorage for return visits
   try{
     var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
@@ -3785,17 +3983,29 @@ function generateWeeklyReport(){
   if(!PARENT.children||PARENT.children.length===0){
     showToast("No children linked yet. Link a child account first!"); return;
   }
-  var report="MathChamp Weekly Report\n";
-  report+="Generated: "+new Date().toLocaleDateString()+"\n\n";
+  var report="MathChamp Weekly Report
+";
+  report+="Generated: "+new Date().toLocaleDateString()+"
+
+";
   PARENT.children.forEach(function(child){
-    report+="=== "+child.name+" ("+child.grade+") ===\n";
-    report+="XP: "+child.xp.toLocaleString()+"\n";
-    report+="MathCoins: "+child.coins.toLocaleString()+"\n";
-    report+="Wins: "+child.wins+"\n";
-    report+="Streak: "+child.streak+" days\n";
-    report+="Level: "+child.level+"\n";
-    report+="Needs Practice: "+(child.topics_weak||[]).join(", ")+"\n";
-    report+="Doing Well In: "+(child.topics_strong||[]).join(", ")+"\n\n";
+    report+="=== "+child.name+" ("+child.grade+") ===
+";
+    report+="XP: "+child.xp.toLocaleString()+"
+";
+    report+="MathCoins: "+child.coins.toLocaleString()+"
+";
+    report+="Wins: "+child.wins+"
+";
+    report+="Streak: "+child.streak+" days
+";
+    report+="Level: "+child.level+"
+";
+    report+="Needs Practice: "+(child.topics_weak||[]).join(", ")+"
+";
+    report+="Doing Well In: "+(child.topics_strong||[]).join(", ")+"
+
+";
   });
   var blob=new Blob([report],{type:"text/plain"});
   var url=URL.createObjectURL(blob);
@@ -4039,10 +4249,10 @@ document.addEventListener("DOMContentLoaded",function(){
   window.auth = auth;
   window.db = db;
 
-  window.firebaseSignUp = async function(email, password, displayName, role, grade) {
+  window.firebaseSignUp = async function(email, password, displayName, role) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await setDoc(doc(db, "users", cred.user.uid), {
-      displayName, email, role, grade: grade||"",
+      displayName, email, role,
       xp: 0, coins: 0, level: 1, streak: 0,
       createdAt: new Date()
     });
