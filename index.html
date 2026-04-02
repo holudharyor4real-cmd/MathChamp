@@ -1,37 +1,37 @@
 <!DOCTYPE html>
-<!-- MathChamp v3.1 FIXED -->
+<!-- MathCrown v1.0 — K-12 Competitive Math Platform -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MathChamp — Math is Fun! | K-12 Competitive Math Learning</title>
+<title>MathCrown 👑 — Earn Your Crown | K-12 Competitive Math Platform</title>
 
 <!-- ── SEO ── -->
-<meta name="description" content="MathChamp makes math fun for K-12 students! Battle classmates, earn real prizes, get AI tutoring, and climb leaderboards. Free to join. Math is Fun!">
+<meta name="description" content="MathCrown — The K-12 competitive math platform. Battle classmates in live math duels, earn your crown, get AI tutoring from Axiom, and climb national rankings. Free to join.">
 <meta name="keywords" content="math app for kids, K-12 math game, competitive math, math learning platform, math prizes, math tutoring, algebra game, Math is Fun">
-<meta name="author" content="MathChamp">
+<meta name="author" content="MathCrown">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.mymathchamp.com">
 
 <!-- ── OPEN GRAPH (Facebook, WhatsApp, LinkedIn sharing) ── -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.mymathchamp.com">
-<meta property="og:title" content="MathChamp — Math is Fun! 🧮">
-<meta property="og:description" content="The competitive math platform for K-12 students. Battle classmates, earn prizes, and discover Math is Fun! Free to join.">
+<meta property="og:title" content="MathCrown — Earn Your Crown! 👑">
+<meta property="og:description" content="The competitive math platform for K-12 students. Battle classmates in live math duels, earn prizes, and claim your MathCrown. Free to join.">
 <meta property="og:image" content="https://www.mymathchamp.com/og-image.png">
 
 <!-- ── TWITTER CARD ── -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MathChamp — Math is Fun! 🧮">
-<meta name="twitter:description" content="K-12 competitive math. Battle friends, earn real prizes, AI tutor. Math is Fun!">
+<meta name="twitter:title" content="MathCrown — Earn Your Crown! 👑">
+<meta name="twitter:description" content="K-12 competitive math. Battle friends, earn real prizes, AI tutor Axiom. Earn your MathCrown!">
 
 <!-- ── PWA / MOBILE ── -->
 <meta name="theme-color" content="#FFD93D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MathChamp">
+<meta name="apple-mobile-web-app-title" content="MathCrown">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="MathChamp">
+<meta name="application-name" content="MathCrown">
 
 <!-- ── FONTS ── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,32 +39,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
-   MATHCHAMP v2 — "MATH IS FUN" DESIGN SYSTEM
-   Bright · Energetic · Playful · World-class
+   MATHCROWN v1.0 — DESIGN SYSTEM
+   Royal Navy · Championship Gold · Teal Accent
    ═══════════════════════════════════════════ */
 :root {
   --sun:     #FFD93D;
-  --sun2:    #FF9F1C;
-  --coral:   #FF6B6B;
+  --sun2:    #E8B800;
+  --coral:   #3D8BFF;
   --mint:    #06D6A0;
   --sky:     #4ECDC4;
-  --blue:    #2196F3;
-  --purple:  #9B5DE5;
-  --pink:    #F15BB5;
-  --dark:    #1A1A2E;
-  --dark2:   #16213E;
-  --dark3:   #0F3460;
-  --card:    rgba(255,255,255,0.07);
-  --card2:   rgba(255,255,255,0.12);
-  --border:  rgba(255,255,255,0.12);
-  --text:    #F8F9FF;
-  --text2:   rgba(248,249,255,0.65);
+  --blue:    #1C3A6E;
+  --purple:  #2563EB;
+  --pink:    #60A5FA;
+  --dark:    #080F1E;
+  --dark2:   #0B1629;
+  --dark3:   #0D1F3C;
+  --card:    rgba(28,58,110,0.18);
+  --card2:   rgba(28,58,110,0.28);
+  --border:  rgba(255,217,61,0.12);
+  --text:    #F0F6FF;
+  --text2:   rgba(224,236,255,0.65);
   --r:       20px;
   --r2:      14px;
-  --shadow:  0 8px 32px rgba(0,0,0,0.3);
-  --glow-sun:  0 0 30px rgba(255,217,61,0.5);
-  --glow-mint: 0 0 30px rgba(6,214,160,0.4);
-  --glow-coral:0 0 30px rgba(255,107,107,0.4);
+  --shadow:  0 8px 32px rgba(0,0,0,0.4);
+  --glow-sun:  0 0 30px rgba(255,217,61,0.45);
+  --glow-mint: 0 0 30px rgba(6,214,160,0.35);
+  --glow-coral:0 0 28px rgba(61,139,255,0.45);
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -80,10 +80,10 @@ body{
 /* ── FLOATING SHAPES BACKGROUND ── */
 .bg-shapes{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
 .shape{position:absolute;border-radius:50%;filter:blur(60px);opacity:0.15;animation:drift 12s ease-in-out infinite alternate;}
-.s1{width:500px;height:500px;background:var(--purple);top:-100px;right:-100px;animation-delay:0s;}
-.s2{width:400px;height:400px;background:var(--sky);bottom:-80px;left:-80px;animation-delay:-4s;}
-.s3{width:300px;height:300px;background:var(--coral);top:40%;left:50%;animation-delay:-8s;}
-.s4{width:200px;height:200px;background:var(--sun);bottom:20%;right:20%;animation-delay:-2s;}
+.s1{width:500px;height:500px;background:#1C3A6E;top:-100px;right:-100px;animation-delay:0s;}
+.s2{width:400px;height:400px;background:#06D6A0;bottom:-80px;left:-80px;animation-delay:-4s;}
+.s3{width:300px;height:300px;background:#2563EB;top:40%;left:50%;animation-delay:-8s;}
+.s4{width:200px;height:200px;background:#FFD93D;bottom:20%;right:20%;animation-delay:-2s;}
 @keyframes drift{from{transform:translate(0,0) scale(1);}to{transform:translate(40px,30px) scale(1.15);}}
 
 /* ── SCREENS ── */
@@ -95,12 +95,12 @@ body{
    LANDING PAGE
    ════════════════════════════════ */
 #s-land{
-  background:var(--dark);
+  background:linear-gradient(180deg,#080F1E 0%,#0B1629 100%);
   overflow-x:hidden;
 }
 .land-mascot{
   width:120px;height:120px;
-  background:linear-gradient(135deg,var(--sun),var(--coral));
+  background:linear-gradient(135deg,#1C3A6E,#2563EB);
   border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-size:56px;margin:0 auto 20px;
@@ -111,7 +111,7 @@ body{
 .brand-name{
   font-family:'Fredoka One',cursive;
   font-size:clamp(48px,8vw,80px);
-  background:linear-gradient(135deg,var(--sun),var(--coral),var(--pink));
+  background:linear-gradient(135deg,#FFD93D,#FFFFFF,#60A5FA);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   letter-spacing:-1px;margin-bottom:6px;
 }
@@ -134,8 +134,8 @@ body{
 /* Feature Pills */
 .features-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:40px;}
 .feat-pill{
-  background:rgba(255,255,255,0.08);
-  border:1.5px solid rgba(255,255,255,0.15);
+  background:rgba(28,58,110,0.3);
+  border:1.5px solid rgba(61,139,255,0.2);
   border-radius:100px;padding:8px 18px;
   font-size:14px;font-weight:700;
   display:flex;align-items:center;gap:7px;
@@ -152,13 +152,13 @@ body{
   font-family:'Nunito',sans-serif;transition:all .25s;text-decoration:none;
 }
 .btn-sun{background:linear-gradient(135deg,var(--sun),var(--sun2));color:var(--dark);box-shadow:var(--glow-sun);}
-.btn-sun:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 40px rgba(255,217,61,0.7);}
+.btn-sun:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 36px rgba(255,217,61,0.6);}
 .btn-mint{background:linear-gradient(135deg,var(--mint),var(--sky));color:var(--dark);}
 .btn-mint:hover{transform:translateY(-3px) scale(1.03);box-shadow:var(--glow-mint);}
-.btn-ghost{background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.2);color:var(--text);}
-.btn-ghost:hover{background:rgba(255,255,255,0.15);border-color:var(--sun);}
-.btn-coral{background:linear-gradient(135deg,var(--coral),var(--pink));color:#fff;}
-.btn-coral:hover{transform:translateY(-3px);box-shadow:var(--glow-coral);}
+.btn-ghost{background:rgba(28,58,110,0.2);border:2px solid rgba(61,139,255,0.25);color:var(--text);}
+.btn-ghost:hover{background:rgba(28,58,110,0.4);border-color:var(--sun);}
+.btn-coral{background:linear-gradient(135deg,#2563EB,#3D8BFF);color:#fff;}
+.btn-coral:hover{transform:translateY(-3px);box-shadow:0 0 28px rgba(61,139,255,0.5);}
 .btn-sm{padding:10px 22px;font-size:14px;}
 .btn-xs{padding:8px 16px;font-size:13px;}
 
@@ -195,7 +195,7 @@ body{
   display:flex;align-items:center;justify-content:center;
   transition:all .2s;
 }
-.modal-close:hover{background:var(--coral);color:#fff;}
+.modal-close:hover{background:#2563EB;color:#fff;}
 .modal-title{font-family:'Fredoka One',cursive;font-size:30px;margin-bottom:4px;}
 .modal-sub{color:var(--text2);font-size:14px;margin-bottom:28px;}
 .tab-row{display:flex;gap:4px;background:rgba(0,0,0,0.3);border-radius:100px;padding:4px;margin-bottom:24px;}
@@ -267,12 +267,12 @@ body{
 .sb-brand{display:flex;align-items:center;gap:10px;padding:0 8px;margin-bottom:28px;}
 .sb-icon{
   width:44px;height:44px;
-  background:linear-gradient(135deg,var(--sun),var(--coral));
+  background:linear-gradient(135deg,#1C3A6E,#2563EB);
   border-radius:14px;display:flex;align-items:center;justify-content:center;
   font-size:22px;box-shadow:var(--glow-sun);flex-shrink:0;
 }
 .sb-name{font-family:'Fredoka One',cursive;font-size:22px;
-  background:linear-gradient(135deg,var(--sun),var(--coral));
+  background:linear-gradient(135deg,#FFD93D,#FFFFFF);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .sb-motto{font-size:10px;color:var(--sun);font-weight:800;letter-spacing:2px;text-transform:uppercase;}
 
@@ -298,7 +298,7 @@ body{
 }
 .nav-icon{font-size:20px;width:24px;text-align:center;}
 .nav-badge{
-  margin-left:auto;background:var(--coral);color:#fff;
+  margin-left:auto;background:var(--sun);color:#080F1E;
   font-size:11px;font-weight:800;
   padding:2px 8px;border-radius:100px;
 }
@@ -318,7 +318,7 @@ body{
 }
 .sb-avatar{
   width:42px;height:42px;border-radius:50%;
-  background:linear-gradient(135deg,var(--purple),var(--sky));
+  background:linear-gradient(135deg,#1C3A6E,#06D6A0);
   display:flex;align-items:center;justify-content:center;
   font-size:20px;font-weight:900;color:#fff;flex-shrink:0;
   border:2px solid var(--sun);
@@ -343,9 +343,9 @@ body{
 }
 .card-sun{border-color:rgba(255,217,61,0.25);background:linear-gradient(135deg,rgba(255,217,61,0.08),transparent);}
 .card-mint{border-color:rgba(6,214,160,0.25);background:linear-gradient(135deg,rgba(6,214,160,0.08),transparent);}
-.card-coral{border-color:rgba(255,107,107,0.25);background:linear-gradient(135deg,rgba(255,107,107,0.08),transparent);}
+.card-coral{border-color:rgba(61,139,255,0.25);background:linear-gradient(135deg,rgba(61,139,255,0.08),transparent);}
 .card-sky{border-color:rgba(78,205,196,0.25);background:linear-gradient(135deg,rgba(78,205,196,0.08),transparent);}
-.card-purple{border-color:rgba(155,93,229,0.25);background:linear-gradient(135deg,rgba(155,93,229,0.08),transparent);}
+.card-purple{border-color:rgba(37,99,235,0.25);background:linear-gradient(135deg,rgba(37,99,235,0.08),transparent);}
 .card:hover{transform:translateY(-2px);}
 
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -361,11 +361,11 @@ body{
 .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;font-size:12px;font-weight:800;}
 .b-sun{background:rgba(255,217,61,0.15);color:var(--sun);border:1px solid rgba(255,217,61,0.3);}
 .b-mint{background:rgba(6,214,160,0.15);color:var(--mint);border:1px solid rgba(6,214,160,0.3);}
-.b-coral{background:rgba(255,107,107,0.15);color:var(--coral);border:1px solid rgba(255,107,107,0.3);}
+.b-coral{background:rgba(61,139,255,0.15);color:#60A5FA;border:1px solid rgba(61,139,255,0.3);}
 .b-sky{background:rgba(78,205,196,0.15);color:var(--sky);border:1px solid rgba(78,205,196,0.3);}
-.b-purple{background:rgba(155,93,229,0.15);color:var(--purple);border:1px solid rgba(155,93,229,0.3);}
-.b-pink{background:rgba(241,91,181,0.15);color:var(--pink);border:1px solid rgba(241,91,181,0.3);}
-.b-red{background:rgba(255,107,107,0.15);color:#ff6b6b;border:1px solid rgba(255,107,107,0.3);}
+.b-purple{background:rgba(37,99,235,0.15);color:#93C5FD;border:1px solid rgba(37,99,235,0.3);}
+.b-pink{background:rgba(96,165,250,0.15);color:#93C5FD;border:1px solid rgba(96,165,250,0.3);}
+.b-red{background:rgba(61,139,255,0.15);color:#60A5FA;border:1px solid rgba(61,139,255,0.3);}
 
 /* Progress bar */
 .prog-wrap{height:10px;background:rgba(255,255,255,0.1);border-radius:100px;overflow:hidden;margin:8px 0;}
@@ -473,7 +473,7 @@ body{
 }
 .q-opt:hover{border-color:var(--sun);background:rgba(255,217,61,0.1);transform:translateY(-2px);}
 .q-opt.correct{border-color:var(--mint);background:rgba(6,214,160,0.15);color:var(--mint);}
-.q-opt.wrong{border-color:var(--coral);background:rgba(255,107,107,0.1);color:var(--coral);}
+.q-opt.wrong{border-color:#EF4444;background:rgba(239,68,68,0.1);color:#FCA5A5;}
 .q-opt.reveal{border-color:var(--mint);background:rgba(6,214,160,0.1);}
 .opt-letter{
   width:28px;height:28px;border-radius:8px;
@@ -506,8 +506,8 @@ body{
    CHALLENGE ARENA
    ════════════════════════════════ */
 .battle-scoreboard{
-  background:linear-gradient(135deg,#1a0015,#0a1a3a);
-  border:1px solid rgba(255,107,107,0.3);
+  background:linear-gradient(135deg,#060D1A,#0D1F3C);
+  border:1px solid rgba(61,139,255,0.25);
   border-radius:24px;padding:24px;margin-bottom:20px;
 }
 .battle-players{display:flex;align-items:center;justify-content:space-between;gap:12px;}
@@ -525,7 +525,7 @@ body{
   display:flex;flex-direction:column;align-items:center;gap:4px;
   flex-shrink:0;
 }
-.vs-text{font-family:'Fredoka One',cursive;font-size:28px;color:var(--coral);}
+.vs-text{font-family:'Fredoka One',cursive;font-size:28px;color:var(--sun);}
 .vs-round{font-size:11px;color:var(--text2);font-weight:800;text-transform:uppercase;letter-spacing:1px;}
 .vs-timer{font-family:monospace;font-size:22px;font-weight:900;color:var(--sun);}
 
@@ -538,7 +538,7 @@ body{
   margin-bottom:10px;transition:all .2s;
   cursor:pointer;
 }
-.opp-card:hover{border-color:var(--coral);background:rgba(255,107,107,0.06);transform:translateX(4px);}
+.opp-card:hover{border-color:#3D8BFF;background:rgba(61,139,255,0.06);transform:translateX(4px);}
 .opp-avatar{
   width:48px;height:48px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -608,14 +608,14 @@ body{
 .lb-pts{font-family:'Fredoka One',cursive;font-size:18px;color:var(--sun);}
 .lb-chg{font-size:11px;font-weight:800;}
 .chg-up{color:var(--mint);}
-.chg-dn{color:var(--coral);}
+.chg-dn{color:#FCA5A5;}
 
 /* ════════════════════════════════
    TOURNAMENTS
    ════════════════════════════════ */
 .featured-tournament{
   background:linear-gradient(135deg,#1a0f00,#0d1a3a);
-  border:2px solid rgba(255,217,61,0.35);
+  border:2px solid rgba(255,217,61,0.4);
   border-radius:24px;padding:28px;margin-bottom:20px;
   position:relative;overflow:hidden;
 }
@@ -645,18 +645,18 @@ body{
    AI TUTOR
    ════════════════════════════════ */
 .tutor-header{
-  background:linear-gradient(135deg,rgba(155,93,229,0.15),rgba(78,205,196,0.1));
-  border:1px solid rgba(155,93,229,0.25);
+  background:linear-gradient(135deg,rgba(28,58,110,0.3),rgba(6,214,160,0.08));
+  border:1px solid rgba(28,58,110,0.4);
   border-radius:20px;padding:20px;margin-bottom:20px;
   display:flex;align-items:center;gap:16px;
 }
 .tutor-ava{
   width:64px;height:64px;border-radius:20px;
-  background:linear-gradient(135deg,var(--purple),var(--sky));
+  background:linear-gradient(135deg,#1C3A6E,#06D6A0);
   display:flex;align-items:center;justify-content:center;
   font-size:32px;flex-shrink:0;box-shadow:0 0 20px rgba(155,93,229,0.4);
 }
-.tutor-name{font-family:'Fredoka One',cursive;font-size:22px;}
+.tutor-name{font-family:'Fredoka One',cursive;font-size:22px;color:#FFD93D;}
 .tutor-tag{font-size:13px;color:var(--sky);font-weight:700;margin-top:2px;}
 
 .chat-box{
@@ -670,8 +670,8 @@ body{
   font-size:14px;line-height:1.6;max-width:88%;
 }
 .chat-bot{
-  background:rgba(155,93,229,0.12);
-  border:1px solid rgba(155,93,229,0.2);
+  background:rgba(28,58,110,0.3);
+  border:1px solid rgba(61,139,255,0.2);
   border-radius:16px 16px 16px 4px;
   align-self:flex-start;
 }
@@ -682,7 +682,7 @@ body{
   align-self:flex-end;
 }
 .chat-who{font-size:12px;font-weight:800;margin-bottom:4px;}
-.chat-who-bot{color:var(--purple);}
+.chat-who-bot{color:#60A5FA;}
 .chat-who-user{color:var(--sun);}
 .chat-input-row{display:flex;gap:10px;}
 .chat-input{
@@ -692,7 +692,7 @@ body{
   font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;outline:none;
   transition:border-color .2s;
 }
-.chat-input:focus{border-color:var(--purple);}
+.chat-input:focus{border-color:#3D8BFF;}
 .weak-topic{
   padding:14px 16px;
   background:rgba(255,255,255,0.05);
@@ -771,7 +771,7 @@ body{
 }
 .prof-avatar{
   width:90px;height:90px;border-radius:50%;
-  background:linear-gradient(135deg,var(--purple),var(--sky));
+  background:linear-gradient(135deg,#1C3A6E,#06D6A0);
   display:flex;align-items:center;justify-content:center;
   font-size:42px;font-weight:900;
   border:3px solid var(--sun);box-shadow:var(--glow-sun);
@@ -802,7 +802,7 @@ body{
 .land-hero{
   display:flex;flex-direction:column;align-items:center;
   text-align:center;padding:52px 20px 60px;
-  background:linear-gradient(180deg,var(--dark) 0%,var(--dark2) 100%);
+  background:linear-gradient(180deg,#080F1E 0%,#0B1629 60%,#0D1F3C 100%);
 }
 .land-section{
   padding:60px 24px;max-width:1100px;
@@ -867,7 +867,7 @@ body{
 }
 .price-card:hover{transform:translateY(-4px);}
 .price-card-featured{
-  border-color:rgba(255,217,61,0.4);
+  border-color:rgba(255,217,61,0.5);
   background:linear-gradient(180deg,rgba(255,217,61,0.07),rgba(255,217,61,0.02));
   transform:scale(1.02);
 }
@@ -1023,7 +1023,7 @@ body{
 .child-stat-lbl{font-size:10px;color:var(--text2);font-weight:700;margin-top:2px;}
 .wrong-q-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(255,107,107,0.06);border:1px solid rgba(255,107,107,0.15);border-radius:10px;margin-bottom:8px;}
 .prize-req-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,217,61,0.06);border:1px solid rgba(255,217,61,0.2);border-radius:14px;margin-bottom:10px;}
-.teen-wallet-card{background:linear-gradient(135deg,rgba(155,93,229,0.1),rgba(78,205,196,0.06));border:1px solid rgba(155,93,229,0.25);border-radius:16px;padding:18px;margin-bottom:12px;}
+.teen-wallet-card{background:linear-gradient(135deg,rgba(28,58,110,0.25),rgba(6,214,160,0.06));border:1px solid rgba(28,58,110,0.4);border-radius:16px;padding:18px;margin-bottom:12px;}
 .link-child-box{background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.15);border-radius:16px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;}
 .link-child-box:hover{border-color:var(--mint);background:rgba(6,214,160,0.05);}
 .activity-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
@@ -1036,18 +1036,18 @@ body{
 .music-btn{
   position:fixed;bottom:80px;right:16px;z-index:400;
   width:48px;height:48px;border-radius:50%;
-  background:linear-gradient(135deg,var(--purple),var(--sky));
+  background:linear-gradient(135deg,#1C3A6E,#06D6A0);
   border:2px solid rgba(255,255,255,0.2);
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;box-shadow:0 4px 20px rgba(155,93,229,0.5);
+  cursor:pointer;box-shadow:0 4px 20px rgba(28,58,110,0.6);
   transition:all .3s;font-size:20px;
   animation:music-pulse 2s ease-in-out infinite;
 }
-.music-btn:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(155,93,229,0.7);}
+.music-btn:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(61,139,255,0.5);}
 .music-btn.muted{background:rgba(255,255,255,0.1);box-shadow:none;animation:none;}
 @keyframes music-pulse{
-  0%,100%{box-shadow:0 4px 20px rgba(155,93,229,0.5);}
-  50%{box-shadow:0 4px 32px rgba(155,93,229,0.9),0 0 0 8px rgba(155,93,229,0.1);}
+  0%,100%{box-shadow:0 4px 20px rgba(28,58,110,0.6);}
+  50%{box-shadow:0 4px 32px rgba(61,139,255,0.6),0 0 0 8px rgba(61,139,255,0.08);}
 }
 .music-panel{
   position:fixed;bottom:140px;right:16px;z-index:400;
@@ -1072,13 +1072,13 @@ body{
   transition:all .2s;
 }
 .music-ctrl-btn:hover{background:rgba(255,255,255,0.18);}
-.music-ctrl-btn.active{background:var(--purple);color:#fff;}
+.music-ctrl-btn.active{background:#1C3A6E;color:#FFD93D;}
 .music-progress{
   height:4px;background:rgba(255,255,255,0.1);
   border-radius:100px;overflow:hidden;margin-bottom:10px;cursor:pointer;
 }
 .music-progress-fill{
-  height:100%;background:linear-gradient(90deg,var(--purple),var(--sky));
+  height:100%;background:linear-gradient(90deg,#FFD93D,#06D6A0);
   border-radius:100px;transition:width .5s linear;width:0%;
 }
 .music-vol-row{display:flex;align-items:center;gap:8px;}
@@ -1089,14 +1089,14 @@ body{
 }
 .music-vol-slider::-webkit-slider-thumb{
   -webkit-appearance:none;width:14px;height:14px;
-  border-radius:50%;background:var(--purple);cursor:pointer;
+  border-radius:50%;background:#3D8BFF;cursor:pointer;
 }
 .music-label{font-size:10px;color:var(--text2);font-weight:800;
   letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
 .music-eq{display:flex;align-items:flex-end;gap:2px;height:16px;}
 .music-bar{
   width:3px;border-radius:2px;
-  background:linear-gradient(to top,var(--purple),var(--sky));
+  background:linear-gradient(to top,#1C3A6E,#06D6A0);
   animation:eq-dance .6s ease-in-out infinite alternate;
 }
 .music-bar:nth-child(2){animation-delay:.1s;}
@@ -1112,6 +1112,27 @@ body{
 </style>
 </head>
 <body>
+
+<!-- MathCrown Brand Logo — embedded symbol -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" id="mc-logo-defs">
+  <symbol id="mc-logo-icon" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="56" fill="#1C3A6E" stroke="#FFD93D" stroke-width="2.5"/>
+    <rect x="22" y="56" width="76" height="7" rx="3" fill="#FFD93D"/>
+    <polygon points="30,56 37,33 44,56" fill="#FFD93D"/>
+    <polygon points="54,56 60,18 66,56" fill="#FFD93D"/>
+    <polygon points="76,56 83,33 90,56" fill="#FFD93D"/>
+    <circle cx="37" cy="32" r="4.5" fill="#06D6A0"/>
+    <circle cx="60" cy="17" r="6" fill="#06D6A0"/>
+    <circle cx="83" cy="32" r="4.5" fill="#06D6A0"/>
+    <rect x="24" y="61" width="11" height="36" rx="3" fill="#FFFFFF"/>
+    <rect x="85" y="61" width="11" height="36" rx="3" fill="#FFFFFF"/>
+    <polygon points="24,61 35,61 60,82 49,82" fill="#FFFFFF"/>
+    <polygon points="96,61 85,61 60,82 71,82" fill="#FFFFFF"/>
+    <polygon points="49,82 60,82 71,82 60,74" fill="#FFFFFF"/>
+    <text x="60" y="107" text-anchor="middle" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#FFD93D" opacity="0.7">&#x2211;</text>
+  </symbol>
+</svg>
+
 <div class="bg-shapes">
   <div class="shape s1"></div>
   <div class="shape s2"></div>
@@ -1126,11 +1147,13 @@ body{
 
   <!-- HERO SECTION -->
   <div class="land-hero">
-    <div class="land-mascot">🧮</div>
-    <div class="brand-name">MathChamp</div>
-    <div class="brand-motto">✨ Math is Fun! ✨</div>
-    <h1 class="land-headline">Win Prizes. Beat Friends.<br><em>Fall in Love with Math.</em></h1>
-    <p class="land-sub">The competitive math platform for K–12 students — battle classmates, climb rankings, earn real prizes, and discover that math is actually the most fun subject ever.</p>
+    <div class="land-mascot" style="background:none;box-shadow:none;animation:bounce-gentle 2s ease-in-out infinite;display:flex;align-items:center;justify-content:center">
+  <svg width="130" height="130" viewBox="0 0 120 120"><use href="#mc-logo-icon"/></svg>
+</div>
+    <div class="brand-name">MathCrown</div>
+    <div class="brand-motto">👑 Earn Your Crown. ✨</div>
+    <h1 class="land-headline">Win Prizes. Beat Friends.<br><em>Earn Your MathCrown.</em></h1>
+    <p class="land-sub">The K–12 competitive math platform — battle classmates in live math duels, climb national rankings, and earn your MathCrown. Every grade, every topic, free to start.</p>
     <div class="features-row">
       <div class="feat-pill">⚔️ Live PvP Battles</div>
       <div class="feat-pill">🏆 National Tournaments</div>
@@ -1163,7 +1186,7 @@ body{
 
   <!-- HOW IT WORKS -->
   <div class="land-section">
-    <div class="land-section-title">🎯 How MathChamp Works</div>
+    <div class="land-section-title">🎯 How MathCrown Works</div>
     <div class="land-section-sub">Three simple steps to turn math from boring to brilliant</div>
     <div class="how-grid">
       <div class="how-card">
@@ -1224,7 +1247,7 @@ body{
         <div class="price-badge-free">FREE FOREVER</div>
         <div class="price-name">Starter</div>
         <div class="price-amt">$0<span class="price-per">/mo</span></div>
-        <div class="price-desc">Perfect for trying MathChamp</div>
+        <div class="price-desc">Perfect for trying MathCrown</div>
         <ul class="price-features">
           <li>✅ Daily trivia (3 questions)</li>
           <li>✅ 5 challenges per day</li>
@@ -1346,10 +1369,10 @@ body{
   <!-- FOOTER -->
   <footer class="land-footer">
     <div class="footer-brand">
-      <span style="font-size:28px">🧮</span>
-      <span style="font-family:'Fredoka One',cursive;font-size:24px;background:linear-gradient(135deg,var(--sun),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">MathChamp</span>
+      <svg width="40" height="40" viewBox="0 0 120 120" style="vertical-align:middle"><use href="#mc-logo-icon"/></svg>
+      <span style="font-family:'Fredoka One',cursive;font-size:24px;background:linear-gradient(135deg,#1C3A6E,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">MathCrown</span>
     </div>
-    <div class="footer-motto">✨ Math is Fun! ✨</div>
+    <div class="footer-motto">👑 Earn Your Crown. Math for Grades K–12. ✨</div>
     <div class="footer-links">
       <a class="footer-link" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a class="footer-link" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Waitlist</a>
@@ -1359,7 +1382,7 @@ body{
       <a class="footer-link" onclick="showToast('📋 Terms of Service — Coming Soon')">Terms of Service</a>
     </div>
     <div class="footer-legal">
-      © 2026 MathChamp. All rights reserved. · COPPA Compliant · No ads targeted at children · No data sold · Cancel anytime<br>
+      © 2026 MathCrown™. All rights reserved. All rights reserved. · COPPA Compliant · No ads targeted at children · No data sold · Cancel anytime<br>
       All prizes delivered to verified parent accounts only. Students never handle money directly.<br>
       Questions sourced from Khan Academy, OpenStax, Illustrative Mathematics, SAT/ACT/AP released exams, STAAR, and Claude AI.
     </div>
@@ -1376,7 +1399,7 @@ body{
     </div>
 
     <div id="tab-student">
-      <div class="modal-title">Join MathChamp! 🎉</div>
+      <div class="modal-title">Join MathCrown! 🎉</div>
       <div class="modal-sub">Create your player profile — it's free!</div>
       <div class="form-row">
         <div class="form-group">
@@ -1484,7 +1507,7 @@ body{
   <div class="modal">
     <button class="modal-close" onclick="closeLinkChildModal()">✕</button>
     <div class="modal-title">Link a Child Account 👦</div>
-    <div class="modal-sub">Connect your child's MathChamp profile to your parent dashboard</div>
+    <div class="modal-sub">Connect your child's MathCrown profile to your parent dashboard</div>
     <div class="form-group">
       <label class="form-label">Child's First Name</label>
       <input class="form-input" type="text" id="lc-fn" placeholder="e.g. Josh">
@@ -1603,10 +1626,10 @@ body{
   <div class="sidebar" id="sidebar">
     <div class="sb-scroll">
     <div class="sb-brand">
-      <div class="sb-icon">🧮</div>
+      <div class="sb-icon" style="background:none;box-shadow:none;padding:2px;overflow:visible"><svg width="40" height="40" viewBox="0 0 120 120"><use href="#mc-logo-icon"/></svg></div>
       <div>
-        <div class="sb-name">MathChamp</div>
-        <div class="sb-motto">Math is Fun!</div>
+        <div class="sb-name">MathCrown</div>
+        <div class="sb-motto">Earn Your Crown!</div>
       </div>
     </div>
 
@@ -1659,7 +1682,7 @@ body{
       </div>
     </div><!-- /sb-scroll -->
     <div class="sb-footer">
-      <button onclick="logout()" style="width:100%;background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);border-radius:12px;padding:10px;cursor:pointer;color:var(--coral);font-size:13px;font-weight:800;font-family:Nunito,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">
+      <button onclick="logout()" style="width:100%;background:rgba(255,107,107,0.12);border:1px solid rgba(61,139,255,0.25);border-radius:12px;padding:10px;cursor:pointer;color:var(--coral);font-size:13px;font-weight:800;font-family:Nunito,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">
         🚪 Log Out &amp; Return to Home
       </button>
     </div>
@@ -1671,7 +1694,7 @@ body{
 
     <!-- ════ HOME ════ -->
     <div class="page on" id="p-home">
-      <div class="page-title" id="home-greet">Welcome to MathChamp! 🎉</div>
+      <div class="page-title" id="home-greet">Welcome to MathCrown! 🎉</div>
       <div class="page-sub" id="home-sub">Complete your first trivia to start earning XP and MathCoins! 🚀</div>
 
       <!-- XP Bar — all dynamic, starts at zero for new users -->
@@ -1846,7 +1869,7 @@ body{
 
 
       <!-- How Challenges Work -->
-      <div class="card" style="margin-bottom:16px;padding:18px 20px;background:linear-gradient(135deg,rgba(155,93,229,0.1),rgba(78,205,196,0.06));border-color:rgba(155,93,229,0.25)">
+      <div class="card" style="margin-bottom:16px;padding:18px 20px;background:linear-gradient(135deg,rgba(28,58,110,0.25),rgba(6,214,160,0.06));border-color:rgba(155,93,229,0.25)">
         <div style="font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;margin-bottom:12px;color:var(--purple)">⚔️ How Challenges Work</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;color:var(--text2)">
           <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:var(--mint);font-size:16px">🟢</span><span><strong style="color:var(--text)">Green dot = Online</strong><br>Player is active now — challenge sends instantly</span></div>
@@ -1893,7 +1916,7 @@ body{
         <div class="battle-scoreboard">
           <div class="battle-players">
             <div class="battle-player">
-              <div class="b-avatar" id="b-my-ava" style="background:linear-gradient(135deg,var(--purple),var(--sky))">A</div>
+              <div class="b-avatar" id="b-my-ava" style="background:linear-gradient(135deg,#1C3A6E,#06D6A0)">A</div>
               <div>
                 <div class="b-pname" id="b-my-name">You</div>
                 <div class="b-ptier">Gold Tier</div>
@@ -2223,7 +2246,7 @@ body{
     <button class="mob-item" onclick="goPage('wallet',this,true)"><span class="mob-icon">💰</span>Wallet</button>
     <button class="mob-item" onclick="goPage('profile',this,true)"><span class="mob-icon">👤</span>Me</button>
   </div>
-  <button onclick="logout()" style="position:absolute;top:8px;right:10px;background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.3);border-radius:20px;padding:4px 10px;color:var(--coral);font-size:11px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif">
+  <button onclick="logout()" style="position:absolute;top:8px;right:10px;background:rgba(255,107,107,0.15);border:1px solid rgba(61,139,255,0.25);border-radius:20px;padding:4px 10px;color:var(--coral);font-size:11px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif">
     🚪 Exit
   </button>
 </div>
@@ -2232,7 +2255,7 @@ body{
 <div class="toast" id="toast">✅</div>
 
 <script>
-// MathChamp v4 - Complete Clean Rewrite
+// MathCrown v1.0 - K-12 Competitive Math Platform
 // Zero mixed quotes, zero multiline strings, zero duplicates
 window.MATHCHAMP_LOADED = true;
 
@@ -2863,7 +2886,7 @@ function enterApp(name, grade, gradeNum, isPreview){
   setEl("sb-avatar", ava); setEl("prof-ava", ava);
   setEl("sb-name", name.split(" ")[0]+(name.split(" ")[1]?" "+name.split(" ")[1][0]+".":""));
   setEl("sb-ulevel", "Level "+S.level+" - "+(S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner"));
-  setEl("home-greet", "Welcome, "+name.split(" ")[0]+"! Math is Fun!");
+  setEl("home-greet", "Welcome, "+name.split(" ")[0]+"! Earn Your Crown!");
   setEl("prof-name", name); setEl("prof-grade", grade+" - Math Champ");
   setEl("stat-wins","0"); setEl("stat-streak",S.streak); setEl("stat-rank","--");
   setEl("home-coins",S.coins.toLocaleString()); setEl("wallet-coins",S.coins.toLocaleString());
@@ -2917,7 +2940,7 @@ async function signupStudent(){
   registerPlayer(fullName, gr+"th");
   saveSession();
   enterApp(fullName, gr+"th Grade", parseInt(gr)||7, false);
-  showToast("Welcome to MathChamp, "+fn+"! Math is Fun!");
+  showToast("Welcome to MathCrown, "+fn+"! Earn Your Crown!");
 }
 
 function previewApp(){
@@ -2930,7 +2953,7 @@ function showPreviewBanner(){
   if($$("preview-banner")) return;
   var banner = document.createElement("div");
   banner.id = "preview-banner";
-  banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(135deg,var(--purple),var(--sky));padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;";
+  banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(135deg,#1C3A6E,#06D6A0);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;";
   var span = document.createElement("span");
   span.style.cssText = "font-size:13px;font-weight:800;color:#fff";
   span.textContent = "PREVIEW MODE - Sign up free to save progress and earn real prizes!";
@@ -3514,7 +3537,7 @@ function searchPlayers(query){
     row.setAttribute("data-pname",p.name);
     row.addEventListener("click",function(){ selectPlayerChallenge(this.getAttribute("data-pname")); });
     var dotColor=p.online?"var(--mint)":"var(--text2)";
-    row.innerHTML="<div style='width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--sky));display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px'>"+p.name[0]+"</div>"
+    row.innerHTML="<div style='width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1C3A6E,#06D6A0);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px'>"+p.name[0]+"</div>"
       +"<div style='flex:1'><div style='font-size:14px;font-weight:800'>"+p.name+"</div>"
       +"<div style='font-size:12px;color:var(--text2)'><span style='display:inline-block;width:8px;height:8px;background:"+dotColor+";border-radius:50%;margin-right:4px'></span>Grade "+p.grade+" - Level "+p.level+" - "+p.wins+" wins</div></div>"
       +"<button class='btn btn-coral btn-xs'>Challenge</button>";
@@ -3618,7 +3641,7 @@ async function sendMsg(){
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,
-        system:"You are Axiom, a friendly math tutor for MathChamp. Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear.",
+        system:"You are Axiom, the AI math coach for MathCrown — the K-12 competitive math platform. Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear.",
         messages:[{role:"user",content:msg}]})
     });
     var d=await r.json();
@@ -3849,7 +3872,7 @@ function buildChildCard(child, isDemo){
   var actHtml="";
   (child.activity||[]).forEach(function(a){ actHtml+="<div class='activity-row'><div class='activity-dot' style='background:"+a.color+"'></div><div style='flex:1'>"+a.txt+"</div><div style='font-size:11px;color:var(--text2)'>"+a.time+"</div></div>"; });
   card.innerHTML="<div class='child-card-header'>"
-    +"<div class='child-ava' style='background:linear-gradient(135deg,var(--purple),var(--sky))'>"+child.name[0]+"</div>"
+    +"<div class='child-ava' style='background:linear-gradient(135deg,#1C3A6E,#06D6A0)'>"+child.name[0]+"</div>"
     +"<div style='flex:1'><div style='font-size:16px;font-weight:800'>"+child.name+demoTag+"</div>"
     +"<div style='font-size:12px;color:var(--text2)'>"+child.grade+" - Level "+child.level+" - "+ageNote+"</div></div></div>"
     +"<div class='child-stats'>"
@@ -3938,7 +3961,7 @@ async function submitParentSignup(){
       +"<div style='color:var(--text2);font-size:14px;line-height:1.9;margin-bottom:20px'>"
       +"Welcome, <strong style='color:var(--mint)'>"+firstName+"</strong>!<br><br>"
       +"<span class='badge b-sun' style='font-size:12px'>Plan: "+plan+"</span><br><br>"
-      +"Your MathChamp account is now active!<br><br>"
+      +"Your MathCrown account is now active!<br><br>"
       +"<span style='color:var(--mint)'>"+(sent?"We will email "+email+" at launch!":"We have your details and will be in touch!")+"</span><br><br>"
       +"<strong style='color:var(--mint)'>Founding Family:</strong> Your "+plan+" price is locked forever."
       +"</div>"
@@ -3983,36 +4006,25 @@ function generateWeeklyReport(){
   if(!PARENT.children||PARENT.children.length===0){
     showToast("No children linked yet. Link a child account first!"); return;
   }
-  var report="MathChamp Weekly Report
-";
-  report+="Generated: "+new Date().toLocaleDateString()+"
-
-";
+  var NL="\n";
+  var report="MathCrown Weekly Report"+NL;
+  report+="Generated: "+new Date().toLocaleDateString()+NL+NL;
   PARENT.children.forEach(function(child){
-    report+="=== "+child.name+" ("+child.grade+") ===
-";
-    report+="XP: "+child.xp.toLocaleString()+"
-";
-    report+="MathCoins: "+child.coins.toLocaleString()+"
-";
-    report+="Wins: "+child.wins+"
-";
-    report+="Streak: "+child.streak+" days
-";
-    report+="Level: "+child.level+"
-";
-    report+="Needs Practice: "+(child.topics_weak||[]).join(", ")+"
-";
-    report+="Doing Well In: "+(child.topics_strong||[]).join(", ")+"
-
-";
+    report+="=== "+child.name+" ("+child.grade+") ==="+NL;
+    report+="XP: "+child.xp.toLocaleString()+NL;
+    report+="MathCoins: "+child.coins.toLocaleString()+NL;
+    report+="Wins: "+(child.wins||0)+NL;
+    report+="Streak: "+(child.streak||0)+" days"+NL;
+    report+="Level: "+(child.level||1)+NL;
+    report+="Needs Practice: "+(child.topics_weak||[]).join(", ")+NL;
+    report+="Doing Well In: "+(child.topics_strong||[]).join(", ")+NL+NL;
   });
   var blob=new Blob([report],{type:"text/plain"});
   var url=URL.createObjectURL(blob);
   var a=document.createElement("a"); a.href=url;
-  a.download="MathChamp_Weekly_Report_"+new Date().toISOString().split("T")[0]+".txt";
+  a.download="MathCrown_Weekly_Report_"+new Date().toISOString().split("T")[0]+".txt";
   a.click(); URL.revokeObjectURL(url);
-  showToast("Weekly report downloaded! 📊");
+  showToast("Weekly report downloaded!");
 }
 
 async function sendToWeb3Forms(data){
@@ -4219,7 +4231,7 @@ document.addEventListener("DOMContentLoaded",function(){
     <button onclick="turnMusicOff()" id="music-off-btn" style="width:100%;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);border-radius:10px;padding:8px;color:var(--coral);font-size:13px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif">
       🔇 Turn Music Off
     </button>
-    <button onclick="turnMusicOn()" id="music-on-btn" style="width:100%;background:rgba(155,93,229,0.1);border:1px solid rgba(155,93,229,0.25);border-radius:10px;padding:8px;color:var(--purple);font-size:13px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif;display:none">
+    <button onclick="turnMusicOn()" id="music-on-btn" style="width:100%;background:rgba(155,93,229,0.1);border:1px solid rgba(28,58,110,0.4);border-radius:10px;padding:8px;color:var(--purple);font-size:13px;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif;display:none">
       🎵 Turn Music On
     </button>
   </div>
@@ -4301,6 +4313,7 @@ document.addEventListener("DOMContentLoaded",function(){
 
   console.log("✅ Firebase loaded successfully");
 </script>
+
 
 </body>
 </html>
