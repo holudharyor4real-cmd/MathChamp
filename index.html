@@ -4,26 +4,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MathCrown 👑 — Earn Your Crown | K-12 Competitive Math Platform</title>
+<title>MathCrown | K-12 Competitive Math Platform — Earn Your Crown</title>
 
 <!-- ── SEO ── -->
 <meta name="description" content="MathCrown — The K-12 competitive math platform. Battle classmates in live math duels, earn your crown, get AI tutoring from Axiom, and climb national rankings. Free to join.">
 <meta name="keywords" content="math app for kids, K-12 math game, competitive math, math learning platform, math prizes, math tutoring, algebra game, Math is Fun">
 <meta name="author" content="MathCrown">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.mymathchamp.com">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://www.mymathcrown.com">
 
 <!-- ── OPEN GRAPH (Facebook, WhatsApp, LinkedIn sharing) ── -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://www.mymathchamp.com">
-<meta property="og:title" content="MathCrown — Earn Your Crown! 👑">
+<meta property="og:url" content="https://www.mymathcrown.com">
+<meta property="og:title" content="MathCrown | K-12 Competitive Math — Earn Your Crown">
 <meta property="og:description" content="The competitive math platform for K-12 students. Battle classmates in live math duels, earn prizes, and claim your MathCrown. Free to join.">
-<meta property="og:image" content="https://www.mymathchamp.com/og-image.png">
+<meta property="og:image" content="https://www.mymathcrown.com/og-image.png">
 
 <!-- ── TWITTER CARD ── -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MathCrown — Earn Your Crown! 👑">
-<meta name="twitter:description" content="K-12 competitive math. Battle friends, earn real prizes, AI tutor Axiom. Earn your MathCrown!">
+<meta name="twitter:title" content="MathCrown | K-12 Competitive Math — Earn Your Crown">
+<meta name="twitter:description" content="K-12 competitive math platform. Battle friends, earn real prizes, AI tutor Axiom. Earn your MathCrown!">
+<meta name="twitter:image" content="https://www.mymathcrown.com/og-image.png">
+<meta name="twitter:site" content="@MathCrown">
 
 <!-- ── PWA / MOBILE ── -->
 <meta name="theme-color" content="#FFD93D">
@@ -1377,12 +1379,12 @@ body{
       <a class="footer-link" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a class="footer-link" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Waitlist</a>
       <a class="footer-link" onclick="openModal('student')">Sign Up Free</a>
-      <a class="footer-link" onclick="showToast('📧 Contact: support@mymathchamp.com')">Contact Us</a>
+      <a class="footer-link" onclick="showToast('📧 Contact: support@mymathcrown.com')">Contact Us</a>
       <a class="footer-link" onclick="showToast('📋 Privacy Policy — Coming Soon')">Privacy Policy</a>
       <a class="footer-link" onclick="showToast('📋 Terms of Service — Coming Soon')">Terms of Service</a>
     </div>
     <div class="footer-legal">
-      © 2026 MathCrown™. All rights reserved. All rights reserved. · COPPA Compliant · No ads targeted at children · No data sold · Cancel anytime<br>
+      © 2026 MathCrown™. All rights reserved. · mymathcrown.com All rights reserved. · COPPA Compliant · No ads targeted at children · No data sold · Cancel anytime<br>
       All prizes delivered to verified parent accounts only. Students never handle money directly.<br>
       Questions sourced from Khan Academy, OpenStax, Illustrative Mathematics, SAT/ACT/AP released exams, STAAR, and Claude AI.
     </div>
@@ -3641,7 +3643,7 @@ async function sendMsg(){
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,
-        system:"You are Axiom, the AI math coach for MathCrown — the K-12 competitive math platform. Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear.",
+        system:"You are Axiom, the AI math coach for MathCrown at mymathcrown.com — the K-12 competitive math platform. Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear.",
         messages:[{role:"user",content:msg}]})
     });
     var d=await r.json();
