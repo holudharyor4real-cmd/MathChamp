@@ -2601,9 +2601,12 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
+var MC_BUILD = "2026-08-22-axiom-live";
+console.log("%c MathCrown build: 2026-08-22-axiom-live ", "background:#FFD93D;color:#080F1E;font-weight:bold");
+
 // ═══ BACKEND API ═══
 // Replace with your Cloudflare Worker URL after deploying (see mathcrown-worker.js)
-var MC_API_BASE = "https://mathcrown-api.YOUR-SUBDOMAIN.workers.dev";
+var MC_API_BASE = "https://mathcrown-api.holudharyor4real.workers.dev";
 
 var MUSIC = { trackIdx:0, playing:false, muted:true, shuffle:false, volume:0.30, panelOpen:false, userInteracted:false, userManuallyStopped:false };
 var triviaTimer = null;
@@ -4309,10 +4312,20 @@ async function sendMsg(){
         messages:[{role:"user",content:msg}]})
     });
     var d=await r.json();
-    var reply=((d.content||[{text:"I am offline right now!"}])[0].text||"");
+    if(d.error){
+      thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>Axiom hit an error: "+d.error;
+      console.error("Axiom API error:", d.error);
+      chat.scrollTop=chat.scrollHeight;
+      return;
+    }
+    var reply=((d.content||[{text:"No response received."}])[0].text||"");
     thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>"+reply;
   }catch(e){
-    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>Axiom is taking a break! Try again soon.";
+    var hint = (MC_API_BASE.indexOf("YOUR-SUBDOMAIN")>-1)
+      ? "Axiom is not configured yet (API URL missing)."
+      : "Axiom could not be reached. ("+(e.message||"network error")+")";
+    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>"+hint;
+    console.error("Axiom error:", e);
   }
   chat.scrollTop=chat.scrollHeight;
 }
