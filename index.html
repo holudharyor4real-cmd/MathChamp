@@ -38,7 +38,8 @@
 <meta name="application-name" content="MathCrown">
 
 <!-- ── FONTS ── -->
-  <script src="https://js.stripe.com/v3/">
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>
 
 function submitParentSignupThenCheckout(){
   // After signup, open checkout for selected plan
@@ -51,28 +52,32 @@ function submitParentSignupThenCheckout(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// STRIPE PAYMENT INTEGRATION
-// Replace STRIPE_PUBLISHABLE_KEY with your key from stripe.com/dashboard
+// STRIPE PAYMENT INTEGRATION — TEST MODE
+//
+// Publishable key + price IDs below are Stripe TEST mode (sandbox) —
+// safe to ship client-side. The secret key is NOT here: it lives only
+// as the STRIPE_SECRET_KEY Worker secret (Cloudflare dashboard →
+// Settings → Variables), used server-side in mathcrown-worker.js.
 // ═══════════════════════════════════════════════════════════════
 
-var STRIPE_PUBLISHABLE_KEY = "pk_live_YOUR_KEY_HERE"; // ← Replace this
+var STRIPE_PUBLISHABLE_KEY = "pk_test_51PhxydLlOQQZLBNdqpRCnKlRUkCaUZwIEtsh9qs5a0aiZLrFxPs3h4Y2xbVwDk2RDN2BDOx4wtIWou7YRLpwUUIM009wwfORLN";
 var STRIPE_PLANS = {
   premium: {
     name: "Premium Plan",
     price: "$9.99/month",
-    priceId: "price_YOUR_PREMIUM_PRICE_ID",  // ← From Stripe Dashboard
+    priceId: "price_1U7PzGLlOQQZLBNduz2kfJ8F",
     features: "✅ Unlimited challenges · ✅ Prize redemption · ✅ Tournament entry · ✅ Full parent dashboard · ✅ Axiom AI Tutor — 5 questions/day"
   },
   family: {
     name: "Family Plan",
     price: "$14.99/month",
-    priceId: "price_YOUR_FAMILY_PRICE_ID",   // ← From Stripe Dashboard
+    priceId: "price_1U7PzaLlOQQZLBNdMTucLIPu",
     features: "✅ Everything in Premium · ✅ Up to 4 children · ✅ Family leaderboard · ✅ Shared prize wallet · ✅ Axiom AI Tutor — 5 questions/day"
   },
   max: {
     name: "Max + AI Plan",
     price: "$19.99/month",
-    priceId: "price_YOUR_MAX_PRICE_ID",      // ← From Stripe Dashboard
+    priceId: "price_1U7PztLlOQQZLBNda7f3LkpB",
     features: "✅ Everything in Family · ✅ Axiom AI Tutor — UNLIMITED · ✅ AI weak-spot detection · ✅ AI-generated practice sets · ✅ Advanced analytics"
   }
 };
@@ -147,7 +152,7 @@ function openCheckout(planKey) {
     if (stripeCardElement) {
       try { stripeCardElement.destroy(); } catch(e) {}
     }
-    stripeCardElement = elements.card({
+    stripeCardElement = elements.create("card", {
       style: {
         base: {
           color: "#F0F6FF",
@@ -227,10 +232,8 @@ async function submitCheckout() {
       return;
     }
 
-    // Step 2: Send to your backend to create the subscription
-    // IMPORTANT: You need a backend endpoint (Firebase Cloud Function or server)
-    // Replace this URL with your actual endpoint once deployed
-    var response = await fetch("https://YOUR-BACKEND.com/create-subscription", {
+    // Step 2: Send to the Worker's /subscribe endpoint to create the subscription
+    var response = await fetch(MC_API_BASE + "/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -282,8 +285,8 @@ function showCheckoutSuccess(planKey) {
 
   // Save plan to Firestore
   S.plan = planKey;
-  if (window.saveProgress) {
-    window.saveProgress(S.xp, S.coins, S.level, S.streak, S.linkCode);
+  if (window.savePlan) {
+    window.savePlan(planKey);
   }
   showToast("🎉 Welcome to MathCrown " + STRIPE_PLANS[planKey].name + "!");
 }
@@ -426,6 +429,7 @@ body{
 }
 .btn-sun{background:linear-gradient(135deg,var(--sun),var(--sun2));color:var(--dark);box-shadow:var(--glow-sun);}
 .btn-sun:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 36px rgba(255,217,61,0.6);}
+@keyframes mc-spin{to{transform:translateY(-50%) rotate(360deg);}}
 .btn-mint{background:linear-gradient(135deg,var(--mint),var(--sky));color:var(--dark);}
 .btn-mint:hover{transform:translateY(-3px) scale(1.03);box-shadow:var(--glow-mint);}
 .btn-ghost{background:rgba(28,58,110,0.2);border:2px solid rgba(61,139,255,0.25);color:var(--text);}
@@ -2633,8 +2637,8 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
-var MC_BUILD = "2026-08-22-axiom-gated";
-console.log("%c MathCrown build: 2026-08-22-axiom-gated ", "background:#FFD93D;color:#080F1E;font-weight:bold");
+var MC_BUILD = "2026-08-22-stripe-test-keys-wired";
+console.log("%c MathCrown build: 2026-08-22-stripe-test-keys-wired ", "background:#FFD93D;color:#080F1E;font-weight:bold");
 
 // ═══ BACKEND API ═══
 // Replace with your Cloudflare Worker URL after deploying (see mathcrown-worker.js)
@@ -3272,6 +3276,7 @@ async function loginStudent(){
       if(data){
         S.xp=data.xp||0; S.level=data.level||1;
         S.streak=data.streak||0; S.coins=data.coins||0;
+        S.plan=data.plan||"free";
         fn=data.displayName||fn;
         // Restore linkCode from Firestore
         if(data.linkCode){
@@ -5361,6 +5366,16 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     return snap.exists() ? snap.data() : null;
   };
 
+  // Persists the Stripe plan key after checkout so it survives refresh/re-login.
+  // v1: client-trusted once the Worker has confirmed an active/trialing Stripe
+  // subscription. Not hardened against a forged client write — a Stripe webhook
+  // updating this server-side is the follow-up fix.
+  window.savePlan = async function(planKey) {
+    const user = auth.currentUser;
+    if (!user) return;
+    await updateDoc(doc(db, "users", user.uid), { plan: planKey });
+  };
+
   window.startLeaderboard = function(callback) {
     const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(20));
     return onSnapshot(q, snapshot => {
@@ -5459,6 +5474,44 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
 </script>
 
 
+
+<div id="modal-checkout" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:20px;backdrop-filter:blur(8px);overflow-y:auto">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="closeCheckout()">✕</button>
+    <div class="modal-title" id="checkout-plan-name">Premium Plan</div>
+    <div class="modal-sub trial-badge" id="checkout-plan-price">$9.99/month · 14-day free trial · Cancel anytime</div>
+
+    <div id="checkout-features" style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.7"></div>
+
+    <div class="checkout-form-area stripe-form-area">
+      <div class="form-group">
+        <label class="form-label">Name on Card</label>
+        <input type="text" id="checkout-name" class="form-input" placeholder="Full name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="checkout-email" class="form-input" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Card Details</label>
+        <div id="stripe-card-element" style="background:rgba(255,255,255,0.07);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;transition:border-color .2s"></div>
+        <div id="stripe-card-errors" style="color:#FF6B6B;font-size:12px;margin-top:8px;min-height:16px"></div>
+      </div>
+    </div>
+
+    <button id="checkout-submit-btn" class="btn btn-sun" style="width:100%;position:relative" onclick="submitCheckout()">
+      <span id="checkout-btn-text">🔒 Start Free Trial</span>
+      <span id="checkout-spinner" style="display:none;position:absolute;right:16px;top:50%;width:16px;height:16px;border:2px solid rgba(8,15,30,0.3);border-top-color:#080F1E;border-radius:50%;animation:mc-spin .7s linear infinite"></span>
+    </button>
+
+    <div id="checkout-success" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:48px;margin-bottom:12px">🎉</div>
+      <div class="modal-title" style="font-size:22px">You're in!</div>
+      <div class="modal-sub">Your free trial has started. Enjoy MathCrown!</div>
+      <button class="btn btn-sun" style="width:100%;margin-top:12px" onclick="closeCheckout()">Let's go!</button>
+    </div>
+  </div>
+</div>
 
 <div id="modal-privacy" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;padding:20px">
   <div style="max-width:720px;margin:40px auto;background:#0B1629;border-radius:20px;border:1px solid rgba(255,217,61,0.2);overflow:hidden">
