@@ -2675,8 +2675,8 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
-var MC_BUILD = "2026-08-23-remove-checkout-resume-race";
-console.log("%c MathCrown build: 2026-08-23-remove-checkout-resume-race ", "background:#FFD93D;color:#080F1E;font-weight:bold");
+var MC_BUILD = "2026-08-23-improve-signup-error-detail";
+console.log("%c MathCrown build: 2026-08-23-improve-signup-error-detail ", "background:#FFD93D;color:#080F1E;font-weight:bold");
 
 // ═══ BACKEND API ═══
 // Replace with your Cloudflare Worker URL after deploying (see mathcrown-worker.js)
@@ -3196,9 +3196,17 @@ async function signupStudent(){
       resumePendingCheckoutIfAny();
       return;
     }catch(e){
-      var msg=e.message||"";
-      if(msg.indexOf("email-already-in-use")>-1) showToast("That email is already registered. Please log in!");
-      else showToast("Signup error: "+msg.replace("Firebase: ","").split(" (")[0]);
+      var code=e.code||"", msg=e.message||"";
+      console.log("[Signup] firebaseSignUp FAILED — code:", code, "message:", msg, "name:", e.name, "full error:", e);
+      if(code.indexOf("email-already-in-use")>-1 || msg.indexOf("email-already-in-use")>-1){
+        showToast("That email is already registered. Please log in!");
+      } else if(code.indexOf("network-request-failed")>-1){
+        showToast("Network error — check your connection (or an ad-blocker/privacy extension may be blocking Firebase) and try again.");
+      } else {
+        var detail=msg.replace("Firebase: ","").split(" (")[0];
+        if(!detail || detail==="Error") detail = (code || (e.name && e.name!=="Error" ? e.name : "") || "please try again — if this keeps happening, an ad-blocker or privacy extension may be blocking Firebase");
+        showToast("Signup error: "+detail);
+      }
       var btn2=document.querySelector("#tab-student .btn-sun");
       if(btn2){ btn2.textContent="🚀 Create My Profile — Free!"; btn2.disabled=false; }
       return;
@@ -4801,10 +4809,17 @@ async function submitParentSignup(){
   try{
     await window.firebaseSignUp(email, password, fullName, "parent", "");
   }catch(e){
-    var msg=e.message||"";
-    console.log("[ParentSignup] firebaseSignUp FAILED:", msg);
-    if(msg.indexOf("email-already-in-use")>-1) showToast("That email is already registered. Please log in instead!");
-    else showToast("Signup error: "+msg.replace("Firebase: ","").split(" (")[0]);
+    var code=e.code||"", msg=e.message||"";
+    console.log("[ParentSignup] firebaseSignUp FAILED — code:", code, "message:", msg, "name:", e.name, "full error:", e);
+    if(code.indexOf("email-already-in-use")>-1 || msg.indexOf("email-already-in-use")>-1){
+      showToast("That email is already registered. Please log in instead!");
+    } else if(code.indexOf("network-request-failed")>-1){
+      showToast("Network error — check your connection (or an ad-blocker/privacy extension may be blocking Firebase) and try again.");
+    } else {
+      var detail = msg.replace("Firebase: ","").split(" (")[0];
+      if(!detail || detail==="Error") detail = (code || (e.name && e.name!=="Error" ? e.name : "") || "please try again — if this keeps happening, an ad-blocker or privacy extension may be blocking Firebase");
+      showToast("Signup error: "+detail);
+    }
     if(btn){ btn.textContent="✅ Create Parent Account"; btn.disabled=false; }
     return;
   }
