@@ -302,6 +302,18 @@ function showCheckoutSuccess(planKey) {
   if (window.savePlan) {
     window.savePlan(planKey);
   }
+  // If this checkout was initiated by a signed-in parent, reflect the new
+  // plan in their dashboard/session cache too.
+  if (typeof PARENT !== "undefined" && PARENT.isLoggedIn) {
+    PARENT.plan = planKey;
+    try {
+      var pKey = "mc_parent_" + PARENT.email.toLowerCase().replace(/[^a-z0-9]/g, "");
+      var existing = JSON.parse(localStorage.getItem(pKey) || "{}");
+      existing.name = PARENT.name; existing.email = PARENT.email;
+      existing.plan = planKey; existing.children = PARENT.children || [];
+      localStorage.setItem(pKey, JSON.stringify(existing));
+    } catch (e) {}
+  }
   showToast("🎉 Welcome to MathCrown " + STRIPE_PLANS[planKey].name + "!");
 }
 
@@ -2659,8 +2671,8 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
-var MC_BUILD = "2026-08-22-fix-free-max-grant-bug";
-console.log("%c MathCrown build: 2026-08-22-fix-free-max-grant-bug ", "background:#FFD93D;color:#080F1E;font-weight:bold");
+var MC_BUILD = "2026-08-22-fix-parent-signup-real-auth";
+console.log("%c MathCrown build: 2026-08-22-fix-parent-signup-real-auth ", "background:#FFD93D;color:#080F1E;font-weight:bold");
 
 // ═══ BACKEND API ═══
 // Replace with your Cloudflare Worker URL after deploying (see mathcrown-worker.js)
@@ -4749,12 +4761,9 @@ function linkChildAccount(){
 }
 
 // ── PARENT SIGNUP ──────────────────────────────────────
-// IMPORTANT: this is a lead-capture form only (web3forms email + localStorage
-// note) — it never touches Firebase auth, Stripe, or S.plan. It must never
-// claim a paid plan is active. "interestedPlan" is stored purely as a signal
-// of which tier they clicked, not as a granted plan — PARENT.plan always
-// stays "Free" here. A real upgrade only ever happens via upgradeToPlan() ->
-// openCheckout() -> submitCheckout() after Stripe confirms the subscription.
+// Real Firebase-backed parent account creation (mirrors signupStudent()).
+// PARENT.plan is only ever set to a paid tier by showCheckoutSuccess(),
+// after Stripe confirms an active/trialing subscription — never here.
 async function submitParentSignup(){
   var modal=$$("signup-modal");
   var inputs=modal?modal.querySelectorAll("#tab-parent .form-input"):[];
@@ -4762,47 +4771,60 @@ async function submitParentSignup(){
   var lastName=inputs[1]?inputs[1].value.trim():"";
   var email=inputs[2]?inputs[2].value.trim():"";
   var phone=inputs[3]?inputs[3].value.trim():"";
+  var password=$$("p-password")?$$("p-password").value:"";
+  var fullName=firstName+(lastName?" "+lastName:"");
+
   var interestedPlan="Free";
-  var selCard=modal?modal.querySelector(".plan-card.sel"):null;
+  var selCard=modal?modal.querySelector("#tab-parent .plan-card.sel"):null;
   if(selCard){ var pn=selCard.querySelector(".plan-name"); if(pn) interestedPlan=pn.textContent.trim(); }
-  console.log("[ParentSignup] submitParentSignup() — lead capture only, interested in:", interestedPlan, "— granting: Free (no payment collected here)");
+  var lc=interestedPlan.toLowerCase();
+  var planKey = lc.indexOf("family")>-1 ? "family" : lc.indexOf("max")>-1 ? "max" : lc.indexOf("premium")>-1 ? "premium" : null;
+  console.log("[ParentSignup] submitParentSignup() — selected:", interestedPlan, "-> planKey:", planKey);
+
   if(!firstName){ showToast("Please enter your first name!"); return; }
   if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email!"); return; }
+  if(!password||password.length<6){ showToast("Password must be at least 6 characters!"); return; }
+
   var btn=modal?modal.querySelector("#tab-parent .btn-mint"):null;
-  if(btn){ btn.textContent="Sending..."; btn.disabled=true; }
-  PARENT.name=firstName+(lastName?" "+lastName:""); PARENT.email=email; PARENT.plan="Free"; PARENT.isLoggedIn=true;
-  // Save parent session to localStorage for return visits
+  if(btn){ btn.textContent="Creating account..."; btn.disabled=true; }
+
+  if(!window.firebaseSignUp){
+    showToast("Signup is temporarily unavailable — please try again in a moment.");
+    if(btn){ btn.textContent="✅ Create Parent Account"; btn.disabled=false; }
+    return;
+  }
+
+  try{
+    await window.firebaseSignUp(email, password, fullName, "parent", "");
+  }catch(e){
+    var msg=e.message||"";
+    console.log("[ParentSignup] firebaseSignUp FAILED:", msg);
+    if(msg.indexOf("email-already-in-use")>-1) showToast("That email is already registered. Please log in instead!");
+    else showToast("Signup error: "+msg.replace("Firebase: ","").split(" (")[0]);
+    if(btn){ btn.textContent="✅ Create Parent Account"; btn.disabled=false; }
+    return;
+  }
+
+  console.log("[ParentSignup] Firebase account created for", email, "— plan stays Free until/unless checkout confirms a subscription.");
+  PARENT.name=fullName; PARENT.email=email; PARENT.plan="Free"; PARENT.isLoggedIn=true; PARENT.children=[];
   try{
     var pKey="mc_parent_"+email.toLowerCase().replace(/[^a-z0-9]/g,"");
     localStorage.setItem(pKey,JSON.stringify({name:PARENT.name,email:email,plan:"Free",children:[]}));
   }catch(e){}
-  var sent=await sendToWeb3Forms({subject:"New Parent Signup - interested in "+interestedPlan,name:PARENT.name,email:email,message:"NEW PARENT | Name: "+PARENT.name+" | Email: "+email+" | Phone: "+(phone||"N/A")+" | Interested in: "+interestedPlan});
-  var tabParent=$$("tab-parent");
-  if(tabParent){
-    var planNote = interestedPlan!=="Free"
-      ? "You told us you're interested in <strong style='color:var(--mint)'>"+interestedPlan+"</strong> — head to Pricing and click Start to enter payment details and activate it (nothing has been charged yet)."
-      : "You're on the Free plan — upgrade any time from Pricing.";
-    var html="<div style='text-align:center;padding:20px 10px'>"
-      +"<div style='font-size:52px;margin-bottom:14px'>Success!</div>"
-      +"<div style='font-size:26px;font-weight:800;color:var(--sun);margin-bottom:12px'>You are Registered!</div>"
-      +"<div style='color:var(--text2);font-size:14px;line-height:1.9;margin-bottom:20px'>"
-      +"Welcome, <strong style='color:var(--mint)'>"+firstName+"</strong>!<br><br>"
-      +"<span class='badge b-sun' style='font-size:12px'>Plan: Free</span><br><br>"
-      +planNote+"<br><br>"
-      +"<span style='color:var(--mint)'>"+(sent?"We will email "+email+" at launch!":"We have your details and will be in touch!")+"</span>"
-      +"</div>"
-      +"<div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap'></div></div>";
-    tabParent.innerHTML=html;
-    var btnDiv=tabParent.querySelector("div:last-child div:last-child");
-    if(btnDiv){
-      var eb=document.createElement("button"); eb.className="btn btn-sun btn-sm"; eb.textContent="Explore the App";
-      eb.addEventListener("click",function(){ closeModal(); previewApp(); }); btnDiv.appendChild(eb);
-      var cb=document.createElement("button"); cb.className="btn btn-ghost btn-sm"; cb.textContent="Close";
-      cb.addEventListener("click",closeModal); btnDiv.appendChild(cb);
-    }
-  }
+  sendToWeb3Forms({subject:"New Parent Account - "+(planKey?("selected "+interestedPlan):"Free"),name:PARENT.name,email:email,message:"NEW PARENT ACCOUNT | Name: "+PARENT.name+" | Email: "+email+" | Phone: "+(phone||"N/A")+" | Selected: "+interestedPlan}).catch(function(){});
+
+  closeModal();
+  var land=$$("s-land"); if(land) land.classList.remove("active");
+  var app=$$("s-app"); if(app) app.classList.add("active");
   var nav=$$("nav-parent-dash"); if(nav) nav.style.display="flex";
-  showToast(sent?"Registered! We will email "+email+"!":"Registered, "+firstName+"! We will be in touch!",4000);
+  showMobNav(true); showMusicBtn(true); showSfxBtn(true);
+  goPage("parentdash",$$("nav-parent-dash"),false);
+  showToast("Account created! Welcome, "+firstName+"! 🎉");
+
+  if(planKey){
+    console.log("[ParentSignup] Resuming checkout for plan:", planKey);
+    setTimeout(function(){ openCheckout(planKey); }, 500);
+  }
 }
 
 async function joinWaitlist(){
