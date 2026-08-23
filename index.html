@@ -340,7 +340,11 @@ function resumePendingCheckoutIfAny() {
   console.log("[Checkout] Account created — resuming checkout for plan:", pendingCheckoutPlan);
   var planToResume = pendingCheckoutPlan;
   pendingCheckoutPlan = null;
-  setTimeout(function(){ openCheckout(planToResume); }, 400);
+  // Called synchronously, no setTimeout: modal-checkout is a fixed,
+  // full-viewport overlay (z-index 9999) so it's safe to show immediately
+  // rather than gambling on an arbitrary delay being "long enough" —
+  // that's exactly the kind of thing that fails on a slow connection.
+  openCheckout(planToResume);
 }
 
 </script>
@@ -2671,8 +2675,8 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
-var MC_BUILD = "2026-08-22-fix-parent-signup-real-auth";
-console.log("%c MathCrown build: 2026-08-22-fix-parent-signup-real-auth ", "background:#FFD93D;color:#080F1E;font-weight:bold");
+var MC_BUILD = "2026-08-23-remove-checkout-resume-race";
+console.log("%c MathCrown build: 2026-08-23-remove-checkout-resume-race ", "background:#FFD93D;color:#080F1E;font-weight:bold");
 
 // ═══ BACKEND API ═══
 // Replace with your Cloudflare Worker URL after deploying (see mathcrown-worker.js)
@@ -4823,7 +4827,8 @@ async function submitParentSignup(){
 
   if(planKey){
     console.log("[ParentSignup] Resuming checkout for plan:", planKey);
-    setTimeout(function(){ openCheckout(planKey); }, 500);
+    // Synchronous, no setTimeout — see resumePendingCheckoutIfAny() for why.
+    openCheckout(planKey);
   }
 }
 
