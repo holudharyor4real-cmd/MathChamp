@@ -2675,8 +2675,8 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
-var MC_BUILD = "2026-08-23-fix-unclosed-music-panel-div";
-console.log("%c MathCrown build: 2026-08-23-fix-unclosed-music-panel-div ", "background:#FFD93D;color:#080F1E;font-weight:bold");
+var MC_BUILD = "2026-08-23-fix-signup-button-stuck-disabled";
+console.log("%c MathCrown build: 2026-08-23-fix-signup-button-stuck-disabled ", "background:#FFD93D;color:#080F1E;font-weight:bold");
 
 // ═══ BACKEND API ═══
 // Replace with your Cloudflare Worker URL after deploying (see mathcrown-worker.js)
@@ -3188,6 +3188,7 @@ async function signupStudent(){
       }catch(e){
         S.linkCode = Math.floor(100000+Math.random()*900000).toString();
       }
+      if(signupBtn){ signupBtn.textContent="🚀 Create My Profile — Free!"; signupBtn.disabled=false; }
       closeModal();
       registerPlayer(fullName, gr+"th");
       saveSession();
@@ -4832,6 +4833,7 @@ async function submitParentSignup(){
   }catch(e){}
   sendToWeb3Forms({subject:"New Parent Account - "+(planKey?("selected "+interestedPlan):"Free"),name:PARENT.name,email:email,message:"NEW PARENT ACCOUNT | Name: "+PARENT.name+" | Email: "+email+" | Phone: "+(phone||"N/A")+" | Selected: "+interestedPlan}).catch(function(){});
 
+  if(btn){ btn.textContent="✅ Create Parent Account"; btn.disabled=false; }
   closeModal();
   var land=$$("s-land"); if(land) land.classList.remove("active");
   var app=$$("s-app"); if(app) app.classList.add("active");
