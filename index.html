@@ -134,7 +134,7 @@ function openCheckout(planKey) {
         theme: "night",
         variables: {
           colorPrimary: "#FFD93D",
-          colorBackground: "rgba(255,255,255,0.06)",
+          colorBackground: "#182338",
           colorText: "#F0F6FF",
           colorDanger: "#FF6B6B",
           fontFamily: "Nunito, sans-serif",
@@ -2675,8 +2675,8 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
-var MC_BUILD = "2026-08-23-improve-signup-error-detail";
-console.log("%c MathCrown build: 2026-08-23-improve-signup-error-detail ", "background:#FFD93D;color:#080F1E;font-weight:bold");
+var MC_BUILD = "2026-08-23-fix-unclosed-music-panel-div";
+console.log("%c MathCrown build: 2026-08-23-fix-unclosed-music-panel-div ", "background:#FFD93D;color:#080F1E;font-weight:bold");
 
 // ═══ BACKEND API ═══
 // Replace with your Cloudflare Worker URL after deploying (see mathcrown-worker.js)
@@ -5088,6 +5088,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       🎵 Turn Music On
     </button>
   </div>
+</div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut }
