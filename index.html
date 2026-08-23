@@ -61,19 +61,19 @@ var STRIPE_PLANS = {
     name: "Premium Plan",
     price: "$9.99/month",
     priceId: "price_YOUR_PREMIUM_PRICE_ID",  // ← From Stripe Dashboard
-    features: "✅ Unlimited challenges · ✅ Prize redemption · ✅ Tournament entry · ✅ Full parent dashboard · ✅ Weekly leaderboard prizes"
+    features: "✅ Unlimited challenges · ✅ Prize redemption · ✅ Tournament entry · ✅ Full parent dashboard · ✅ Axiom AI Tutor — 5 questions/day"
   },
   family: {
     name: "Family Plan",
     price: "$14.99/month",
     priceId: "price_YOUR_FAMILY_PRICE_ID",   // ← From Stripe Dashboard
-    features: "✅ Everything in Premium · ✅ Up to 4 children · ✅ Family leaderboard · ✅ Shared prize wallet · ✅ Priority support"
+    features: "✅ Everything in Premium · ✅ Up to 4 children · ✅ Family leaderboard · ✅ Shared prize wallet · ✅ Axiom AI Tutor — 5 questions/day"
   },
   max: {
     name: "Max + AI Plan",
     price: "$19.99/month",
     priceId: "price_YOUR_MAX_PRICE_ID",      // ← From Stripe Dashboard
-    features: "✅ Everything in Family · ✅ Unlimited AI Tutor Axiom · ✅ AI-generated practice sets · ✅ Advanced analytics · ✅ Early access to new features"
+    features: "✅ Everything in Family · ✅ Axiom AI Tutor — UNLIMITED · ✅ AI weak-spot detection · ✅ AI-generated practice sets · ✅ Advanced analytics"
   }
 };
 
@@ -1529,7 +1529,7 @@ body{
           <li>✅ MathCoins earning (capped)</li>
           <li>❌ Prize redemption</li>
           <li>❌ Tournament entry</li>
-          <li>❌ AI Tutor Axiom</li>
+          <li>✅ Axiom AI Tutor — 5 questions/day</li>
         </ul>
         <button class="btn btn-ghost" style="width:100%" onclick="openModal('student')">Get Started Free</button>
       </div>
@@ -1546,7 +1546,7 @@ body{
           <li>✅ Tournament entry included</li>
           <li>✅ Full parent dashboard</li>
           <li>✅ Unlimited MathCoins earning</li>
-          <li>❌ AI Tutor Axiom</li>
+          <li>✅ Axiom AI Tutor — 5 questions/day</li>
         </ul>
         <button class="btn btn-sun" style="width:100%" onclick="upgradeToPlan('premium')">Start Premium</button>
         <div style="font-size:11px;color:var(--text2);text-align:center;margin-top:8px">14-day free trial · Cancel anytime</div>
@@ -1564,7 +1564,7 @@ body{
           <li>✅ Sibling challenge mode</li>
           <li>✅ Priority support</li>
           <li>✅ Founding family badge</li>
-          <li>❌ AI Tutor Axiom</li>
+          <li>✅ Axiom AI Tutor — 5 questions/day</li>
         </ul>
         <button class="btn btn-mint" style="width:100%;color:var(--dark)" onclick="openModal('parent')">Start Family Plan</button>
       </div>
@@ -1575,7 +1575,7 @@ body{
         <div class="price-desc">The ultimate champion plan</div>
         <ul class="price-features">
           <li>✅ Everything in Family</li>
-          <li>✅ Axiom AI Tutor — unlimited</li>
+          <li>✅ Axiom AI Tutor — UNLIMITED</li>
           <li>✅ AI weak spot detection</li>
           <li>✅ Personalized study plans</li>
           <li>✅ AI practice question sets</li>
@@ -2312,7 +2312,8 @@ body{
       </div>
 
       <div class="card card-purple" style="margin-bottom:20px">
-        <div class="chat-box" id="chat-box">
+        <div id="axiom-counter" style="text-align:center;font-size:13px;margin-bottom:10px"></div>
+      <div class="chat-box" id="chat-box">
           <div class="chat-msg chat-bot">
             <div class="chat-who chat-who-bot">🤖 Axiom</div>
             Hey there! I noticed you missed some fraction problems last week — want me to explain them in a way that actually makes sense? I promise, <strong>fractions are way easier than they look!</strong> 🎯
@@ -2571,8 +2572,39 @@ window.MATHCHAMP_LOADED = true;
 var S = {
   name:"", grade:"", gradeNum:0,
   xp:0, level:1, streak:0, coins:0,
-  isPreview:false, triviaMode:"trivia"
+  isPreview:false, triviaMode:"trivia",
+  plan:"free", linkCode:""
 };
+
+// ═══ AXIOM ACCESS CONTROL ═══
+var AXIOM_FREE_DAILY = 5;          // free messages per day for signed-up students
+var AXIOM_PLANS_WITH_ACCESS = ["max"];   // unlimited tiers
+
+function axiomToday(){
+  var d=new Date();
+  return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+}
+
+function axiomUsageKey(){
+  return "mc_axiom_"+(S.name||"guest").toLowerCase().replace(/[^a-z0-9]/g,"")+"_"+axiomToday();
+}
+
+function axiomUsedToday(){
+  try{ return parseInt(localStorage.getItem(axiomUsageKey())||"0",10)||0; }catch(e){ return 0; }
+}
+
+function axiomRecordUse(){
+  try{ localStorage.setItem(axiomUsageKey(), String(axiomUsedToday()+1)); }catch(e){}
+}
+
+function axiomHasUnlimited(){
+  return AXIOM_PLANS_WITH_ACCESS.indexOf((S.plan||"free").toLowerCase()) > -1;
+}
+
+function axiomRemaining(){
+  if(axiomHasUnlimited()) return Infinity;
+  return Math.max(0, AXIOM_FREE_DAILY - axiomUsedToday());
+}
 var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[] };
 var SESSION_PLAYERS = [];
 var ONLINE_PLAYERS = {}; // uid -> {name, grade, lastSeen, status}
@@ -2601,8 +2633,8 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
-var MC_BUILD = "2026-08-22-axiom-plaintext";
-console.log("%c MathCrown build: 2026-08-22-axiom-plaintext ", "background:#FFD93D;color:#080F1E;font-weight:bold");
+var MC_BUILD = "2026-08-22-axiom-gated";
+console.log("%c MathCrown build: 2026-08-22-axiom-gated ", "background:#FFD93D;color:#080F1E;font-weight:bold");
 
 // ═══ BACKEND API ═══
 // Replace with your Cloudflare Worker URL after deploying (see mathcrown-worker.js)
@@ -4281,6 +4313,7 @@ function renderTournaments(){
 
 // ── AI TUTOR ───────────────────────────────────────────
 function renderTutor(){
+  updateAxiomCounter();
   var qp=$$("quick-prompts"); if(!qp) return;
   qp.innerHTML="";
   QUICK_PROMPTS.forEach(function(p){
@@ -4293,6 +4326,40 @@ function renderTutor(){
 }
 
 function askTutor(prompt){ var input=$$("chat-input"); if(input){ input.value=prompt; sendMsg(); } }
+
+
+function showAxiomGate(kind){
+  var chat=$$("chat-box"); if(!chat) return;
+  var box=document.createElement("div");
+  box.className="chat-msg chat-bot";
+  box.style.cssText="background:rgba(255,217,61,0.08);border:1.5px solid rgba(255,217,61,0.35)";
+  if(kind==="signup"){
+    box.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>"
+      +"<div style='margin-bottom:10px'>Create a free account to chat with me! You'll get "+AXIOM_FREE_DAILY+" free questions every day.</div>"
+      +"<button class='btn btn-sun btn-sm' onclick=\"openModal('student')\">Sign Up Free</button>";
+  } else {
+    box.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>"
+      +"<div style='margin-bottom:6px;font-weight:800;color:var(--sun)'>You've used all "+AXIOM_FREE_DAILY+" free questions today!</div>"
+      +"<div style='margin-bottom:10px;font-size:13px;color:var(--text2)'>Upgrade to Max and ask me unlimited questions, any time, plus AI weak-spot detection and personalised practice sets.</div>"
+      +"<button class='btn btn-sun btn-sm' onclick=\"upgradeToPlan('max')\">Unlock Unlimited &mdash; $19.99/mo</button>"
+      +"<div style='margin-top:8px;font-size:11px;color:var(--text2)'>Your free questions reset tomorrow.</div>";
+  }
+  chat.appendChild(box);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function updateAxiomCounter(){
+  var el=$$("axiom-counter"); if(!el) return;
+  if(axiomHasUnlimited()){
+    el.innerHTML="<span style='color:var(--sun);font-weight:800'>&#9733; MAX &mdash; Unlimited questions</span>";
+    return;
+  }
+  var left=axiomRemaining();
+  var col = left>2 ? "var(--mint)" : left>0 ? "var(--sun)" : "var(--coral)";
+  el.innerHTML="<span style='color:"+col+";font-weight:700'>"+left+" of "+AXIOM_FREE_DAILY
+    +" free questions left today</span>"
+    +(left<=2 ? " &middot; <span style='cursor:pointer;color:var(--sun);text-decoration:underline' onclick=\"upgradeToPlan('max')\">Get unlimited</span>" : "");
+}
 
 function stripMarkdown(t){
   if(!t) return "";
@@ -4312,6 +4379,19 @@ async function sendMsg(){
   var input=$$("chat-input"), chat=$$("chat-box");
   if(!input||!chat) return;
   var msg=input.value.trim(); if(!msg) return;
+
+  // ── Access gate ──
+  if(S.isPreview || !S.name){
+    input.value="";
+    showAxiomGate("signup");
+    return;
+  }
+  if(!axiomHasUnlimited() && axiomRemaining() <= 0){
+    input.value="";
+    showAxiomGate("limit");
+    return;
+  }
+
   input.value="";
   chat.innerHTML+="<div class='chat-msg chat-user'><div class='chat-who chat-who-user'>You</div>"+msg+"</div>";
   var thinking=document.createElement("div"); thinking.className="chat-msg chat-bot";
@@ -4334,6 +4414,8 @@ async function sendMsg(){
     }
     var reply=((d.content||[{text:"No response received."}])[0].text||"");
     reply=stripMarkdown(reply);
+    if(!axiomHasUnlimited()) axiomRecordUse();
+    updateAxiomCounter();
     thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>";
     var body=document.createElement("div");
     body.textContent=reply;
