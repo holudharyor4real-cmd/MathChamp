@@ -2648,6 +2648,17 @@ function axiomRemaining(){
   return Math.max(0, AXIOM_FREE_DAILY - axiomUsedToday());
 }
 var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[] };
+
+// PARENT.plan holds either the display default "Free" or a raw Stripe
+// plan key ("premium"/"family"/"max") once a subscription is granted —
+// this normalizes either form into a human-readable label for display.
+function planLabel(plan){
+  var k = (plan||"free").toLowerCase();
+  if(k==="premium") return "Premium";
+  if(k==="family") return "Family";
+  if(k==="max") return "Max";
+  return "Free";
+}
 var SESSION_PLAYERS = [];
 var ONLINE_PLAYERS = {}; // uid -> {name, grade, lastSeen, status}
 var MY_PRESENCE_INTERVAL = null;
@@ -2675,8 +2686,8 @@ function getOnlineCount(){
   return count;
 }
 var CHALLENGE_FILTER = "same";
-var MC_BUILD = "2026-08-23-fix-signup-button-stuck-disabled";
-console.log("%c MathCrown build: 2026-08-23-fix-signup-button-stuck-disabled ", "background:#FFD93D;color:#080F1E;font-weight:bold");
+var MC_BUILD = "2026-08-23-capitalize-plan-label";
+console.log("%c MathCrown build: 2026-08-23-capitalize-plan-label ", "background:#FFD93D;color:#080F1E;font-weight:bold");
 
 // ═══ BACKEND API ═══
 // Replace with your Cloudflare Worker URL after deploying (see mathcrown-worker.js)
@@ -4685,7 +4696,7 @@ function renderProfile(){
 function renderParentDash(){
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
   setEl("p-dash-name",PARENT.name||"Parent Account");
-  setEl("p-dash-plan","Plan: "+PARENT.plan);
+  setEl("p-dash-plan","Plan: "+planLabel(PARENT.plan));
   var pa=$$("p-dash-avatar"); if(pa) pa.textContent=(PARENT.name?PARENT.name[0].toUpperCase():"P");
   var cb=$$("p-dash-children-badge"); if(cb) cb.textContent=PARENT.children.length+" Children Linked";
   var list=$$("p-children-list"); if(!list) return;
