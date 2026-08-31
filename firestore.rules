@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// MathCrown Firestore security rules.
+//
+// Data model split, driven by a real privacy issue found in the app:
+// `users/{uid}` holds private PII (full name, email, parent link code) and
+// must never be broadly readable. `public_profiles/{uid}` is a small,
+// deliberately-safe mirror (first name + last-initial only, grade, xp,
+// level, wins) written by the client alongside `users/{uid}` — this is
+// the only collection the leaderboard, Crown Holder, and student search
+// features read across accounts.
+//
+// `challenges`, `battles`, and `crown_holders` use a baseline
+// "must be signed in" rule rather than fully field-validated rules. This
+// project is a static client-only app with no Cloud Functions, so nothing
+// server-side can verify "did this student really win a duel" — the same
+// trust model already implied by users/{uid}.xp being client-writable.
+// Tighten further (e.g. restrict a battle doc's writes to its two
+// participants) once you can test changes against the live project.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Private account data: owner only, always.
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Public, privacy-safe leaderboard/search mirror: first-name +
+    // last-initial only (enforced by app code, not by these rules — a
+    // rule can't verify string shape reliably, so review app-side writes
+    // if this ever needs stronger enforcement).
+    match /public_profiles/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Online-status lobby: anyone signed in can see who's online: a
+    // student can only ever write their own presence doc.
+    match /presence/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Per-grade "Crown Holder" title. Self-reported win, consistent with
+    // the rest of this app's client-trusted XP/coins model — the doc's
+    // `uid` field must match the writer.
+    match /crown_holders/{gradeNum} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.resource.data.uid == request.auth.uid;
+    }
+
+    // Real-time 1v1 challenge/battle system (pre-existing). Baseline:
+    // must be signed in. Not yet hardened to "only the two participants
+    // may read/write their own battle doc" — see file header note.
+    match /challenges/{challengeId} {
+      allow read, write: if signedIn();
+    }
+    match /battles/{battleId} {
+      allow read, write: if signedIn();
+    }
+  }
+}

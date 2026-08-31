@@ -381,6 +381,81 @@ function resumePendingCheckoutIfAny() {
   --glow-coral:0 0 28px rgba(61,139,255,0.45);
 }
 
+/* ── GRADE TIER SKIN: Junior League (K-5) — playful kingdom theme ── */
+body[data-tier="k5"]{
+  --sun:     #FFC93C;
+  --sun2:    #FFB100;
+  --coral:   #FF6B6B;
+  --mint:    #2FD675;
+  --sky:     #4FC3F7;
+  --r:       26px;
+  --r2:      20px;
+  --border:  rgba(255,201,60,0.28);
+}
+body[data-tier="k5"] .page-title{ font-family:'Fredoka One',cursive; }
+body[data-tier="k5"] .nav-item.on{
+  background:linear-gradient(135deg,rgba(255,201,60,0.22),rgba(255,107,107,0.14));
+}
+body[data-tier="k5"] .btn{ border-radius:100px; }
+
+/* Tier-conditional widgets: hidden by default, shown only for their tier */
+.tier-k5-only{ display:none; }
+body[data-tier="k5"] .tier-k5-only{ display:block; }
+
+/* Kingdom Map nodes (Junior League) */
+.k5-map-node{
+  position:absolute;transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;
+  border:3px solid rgba(255,255,255,0.85);border-radius:50%;
+  width:72px;height:72px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#4ecdc4,#2196f3);
+  box-shadow:0 6px 14px rgba(0,0,0,0.25);
+  animation:k5-bob 2.6s ease-in-out infinite;
+  padding:0;
+}
+.k5-map-node:hover{ filter:brightness(1.12); }
+.k5-map-emoji{font-size:26px;line-height:1;}
+.k5-map-label{
+  position:absolute;top:80px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-size:11px;font-weight:800;color:#1C3A6E;background:rgba(255,255,255,0.9);
+  padding:2px 9px;border-radius:100px;
+}
+.k5-map-node-crown{
+  width:88px;height:88px;
+  background:linear-gradient(135deg,#FFC93C,#FFB100);border-color:#fff;
+  animation:k5-bob 2.6s ease-in-out infinite, k5-pulse-glow 2s ease-in-out infinite;
+}
+.k5-map-node-crown .k5-map-emoji{ font-size:32px; }
+.k5-map-node-crown .k5-map-label{ top:96px; }
+@keyframes k5-bob{
+  0%,100%{ transform:translate(-50%,-50%) translateY(0); }
+  50%{ transform:translate(-50%,-50%) translateY(-8px); }
+}
+@keyframes k5-pulse-glow{
+  0%,100%{ box-shadow:0 0 0 0 rgba(255,201,60,0.55),0 6px 14px rgba(0,0,0,0.25); }
+  50%{ box-shadow:0 0 0 16px rgba(255,201,60,0),0 6px 14px rgba(0,0,0,0.25); }
+}
+
+/* Kingdom Map: walking avatar */
+.k5-avatar{
+  position:absolute;transform:translate(-50%,-50%);
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--purple),var(--sky));
+  color:#fff;font-weight:800;font-size:15px;
+  border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.35);
+  z-index:5;left:8%;top:90%;
+  transition:left 1.1s ease-in-out, top 1.1s ease-in-out;
+}
+.k5-avatar.walking{ animation:k5-walk-bounce 0.3s ease-in-out infinite; }
+@keyframes k5-walk-bounce{
+  0%,100%{ transform:translate(-50%,-50%) translateY(0) scale(1); }
+  50%{ transform:translate(-50%,-50%) translateY(-9px) scale(1.05); }
+}
+.k5-map-home{
+  position:absolute;left:8%;top:90%;transform:translate(-50%,-50%);
+  font-size:26px;opacity:0.85;
+}
+
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
@@ -1953,11 +2028,11 @@ body{
       <span class="nav-icon">🏠</span> Home
     </button>
     <button class="nav-item" onclick="goPage('room',this)">
-      <span class="nav-icon">🌐</span> Common Room
+      <span class="nav-icon">🌐</span> <span data-nav="room">Common Room</span>
       <span class="nav-badge" id="room-badge" style="display:none">0</span>
     </button>
     <button class="nav-item" onclick="goPage('challenge',this)">
-      <span class="nav-icon">⚔️</span> Challenge
+      <span class="nav-icon">⚔️</span> <span data-nav="challenge">Challenge</span>
     </button>
     <button class="nav-item" onclick="goPage('tournament',this)">
       <span class="nav-icon">🏆</span> Tournaments
@@ -1980,7 +2055,7 @@ body{
       <span class="nav-icon">📊</span> Leaderboard
     </button>
     <button class="nav-item" onclick="goPage('wallet',this)">
-      <span class="nav-icon">💰</span> Rewards Wallet
+      <span class="nav-icon">💰</span> <span data-nav="wallet">Rewards Wallet</span>
     </button>
     <button class="nav-item" onclick="goPage('profile',this)">
       <span class="nav-icon">👤</span> My Profile
@@ -2011,6 +2086,44 @@ body{
     <div class="page on" id="p-home">
       <div class="page-title" id="home-greet">Welcome to MathCrown! 🎉</div>
       <div class="page-sub" id="home-sub">Complete your first trivia to start earning XP and MathCoins! 🚀</div>
+
+      <!-- Kingdom Map (Junior League / K-5 only) -->
+      <div class="card tier-k5-only" id="k5-kingdom-card" style="margin-bottom:20px;padding:0;overflow:hidden;border:2px solid rgba(255,201,60,0.4)">
+        <div style="padding:14px 18px 0;background:linear-gradient(180deg,#8ed1fc,#bfe6a8)">
+          <div style="font-family:'Fredoka One',cursive;font-size:18px;color:#1C3A6E">🗺️ Your Kingdom Map</div>
+        </div>
+        <div style="position:relative;height:250px;background:linear-gradient(180deg,#8ed1fc 0%,#bfe6a8 45%,#8bc76b 100%)">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+            <path d="M 8 90 L 8 68 Q 20 40 30 18 T 56 62 T 80 12" fill="none" stroke="#5a3e00" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+          </svg>
+          <div class="k5-map-home" title="Home Village">🏠</div>
+          <div class="k5-avatar" id="k5-avatar">A</div>
+          <button class="k5-map-node" style="left:8%;top:68%;background:linear-gradient(135deg,#2e7d32,#66bb6a)" onclick="k5WalkTo('woods',k5MonsterDuel)" title="Monster Woods — Crown Clash vs a random monster">
+            <span class="k5-map-emoji">🐉</span>
+            <span class="k5-map-label">Monster Woods</span>
+          </button>
+          <button class="k5-map-node" style="left:30%;top:18%;background:linear-gradient(135deg,#6a4fb3,#9b7bd6)" onclick="k5WalkTo('tower',function(){goPage('tutor',null);})" title="Wizard's Tower — Ask Axiom the Wizard">
+            <span class="k5-map-emoji">🧙</span>
+            <span class="k5-map-label">Wizard's Tower</span>
+          </button>
+          <button class="k5-map-node" style="left:56%;top:62%;background:linear-gradient(135deg,#d17d00,#ffb100)" onclick="k5WalkTo('vault',function(){goPage('wallet',null);})" title="Treasure Vault — See your MathCoins &amp; prizes">
+            <span class="k5-map-emoji">💰</span>
+            <span class="k5-map-label">Treasure Vault</span>
+          </button>
+          <button class="k5-map-node k5-map-node-crown" style="left:80%;top:12%" onclick="k5WalkTo('castle',k5ChallengeCrownHolder)" title="Crown Castle — Challenge the Crown Holder">
+            <span class="k5-map-emoji">🏰</span>
+            <span class="k5-map-label">Crown Castle</span>
+          </button>
+        </div>
+        <div style="padding:14px 18px;background:rgba(8,15,30,0.85);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-size:12px;color:var(--text2)">👑 Reigning Crown Holder (Grade)</div>
+            <div style="font-weight:800" id="k5-champ-name">—</div>
+            <div style="font-size:12px;color:var(--text2)" id="k5-champ-sub">—</div>
+          </div>
+          <button class="btn btn-sun btn-xs" onclick="k5WalkTo('castle',k5ChallengeCrownHolder)">⚔️ Challenge for the Crown</button>
+        </div>
+      </div>
 
       <!-- XP Bar — all dynamic, starts at zero for new users -->
       <div class="xp-bar">
@@ -2066,6 +2179,25 @@ body{
           <div class="stat-card">
             <div class="stat-icon" style="background:rgba(6,214,160,0.15)">🪙</div>
             <div><div class="stat-num" id="home-coins" style="color:var(--mint)">0</div><div class="stat-lbl">MathCoins</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Junior League: Treasure Chest & College Fund Tree (K-5 dashboard skin only) -->
+      <div class="card tier-k5-only" id="k5-rewards-card" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(255,201,60,0.12),rgba(47,214,117,0.08));border:1.5px solid rgba(255,201,60,0.3)">
+        <div style="font-family:'Fredoka One',cursive;font-size:18px;margin-bottom:14px">🏰 Your Kingdom Treasures</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px;text-align:center">
+            <div id="k5-chest-emoji" style="font-size:52px;line-height:1">🧰</div>
+            <div style="font-weight:800;margin-top:6px" id="k5-chest-coins">0 Gold Coins</div>
+            <div style="font-size:12px;color:var(--text2)">Treasure Chest</div>
+          </div>
+          <div style="flex:1;min-width:180px;text-align:center">
+            <div id="k5-tree-emoji" style="font-size:52px;line-height:1">🌱</div>
+            <div class="prog-wrap" style="margin-top:10px">
+              <div class="prog-fill" id="k5-tree-prog" style="width:0%;background:var(--mint)"></div>
+            </div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">🎓 College Fund Tree — grows as you earn!</div>
           </div>
         </div>
       </div>
@@ -2341,14 +2473,14 @@ body{
 
     <!-- ════ AI TUTOR ════ -->
     <div class="page" id="p-tutor">
-      <div class="page-title">🤖 AI Math Tutor</div>
-      <div class="page-sub">Your personal math coach · Available 24/7 · Powered by Claude AI</div>
+      <div class="page-title" id="tutor-title">🤖 AI Math Tutor</div>
+      <div class="page-sub" id="tutor-sub">Your personal math coach · Available 24/7 · Powered by Claude AI</div>
 
       <div class="tutor-header">
-        <div class="tutor-ava">🤖</div>
+        <div class="tutor-ava" id="tutor-ava">🤖</div>
         <div>
-          <div class="tutor-name">Axiom</div>
-          <div class="tutor-tag">Your AI Math Coach · Powered by Claude</div>
+          <div class="tutor-name" id="tutor-name">Axiom</div>
+          <div class="tutor-tag" id="tutor-tag">Your AI Math Coach · Powered by Claude</div>
           <div style="font-size:12px;color:var(--text2);margin-top:4px">Speaks your grade level · Explains step-by-step · Never judges mistakes</div>
         </div>
       </div>
@@ -2613,7 +2745,7 @@ window.MATHCHAMP_LOADED = true;
 // ── STATE ──────────────────────────────────────────────
 var S = {
   name:"", grade:"", gradeNum:0,
-  xp:0, level:1, streak:0, coins:0,
+  xp:0, level:1, streak:0, coins:0, wins:0,
   isPreview:false, triviaMode:"trivia",
   plan:"free", linkCode:""
 };
@@ -3037,6 +3169,14 @@ function showToast(msg, dur){
   setTimeout(function(){ t.classList.remove("show"); }, dur||2800);
 }
 
+// Privacy-safe label for showing a student to OTHER students/parents:
+// first name + last-initial only, never the full legal name.
+function displayLabel(fullName){
+  var parts=(fullName||"Player").trim().split(/\s+/);
+  if(parts.length<2) return parts[0]||"Player";
+  return parts[0]+" "+parts[parts.length-1][0].toUpperCase()+".";
+}
+
 function gradeBand(n){
   n = parseInt(n)||7;
   if(n<=3)  return "grades_1_3";
@@ -3053,6 +3193,63 @@ function getGradeBandNum(n){
   return 5;
 }
 
+// ── GRADE TIER (redesign: dashboard skin per age group) ──
+function tierFor(n){
+  n = parseInt(n)||7;
+  if(n<=5) return "k5";
+  if(n<=8) return "6-8";
+  return "9-12";
+}
+
+var TIER_COPY = {
+  "k5": {
+    greet: function(name){ return "Welcome back, Knight "+name+"!"; },
+    sub: "The Fraction Fields are being attacked. Ready your shield!",
+    navChallenge: "Crown Clashes",
+    navRoom: "Kingdom Square",
+    navWallet: "Treasure Chest",
+    battleIntro: "A monster approaches! Answer fast to banish it!",
+    battleWin: "🏆 Monster Banished! You win the Crown Clash!",
+    battleTie: "🤝 A hard-fought draw! The monster retreats for now.",
+    battleLoss: "😮 The monster escaped this time — ready your shield and try again!",
+    axiomName: "Axiom the Wizard",
+    axiomAvatar: "🧙"
+  }
+};
+
+function applyTierCopy(tier){
+  var c = TIER_COPY[tier];
+  var navChallenge = document.querySelector('[data-nav="challenge"]');
+  var navRoom = document.querySelector('[data-nav="room"]');
+  var navWallet = document.querySelector('[data-nav="wallet"]');
+  var setEl = function(id,val){ var e=$$(id); if(e) e.textContent=val; };
+  if(c){
+    if(navChallenge) navChallenge.textContent = c.navChallenge;
+    if(navRoom) navRoom.textContent = c.navRoom;
+    if(navWallet) navWallet.textContent = c.navWallet;
+  } else {
+    if(navChallenge) navChallenge.textContent = "Challenge";
+    if(navRoom) navRoom.textContent = "Common Room";
+    if(navWallet) navWallet.textContent = "Rewards Wallet";
+  }
+  var seedWho = $$("chat-box") ? $$("chat-box").querySelector(".chat-who-bot") : null;
+  if(tier==="k5"){
+    setEl("tutor-title", "🧙 Ask the Wizard");
+    setEl("tutor-sub", "Your friendly math wizard · Ready to help anytime!");
+    setEl("tutor-ava", TIER_COPY.k5.axiomAvatar);
+    setEl("tutor-name", TIER_COPY.k5.axiomName);
+    setEl("tutor-tag", "Your Math Wizard Companion");
+    if(seedWho) seedWho.textContent = TIER_COPY.k5.axiomAvatar+" "+TIER_COPY.k5.axiomName;
+  } else {
+    setEl("tutor-title", "🤖 AI Math Tutor");
+    setEl("tutor-sub", "Your personal math coach · Available 24/7 · Powered by Claude AI");
+    setEl("tutor-ava", "🤖");
+    setEl("tutor-name", "Axiom");
+    setEl("tutor-tag", "Your AI Math Coach · Powered by Claude");
+    if(seedWho) seedWho.textContent = "🤖 Axiom";
+  }
+}
+
 
 
 function shuffle(arr){ return arr.slice().sort(function(){ return Math.random()-.5; }); }
@@ -3062,10 +3259,15 @@ function saveSession(){
   try{
     var key = "mc_"+S.name.split(" ")[0].toLowerCase()+"_"+S.gradeNum;
     localStorage.setItem(key, JSON.stringify({
-      xp:S.xp, level:S.level, streak:S.streak, coins:S.coins,
+      xp:S.xp, level:S.level, streak:S.streak, coins:S.coins, wins:S.wins||0,
       name:S.name, grade:S.grade, gradeNum:S.gradeNum
     }));
   }catch(e){}
+  // Mirror to the real backend too, so MathCoins/XP/wins are a genuine
+  // per-account balance instead of only a per-browser localStorage number.
+  if(window.saveProgress){
+    window.saveProgress(S.xp, S.coins, S.level, S.streak, null, S.wins, S.gradeNum).catch(function(){});
+  }
 }
 
 function registerPlayer(name, grade){
@@ -3143,12 +3345,17 @@ function goPage(id, el, mob){
 // ── ENTER APP ──────────────────────────────────────────
 function enterApp(name, grade, gradeNum, isPreview){
   S.name=name; S.grade=grade; S.gradeNum=gradeNum; S.isPreview=isPreview;
+  S.tier = tierFor(gradeNum);
+  document.body.setAttribute("data-tier", S.tier);
+  applyTierCopy(S.tier);
   var ava = name[0].toUpperCase();
   var setEl = function(id,val){ var e=$$(id); if(e) e.textContent=val; };
   setEl("sb-avatar", ava); setEl("prof-ava", ava);
   setEl("sb-name", name.split(" ")[0]+(name.split(" ")[1]?" "+name.split(" ")[1][0]+".":""));
   setEl("sb-ulevel", "Level "+S.level+" - "+(S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner"));
-  setEl("home-greet", "Welcome, "+name.split(" ")[0]+"! Earn Your Crown!");
+  var tc = TIER_COPY[S.tier];
+  setEl("home-greet", tc ? tc.greet(name.split(" ")[0]) : "Welcome, "+name.split(" ")[0]+"! Earn Your Crown!");
+  setEl("home-sub", tc ? tc.sub : "Complete your first trivia to start earning XP and MathCoins! 🚀");
   setEl("prof-name", name); setEl("prof-grade", grade+" - Math Champ");
   setEl("stat-wins","0"); setEl("stat-streak",S.streak); setEl("stat-rank","--");
   setEl("home-coins",S.coins.toLocaleString()); setEl("wallet-coins",S.coins.toLocaleString());
@@ -3326,7 +3533,7 @@ async function loginStudent(){
   if(!gr){ showToast("Please select your grade!"); return; }
   if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
   if(!password){ showToast("Please enter your password!"); return; }
-  S.xp=0; S.level=1; S.streak=0; S.coins=0;
+  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.wins=0;
   var loginBtn=document.querySelector("#login-tab-student .btn-sun");
   if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
   if(window.firebaseLogin){
@@ -3335,9 +3542,10 @@ async function loginStudent(){
       var data=await window.loadProgress();
       if(data){
         S.xp=data.xp||0; S.level=data.level||1;
-        S.streak=data.streak||0; S.coins=data.coins||0;
+        S.streak=data.streak||0; S.coins=data.coins||0; S.wins=data.wins||0;
         S.plan=data.plan||"free";
         fn=data.displayName||fn;
+        if(data.grade){ gr=String(data.grade); }
         // Restore linkCode from Firestore
         if(data.linkCode){
           S.linkCode=data.linkCode;
@@ -3362,7 +3570,11 @@ async function loginStudent(){
   }
   try{
     var saved=localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
-    if(saved){ var d=JSON.parse(saved); S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0; }
+    if(saved){
+      var d=JSON.parse(saved);
+      S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
+      if(d.gradeNum){ gr=String(d.gradeNum); }
+    }
   }catch(e){}
   closeLoginModal();
   enterApp(fn, gr+"th Grade", parseInt(gr)||7, false);
@@ -3372,7 +3584,8 @@ async function loginStudent(){
 function logout(){
   saveSession();
   // Reset student state
-  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false;
+  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier="";
+  document.body.removeAttribute("data-tier");
   // Reset parent state
   PARENT.isLoggedIn=false;
   // Hide parent nav
@@ -3400,6 +3613,285 @@ function renderHome(){
   if(gs) gs.style.display = (S.xp>0&&!S.isPreview)?"none":"block";
   renderMiniLB();
   var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
+  if(S.tier==="k5"){ renderK5Rewards(); renderK5Kingdom(); }
+}
+
+// ── JUNIOR LEAGUE (K-5) REWARDS: Treasure Chest + College Fund Tree ──
+var K5_TREE_STAGES = [
+  {min:0,    emoji:"🌱", label:"Seedling"},
+  {min:100,  emoji:"🌿", label:"Sprout"},
+  {min:300,  emoji:"🌳", label:"Young Tree"},
+  {min:700,  emoji:"🌳✨",label:"Mighty Tree"}
+];
+var K5_PAPERCRAFT_MILESTONE = 500;
+
+function renderK5Rewards(){
+  var chestEl=$$("k5-chest-coins"); if(chestEl) chestEl.textContent=S.coins.toLocaleString()+" Gold Coins";
+
+  var stage=K5_TREE_STAGES[0], next=null;
+  for(var i=0;i<K5_TREE_STAGES.length;i++){
+    if(S.coins>=K5_TREE_STAGES[i].min){ stage=K5_TREE_STAGES[i]; next=K5_TREE_STAGES[i+1]||null; }
+  }
+  var treeEl=$$("k5-tree-emoji"); if(treeEl) treeEl.textContent=stage.emoji;
+  var span=next?(next.min-stage.min):200;
+  var pct=next?Math.min(100,Math.round((S.coins-stage.min)/span*100)):100;
+  var progEl=$$("k5-tree-prog"); if(progEl) progEl.style.width=pct+"%";
+
+  checkK5PapercraftMilestone();
+}
+
+function checkK5PapercraftMilestone(){
+  if(S.tier!=="k5" || S.isPreview || !S.name) return;
+  if(S.coins < K5_PAPERCRAFT_MILESTONE) return;
+  var flagKey="mc_papercraft_"+S.name.split(" ")[0].toLowerCase();
+  try{ if(localStorage.getItem(flagKey)) return; }catch(e){}
+  try{ localStorage.setItem(flagKey,"1"); }catch(e){}
+  showK5PapercraftReward();
+}
+
+function showK5PapercraftReward(){
+  var m=$$("k5-papercraft-modal");
+  if(m){ m.classList.add("open"); return; }
+  var div=document.createElement("div");
+  div.id="k5-papercraft-modal";
+  div.className="modal-overlay open";
+  div.innerHTML =
+    '<div class="modal" style="max-width:420px;text-align:center">'+
+      '<div style="font-size:52px;margin-bottom:8px">👑</div>'+
+      '<div style="font-family:\'Fredoka One\',cursive;font-size:20px;margin-bottom:10px">You Unlocked a Papercraft Crown!</div>'+
+      '<div style="font-size:14px;color:var(--text2);margin-bottom:18px">Print, cut, and fold your very own MathCrown knight avatar to display on your desk!</div>'+
+      '<a href="papercraft-knight-crown.svg" download="papercraft-knight-crown.svg" class="btn btn-sun" style="display:inline-block;margin-bottom:10px;text-decoration:none">⬇️ Download Template</a><br>'+
+      '<button class="btn btn-ghost btn-xs" onclick="document.getElementById(\'k5-papercraft-modal\').classList.remove(\'open\')">Close</button>'+
+    '</div>';
+  document.body.appendChild(div);
+}
+
+// ── JUNIOR LEAGUE (K-5): CROWN HOLDER + KINGDOM MAP + CROWN CLASH DUEL ──
+// The Crown Holder is a per-grade "title belt": computed from the existing
+// OPPS roster (already has a bot per grade with wins/win-rate) unless a real
+// student has won the title, in which case that win is remembered locally.
+// Crown Holder data flow: an in-memory cache (K5_CROWN_CACHE) backs every
+// synchronous read so the UI never blocks on a network round-trip. It's
+// filled from — in order of preference — a real Firestore doc
+// (crown_holders/{grade}, via getCrownHolderRemote), a localStorage
+// fallback (offline/guest play, or signed-out demo mode), or the seeded
+// default bot from OPPS if nobody has ever taken the title.
+var K5_CROWN_CACHE = {};
+
+function getCrownHolderDefault(gradeNum){
+  var opp = OPPS.find(function(o){ return o.gradeN===gradeNum; }) || OPPS[0];
+  var winsMatch = (opp.meta||"").match(/(\d+)\s*Wins/);
+  return {name:opp.n, e:opp.e, bg:opp.bg, winRate:opp.winRate||0.6, wins:winsMatch?parseInt(winsMatch[1]):10, isPlayer:false};
+}
+
+function getCrownHolder(gradeNum){
+  if(K5_CROWN_CACHE[gradeNum]) return K5_CROWN_CACHE[gradeNum];
+  try{
+    var raw=localStorage.getItem("mc_crown_g"+gradeNum);
+    if(raw){ var d=JSON.parse(raw); if(d && d.name) return d; }
+  }catch(e){}
+  return getCrownHolderDefault(gradeNum);
+}
+
+// Fetches the real cross-device Crown Holder from Firestore (when signed in
+// and online) and refreshes the cache + on-screen panel. Falls back to the
+// cache/localStorage/default chain above when offline, in preview/guest
+// mode, or if the read fails for any reason.
+function refreshCrownHolder(gradeNum){
+  if(!window.getCrownHolderRemote || S.isPreview){ renderK5ChampionUI(getCrownHolder(gradeNum)); return; }
+  window.getCrownHolderRemote(gradeNum).then(function(remote){
+    var holder;
+    if(remote && remote.name){
+      var myUid = window.auth && window.auth.currentUser ? window.auth.currentUser.uid : null;
+      holder = {name:remote.name, wins:remote.wins||1, winRate:remote.winRate||0.6, uid:remote.uid, isPlayer:!!(myUid && remote.uid===myUid)};
+    } else {
+      holder = getCrownHolderDefault(gradeNum);
+    }
+    K5_CROWN_CACHE[gradeNum]=holder;
+    if(S.tier==="k5" && S.gradeNum===gradeNum) renderK5ChampionUI(holder);
+  }).catch(function(){ renderK5ChampionUI(getCrownHolder(gradeNum)); });
+}
+
+function setCrownHolder(gradeNum, holder){
+  K5_CROWN_CACHE[gradeNum]=holder;
+  try{ localStorage.setItem("mc_crown_g"+gradeNum, JSON.stringify(holder)); }catch(e){}
+  if(window.setCrownHolderRemote && !S.isPreview){
+    window.setCrownHolderRemote(gradeNum, holder).catch(function(){});
+  }
+}
+
+function renderK5ChampionUI(ch){
+  var nameEl=$$("k5-champ-name"); if(nameEl) nameEl.textContent = ch.isPlayer ? "You!" : ch.name;
+  var subEl=$$("k5-champ-sub");
+  if(subEl) subEl.textContent = ch.isPlayer
+    ? "You hold the Crown! Defend it in Monster Woods."
+    : (ch.wins||10)+" wins · "+Math.round((ch.winRate||0.6)*100)+"% win rate";
+}
+
+function renderK5Kingdom(){
+  if(S.tier!=="k5") return;
+  renderK5ChampionUI(getCrownHolder(S.gradeNum)); // best guess, instantly
+  refreshCrownHolder(S.gradeNum); // then reconcile with the real backend
+
+  // Place the avatar once per session; k5WalkTo moves it from then on.
+  var av=$$("k5-avatar");
+  if(av && !av.dataset.initialized){
+    av.dataset.initialized="1";
+    av.textContent=(S.name||"?")[0].toUpperCase();
+    var pos=K5_MAP_NODES[k5AvatarNode]||K5_MAP_NODES.home;
+    av.style.left=pos.left+"%"; av.style.top=pos.top+"%";
+  }
+}
+
+// Map coordinates (must match the node <button> left/top values in the HTML)
+var K5_MAP_NODES = {
+  home:   {left:8,  top:90},
+  woods:  {left:8,  top:68},
+  tower:  {left:30, top:18},
+  vault:  {left:56, top:62},
+  castle: {left:80, top:12}
+};
+var k5AvatarNode = "home";
+var k5AvatarWalking = false;
+
+// Animates the avatar walking to a map node, then runs the action for
+// that location (opening a duel, or navigating to another page).
+function k5WalkTo(nodeKey, onArrive){
+  if(k5AvatarWalking) return;
+  var av=$$("k5-avatar");
+  if(!av){ if(onArrive) onArrive(); return; }
+  if(k5AvatarNode===nodeKey){ if(onArrive) onArrive(); return; }
+  var pos=K5_MAP_NODES[nodeKey]||K5_MAP_NODES.home;
+  k5AvatarNode=nodeKey;
+  k5AvatarWalking=true;
+  av.classList.add("walking");
+  av.style.left=pos.left+"%";
+  av.style.top=pos.top+"%";
+  var done=false;
+  var finish=function(){
+    if(done) return; done=true;
+    k5AvatarWalking=false;
+    av.classList.remove("walking");
+    av.removeEventListener("transitionend", finish);
+    if(onArrive) onArrive();
+  };
+  av.addEventListener("transitionend", finish);
+  setTimeout(finish, 1300);
+}
+
+function k5ChallengeCrownHolder(){
+  var ch=getCrownHolder(S.gradeNum);
+  if(ch.isPlayer){ showToast("👑 You already hold the Crown! Keep winning Monster Woods duels to defend it."); return; }
+  goPage("challenge",null);
+  startK5CrownClash(ch.name, ch.e||"👑", ch.bg||"linear-gradient(135deg,var(--sun),var(--sun2))", ch.winRate||0.6, true);
+}
+
+function k5MonsterDuel(){
+  var o=OPPS[Math.floor(Math.random()*OPPS.length)];
+  goPage("challenge",null);
+  startK5CrownClash(o.n, o.e, o.bg, o.winRate||0.6, false);
+}
+
+// A single continuous 60-second sprint — students answer as many
+// questions as they can before time runs out, framed as a "Crown Clash."
+function startK5CrownClash(name, emoji, bg, winRate, isTitleFight){
+  var bs={
+    opp:{name:name, emoji:emoji, winRate:winRate},
+    myScore:0, oppScore:0, timeLeft:60, active:true,
+    qs:[], qi:0, timer:null, oppTimer:null, isTitleFight:!!isTitleFight
+  };
+  S.battleState=bs;
+  for(var i=0;i<20;i++) bs.qs.push(getRandQ(S.gradeNum));
+  var ba=$$("battle-arena"); if(ba){ ba.style.display="block"; ba.scrollIntoView({behavior:"smooth",block:"nearest"}); }
+  var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
+  var fn=S.name.split(" ")[0]||"You";
+  setEl("b-my-name",fn); setEl("b-opp-name",name); setEl("b-my-score","0"); setEl("b-opp-score","0");
+  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=fn[0]; myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
+  var oppAva=$$("b-opp-ava"); if(oppAva){ oppAva.textContent=emoji; oppAva.style.background=bg||"linear-gradient(135deg,var(--coral),var(--pink))"; }
+  var rEl=$$("b-round"); if(rEl) rEl.textContent = isTitleFight ? "👑 CROWN CLASH — TITLE FIGHT" : "⚔️ CROWN CLASH";
+  showToast(isTitleFight ? "👑 Defeat "+name+" to become the new Crown Holder!" : "🐉 "+TIER_COPY.k5.battleIntro, 3400);
+
+  bs.timer=setInterval(function(){
+    bs.timeLeft--; updateBTimer(bs);
+    if(bs.timeLeft<=0) endK5CrownClash(bs);
+  },1000);
+  bs.oppTimer=setInterval(function(){
+    if(!bs.active) return;
+    if(Math.random()<winRate*0.55){ bs.oppScore++; var os=$$("b-opp-score"); if(os) os.textContent=bs.oppScore; }
+  },3500);
+  updateBTimer(bs);
+  k5NextQuestion(bs);
+}
+
+function k5NextQuestion(bs){
+  if(!bs.active) return;
+  if(bs.qi>=bs.qs.length) bs.qs.push(getRandQ(S.gradeNum));
+  var q=bs.qs[bs.qi];
+  var wrap=$$("battle-q-wrap"); if(!wrap) return;
+  var letters=["A","B","C","D"];
+  var div=document.createElement("div"); div.style.cssText="background:rgba(0,0,0,0.3);border-radius:14px;padding:18px;margin-bottom:12px;";
+  div.innerHTML="<div class='q-topic'>"+(q.topic||"Math")+"</div><div class='q-text'>"+q.q+"</div>";
+  var optsDiv=document.createElement("div"); optsDiv.className="q-opts";
+  (q.a||[]).forEach(function(ans,i){
+    var btn=document.createElement("button"); btn.className="q-opt";
+    btn.innerHTML="<span class='opt-letter'>"+letters[i]+"</span>"+ans;
+    btn.addEventListener("click",function(){ k5AnswerQuestion(i,q.c,btn,bs); });
+    optsDiv.appendChild(btn);
+  });
+  div.appendChild(optsDiv);
+  wrap.innerHTML=""; wrap.appendChild(div);
+}
+
+function k5AnswerQuestion(sel,correct,btn,bs){
+  if(!bs.active) return;
+  var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
+  opts.forEach(function(o){ o.disabled=true; });
+  if(sel===correct){
+    btn.classList.add("correct"); bs.myScore++;
+    var ms=$$("b-my-score"); if(ms) ms.textContent=bs.myScore;
+  } else {
+    btn.classList.add("wrong");
+    if(opts[correct]) opts[correct].classList.add("correct");
+    showToast("🧙 "+K5_WIZARD_HINTS[Math.floor(Math.random()*K5_WIZARD_HINTS.length)], 2200);
+  }
+  bs.qi++;
+  setTimeout(function(){ k5NextQuestion(bs); }, 500);
+}
+
+function endK5CrownClash(bs){
+  if(!bs || !bs.active) return;
+  bs.active=false;
+  clearInterval(bs.timer); clearInterval(bs.oppTimer);
+  var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
+  var xp=win?220:tie?110:60, coins=win?170:tie?85:30;
+  S.xp+=xp; S.coins+=coins; if(win) S.wins=(S.wins||0)+1; saveSession();
+  renderK5Rewards();
+
+  var becameChamp=false;
+  if(bs.isTitleFight && win){
+    var prevWins = (getCrownHolder(S.gradeNum).isPlayer ? getCrownHolder(S.gradeNum).wins : 0) || 0;
+    setCrownHolder(S.gradeNum, {name:displayLabel(S.name), isPlayer:true, wins:prevWins+1, winRate:0.6});
+    becameChamp=true;
+  }
+  renderK5Kingdom();
+
+  var wrap=$$("battle-q-wrap"); if(!wrap) return;
+  var tck=TIER_COPY.k5;
+  var bigMsg = becameChamp ? "👑 YOU ARE THE NEW CROWN HOLDER!" : (win?tck.battleWin:tie?tck.battleTie:tck.battleLoss);
+  var div=document.createElement("div"); div.style.textAlign="center"; div.style.padding="24px";
+  div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+(becameChamp?"👑":win?"🏆":tie?"🤝":"🛡️")+"</div>"
+    +"<div style='font-size:22px;font-weight:800;color:var(--sun);margin-bottom:8px'>"+bigMsg+"</div>"
+    +"<div style='font-size:16px;margin-bottom:16px'>"+bs.myScore+" - "+bs.oppScore+" vs "+bs.opp.name+"</div>"
+    +"<div style='display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap'>"
+    +"<span class='badge b-sun'>+"+xp+" XP</span><span class='badge b-mint'>+"+coins+" MathCoins</span></div>";
+  var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;";
+  var b1=document.createElement("button"); b1.className="btn btn-coral btn-sm"; b1.textContent="Rematch";
+  b1.addEventListener("click",function(){ startK5CrownClash(bs.opp.name, bs.opp.emoji, "", bs.opp.winRate, bs.isTitleFight); });
+  var b2=document.createElement("button"); b2.className="btn btn-ghost btn-sm"; b2.textContent="Close";
+  b2.addEventListener("click",function(){ var ba=$$("battle-arena"); if(ba) ba.style.display="none"; });
+  btnRow.appendChild(b1); btnRow.appendChild(b2); div.appendChild(btnRow);
+  wrap.innerHTML=""; wrap.appendChild(div);
+  showToast(becameChamp ? "👑 New Crown Holder! +"+coins+" MathCoins" : (win?"Victory! +"+coins+" MathCoins":"Good fight! +"+xp+" XP"));
 }
 
 function renderMiniLB(){
@@ -3532,7 +4024,7 @@ function answerQ(sel,correct,btn){
   clearInterval(triviaTimer);
   document.querySelectorAll(".q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
-  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; sndCorrect(); showToast("Correct! +10 MathCoins"); }
+  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; sndCorrect(); showToast("Correct! +10 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll(".q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); sndWrong(); showToast("Not quite!"); }
   var q=session.qs[session.idx];
   if(q.explanation){
@@ -4048,6 +4540,7 @@ function startBattle(){
 }
 
 async function startBattleWith(name,emoji,bg,winRate){
+  if(S.tier==="k5"){ startK5CrownClash(name,emoji,bg,winRate,false); return; }
   var bs={opp:{name:name,emoji:emoji,winRate:winRate},myScore:0,oppScore:0,round:0,active:true,qs:[],timeLeft:30,timer:null};
   S.battleState=bs;
   var ba=$$("battle-arena"); if(ba){ ba.style.display="block"; ba.scrollIntoView({behavior:"smooth",block:"nearest"}); }
@@ -4118,9 +4611,18 @@ function battleAnswer(sel,correct,btn,bs){
     if(opts[correct]) opts[correct].classList.add("correct");
     // Opponent more likely to get it right when you're wrong
     if(Math.random()<bs.opp.winRate){ bs.oppScore++; var os2=$$("b-opp-score"); if(os2) os2.textContent=bs.oppScore; }
+    if(S.tier==="k5") showToast("🧙 "+K5_WIZARD_HINTS[Math.floor(Math.random()*K5_WIZARD_HINTS.length)], 3200);
   }
   bs.round++; setTimeout(function(){ nextBattleRound(bs); },1400);
 }
+
+var K5_WIZARD_HINTS = [
+  "Try breaking the problem into smaller steps!",
+  "Read the question one more time — sometimes the answer hides in the details!",
+  "Draw it out! Pictures can make tricky problems easier.",
+  "Take a deep breath, Knight — every mistake helps you level up!",
+  "Check your work by trying the answer backwards!"
+];
 
 function endBattle(bs){
   if(!bs) return;
@@ -4128,11 +4630,17 @@ function endBattle(bs){
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?200:tie?100:50, coins=win?150:tie?75:25;
   S.xp+=xp; S.coins+=coins; saveSession();
+  if(S.tier==="k5") renderK5Rewards();
   var wrap=$$("battle-q-wrap"); if(!wrap) return;
   var msg=win?"Victory!":tie?"Draw!":"Keep Training!";
+  var bigMsg=msg;
+  if(S.tier==="k5"){
+    var tck=TIER_COPY.k5;
+    bigMsg = win?tck.battleWin:tie?tck.battleTie:tck.battleLoss;
+  }
   var div=document.createElement("div"); div.style.textAlign="center"; div.style.padding="24px";
-  div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+msg+"</div>"
-    +"<div style='font-size:26px;font-weight:800;color:var(--sun);margin-bottom:8px'>"+msg+"</div>"
+  div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+(win?"🏆":tie?"🤝":"🛡️")+"</div>"
+    +"<div style='font-size:22px;font-weight:800;color:var(--sun);margin-bottom:8px'>"+bigMsg+"</div>"
     +"<div style='font-size:16px;margin-bottom:16px'>"+bs.myScore+" - "+bs.oppScore+" vs "+bs.opp.name+"</div>"
     +"<div style='display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap'>"
     +"<span class='badge b-sun'>+"+xp+" XP</span><span class='badge b-mint'>+"+coins+" MathCoins</span></div>";
@@ -4287,19 +4795,20 @@ function setLBTab(tab,btn){
   renderLeaderboard();
 }
 
-function renderLeaderboard(){
-  var tab=window.currentLBTab||"grade";
-  var gn=S.gradeNum||7;
+// Sample data shown only as a placeholder: while a real query is in
+// flight, if it fails, or (during early rollout) if there simply aren't
+// enough real students in a grade yet to fill a leaderboard.
+function leaderboardSampleData(tab, gn){
   var gl=gn+"th";
   var BASE=[
-    {n:"Jordan K.",g:gl,  pts:5820,e:"J",chg:"+2",up:true},
-    {n:"Sam P.",   g:gl,  pts:5410,e:"S",chg:"+1",up:true},
-    {n:"Riley M.", g:gl,  pts:5200,e:"R",chg:"0", up:false},
-    {n:"Alex J.",  g:gl,  pts:3240,e:"A",chg:"+3",up:true},
-    {n:"Casey T.", g:gl,  pts:3100,e:"C",chg:"-1",up:false},
-    {n:"Morgan L.",g:gl,  pts:2980,e:"M",chg:"+4",up:true},
-    {n:"Taylor B.",g:gl,  pts:2750,e:"T",chg:"-2",up:false},
-    {n:"Drew K.",  g:gl,  pts:2640,e:"D",chg:"+5",up:true}
+    {n:"Jordan K.",g:gl,  pts:5820,e:"J",chg:"",up:true},
+    {n:"Sam P.",   g:gl,  pts:5410,e:"S",chg:"",up:true},
+    {n:"Riley M.", g:gl,  pts:5200,e:"R",chg:"",up:false},
+    {n:"Alex J.",  g:gl,  pts:3240,e:"A",chg:"",up:true},
+    {n:"Casey T.", g:gl,  pts:3100,e:"C",chg:"",up:false},
+    {n:"Morgan L.",g:gl,  pts:2980,e:"M",chg:"",up:true},
+    {n:"Taylor B.",g:gl,  pts:2750,e:"T",chg:"",up:false},
+    {n:"Drew K.",  g:gl,  pts:2640,e:"D",chg:"",up:true}
   ];
   var ALL=[
     {n:"Priya S.", g:"11th",pts:8200,e:"P",chg:"+3",up:true},
@@ -4312,14 +4821,14 @@ function renderLeaderboard(){
     {n:"Taylor B.",g:"10th",pts:3200,e:"T",chg:"-2",up:false}
   ];
   var NAT=[
-    {n:"Mathew K.",g:"12th",pts:18200,e:"M",chg:"+1",up:true},
-    {n:"Priya S.", g:"11th",pts:15800,e:"P",chg:"+2",up:true},
-    {n:"Jordan K.",g:"5th", pts:14200,e:"J",chg:"+3",up:true},
-    {n:"Devon R.", g:"9th", pts:11900,e:"D",chg:"0", up:false},
-    {n:"Sam P.",   g:"7th", pts:10500,e:"S",chg:"+1",up:true},
-    {n:"Riley M.", g:"8th", pts:9800, e:"R",chg:"-1",up:false},
-    {n:"Alex J.",  g:"10th",pts:8700, e:"A",chg:"+2",up:true},
-    {n:"Casey T.", g:"3rd", pts:7200, e:"C",chg:"+1",up:true}
+    {n:"Mathew K.",g:"12th",pts:18200,e:"M",chg:"",up:true},
+    {n:"Priya S.", g:"11th",pts:15800,e:"P",chg:"",up:true},
+    {n:"Jordan K.",g:"5th", pts:14200,e:"J",chg:"",up:true},
+    {n:"Devon R.", g:"9th", pts:11900,e:"D",chg:"",up:false},
+    {n:"Sam P.",   g:"7th", pts:10500,e:"S",chg:"",up:true},
+    {n:"Riley M.", g:"8th", pts:9800, e:"R",chg:"",up:false},
+    {n:"Alex J.",  g:"10th",pts:8700, e:"A",chg:"",up:true},
+    {n:"Casey T.", g:"3rd", pts:7200, e:"C",chg:"",up:true}
   ];
   var WK=[
     {n:"Taylor B.",g:"10th",pts:980, e:"T",chg:"+5",up:true},
@@ -4331,10 +4840,45 @@ function renderLeaderboard(){
     {n:"Drew K.",  g:"8th", pts:480, e:"D",chg:"-2",up:false},
     {n:"Riley M.", g:"9th", pts:420, e:"R",chg:"+1",up:true}
   ];
-  var DATA=tab==="national"?NAT:tab==="school"?ALL:tab==="weekly"?WK:BASE;
+  return tab==="national"?NAT:tab==="school"?ALL:tab==="weekly"?WK:BASE;
+}
+
+function renderLeaderboard(){
+  var tab=window.currentLBTab||"grade";
+  var gn=S.gradeNum||7;
+
+  // "My Grade" and "National" are backed by the real public_profiles
+  // leaderboard. "Weekly" and "School" stay sample data for now — there's
+  // no weekly-reset or school/roster data model yet to make them real.
+  if(tab!=="grade" && tab!=="national"){
+    renderLeaderboardRows(leaderboardSampleData(tab, gn));
+    return;
+  }
+  if(!window.fetchLeaderboard){
+    renderLeaderboardRows(leaderboardSampleData(tab, gn));
+    return;
+  }
+  var gradeFilter = tab==="grade" ? gn : null;
+  var requestedTab = tab; // guard against a stale response after a tab switch
+  window.fetchLeaderboard(gradeFilter, 20).then(function(real){
+    if(window.currentLBTab!==requestedTab) return;
+    if(real && real.length){
+      renderLeaderboardRows(real.map(function(p){
+        return {n:p.name, g:(p.grade||gn)+"th", pts:p.xp||0, e:(p.name||"?")[0].toUpperCase(), chg:"", up:true};
+      }));
+    } else {
+      renderLeaderboardRows(leaderboardSampleData(tab, gn));
+    }
+  }).catch(function(){
+    if(window.currentLBTab!==requestedTab) return;
+    renderLeaderboardRows(leaderboardSampleData(tab, gn));
+  });
+}
+
+function renderLeaderboardRows(DATA){
   var colors=["linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,#c0c0c0,#a0a0a0)","linear-gradient(135deg,#cd7f32,#a06020)"];
   var pod=$$("lb-podium");
-  if(pod){
+  if(pod && DATA.length>=3){
     var order=[1,0,2], html="";
     order.forEach(function(i){
       var p=DATA[i];
@@ -4347,6 +4891,8 @@ function renderLeaderboard(){
         +"</div>";
     });
     pod.innerHTML=html;
+  } else if(pod){
+    pod.innerHTML="";
   }
   var full=$$("lb-full");
   if(full){
@@ -4459,20 +5005,24 @@ async function sendMsg(){
 
   input.value="";
   chat.innerHTML+="<div class='chat-msg chat-user'><div class='chat-who chat-who-user'>You</div>"+msg+"</div>";
+  var axiomLabel = S.tier==="k5" ? TIER_COPY.k5.axiomAvatar+" "+TIER_COPY.k5.axiomName : "Axiom";
   var thinking=document.createElement("div"); thinking.className="chat-msg chat-bot";
-  thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div><span style='color:var(--text2)'>Thinking...</span>";
+  thinking.innerHTML="<div class='chat-who chat-who-bot'>"+axiomLabel+"</div><span style='color:var(--text2)'>Thinking...</span>";
   chat.appendChild(thinking); chat.scrollTop=chat.scrollHeight;
   try{
+    var sysPrompt = S.tier==="k5"
+      ? "You are Axiom the Wizard, a friendly, encouraging wizard math tutor for MathCrown, a K-12 competitive math platform. Student: "+S.name+", "+S.grade+" (elementary school). Use simple words, short sentences, and fun visual comparisons a young child would understand (counting objects, splitting pizzas, etc). Stay warm and playful, use light wizard/kingdom flavor sparingly, and keep responses to 3-5 short sentences."
+      : "You are Axiom, the AI math coach for MathCrown at mymathcrown.com — the K-12 competitive math platform. Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear.";
     var r=await fetch(MC_API_BASE + "/ai",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,
-        system:"You are Axiom, the AI math coach for MathCrown at mymathcrown.com — the K-12 competitive math platform. Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear.",
+        system:sysPrompt,
         messages:[{role:"user",content:msg}]})
     });
     var d=await r.json();
     if(d.error){
-      thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>Axiom hit an error: "+d.error;
+      thinking.innerHTML="<div class='chat-who chat-who-bot'>"+axiomLabel+"</div>"+axiomLabel+" hit an error: "+d.error;
       console.error("Axiom API error:", d.error);
       chat.scrollTop=chat.scrollHeight;
       return;
@@ -4481,15 +5031,15 @@ async function sendMsg(){
     reply=stripMarkdown(reply);
     if(!axiomHasUnlimited()) axiomRecordUse();
     updateAxiomCounter();
-    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>";
+    thinking.innerHTML="<div class='chat-who chat-who-bot'>"+axiomLabel+"</div>";
     var body=document.createElement("div");
     body.textContent=reply;
     thinking.appendChild(body);
   }catch(e){
     var hint = (MC_API_BASE.indexOf("YOUR-SUBDOMAIN")>-1)
-      ? "Axiom is not configured yet (API URL missing)."
-      : "Axiom could not be reached. ("+(e.message||"network error")+")";
-    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>"+hint;
+      ? axiomLabel+" is not configured yet (API URL missing)."
+      : axiomLabel+" could not be reached. ("+(e.message||"network error")+")";
+    thinking.innerHTML="<div class='chat-who chat-who-bot'>"+axiomLabel+"</div>"+hint;
     console.error("Axiom error:", e);
   }
   chat.scrollTop=chat.scrollHeight;
@@ -4562,7 +5112,7 @@ function answerPractice(sel,correct,btn){
   clearInterval(practiceTimer);
   document.querySelectorAll("#p-opts .q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
-  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; showToast("Correct! +8 MathCoins"); }
+  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; showToast("Correct! +8 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll("#p-opts .q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); }
   practiceSession.idx++; setTimeout(renderPracticeQ, right?1800:2400);
 }
@@ -5125,55 +5675,14 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   window.auth = auth;
   window.db = db;
 
-  window.firebaseSignUp = async function(email, password, displayName, role, grade) {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    // Generate permanent 6-digit link code
-    const linkCode = Math.floor(100000 + Math.random() * 900000).toString();
-    await setDoc(doc(db, "users", cred.user.uid), {
-      name: displayName,
-      displayName: displayName,
-      email: email,
-      role: role,
-      grade: grade || "",
-      linkCode: linkCode,
-      xp: 0, coins: 0, level: 1, streak: 0,
-      createdAt: new Date()
-    });
-    return cred.user;
-  };
-
-  window.firebaseLogin = async function(email, password) {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    return cred.user;
-  };
-
-  window.firebaseLogout = function() { return signOut(auth); };
-
-  window.saveProgress = async function(xp, coins, level, streak, linkCode) {
-    const user = auth.currentUser;
-    if (!user) return;
-    const upd = { xp, coins, level, streak };
-    if (linkCode) upd.linkCode = linkCode;
-    await updateDoc(doc(db, "users", user.uid), upd);
-  };
-
-  window.loadProgress = async function() {
-    const user = auth.currentUser;
-    if (!user) return null;
-    const snap = await getDoc(doc(db, "users", user.uid));
-    return snap.exists() ? snap.data() : null;
-  };
-
-  window.startLeaderboard = function(callback) {
-    const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(20));
-    return onSnapshot(q, snapshot => {
-      const leaders = snapshot.docs.map((d, i) => ({
-        rank: i + 1, name: d.data().displayName,
-        xp: d.data().xp, level: d.data().level
-      }));
-      callback(leaders);
-    });
-  };
+  // Privacy-safe label mirror of the main script's displayLabel(): first
+  // name + last-initial only. Kept in sync manually since this module
+  // script has its own scope, separate from the page's main <script>.
+  function safeLabel(fullName){
+    var parts=(fullName||"Player").trim().split(/\s+/);
+    if(parts.length<2) return parts[0]||"Player";
+    return parts[0]+" "+parts[parts.length-1][0].toUpperCase()+".";
+  }
 
   // ── REAL-TIME PRESENCE ──────────────────────────────────────
   let presenceInterval = null;
@@ -5190,7 +5699,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       try {
         await setDoc(presRef, {
           uid,
-          name: window.S ? window.S.name : "Player",
+          name: window.S ? safeLabel(window.S.name) : "Player",
           grade: window.S ? window.S.gradeNum : 0,
           avatar: window.S ? (window.S.name||"P")[0].toUpperCase() : "P",
           status: "online",
@@ -5424,12 +5933,24 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   // ── EXISTING FUNCTIONS ────────────────────────────────────────
   window.firebaseSignUp = async function(email, password, displayName, role, grade) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const linkCode = Math.floor(100000 + Math.random() * 900000).toString();
     await setDoc(doc(db, "users", cred.user.uid), {
       name: displayName, displayName, email, role,
       grade: grade || "",
+      linkCode: linkCode,
       xp: 0, coins: 0, level: 1, streak: 0,
       createdAt: serverTimestamp()
     });
+    // Public, privacy-safe mirror (first name + last-initial only — never the
+    // full name/email) used by the leaderboard, Crown Holder, and search.
+    if (role === "student") {
+      await setDoc(doc(db, "public_profiles", cred.user.uid), {
+        displayLabel: safeLabel(displayName),
+        grade: grade || "",
+        xp: 0, level: 1, wins: 0,
+        updatedAt: serverTimestamp()
+      });
+    }
     return cred.user;
   };
 
@@ -5440,12 +5961,20 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
 
   window.firebaseLogout = function() { return signOut(auth); };
 
-  window.saveProgress = async function(xp, coins, level, streak, linkCode) {
+  window.saveProgress = async function(xp, coins, level, streak, linkCode, wins, grade) {
     const user = auth.currentUser;
     if (!user) return;
-    const upd = { xp, coins, level, streak };
+    if (wins === undefined && window.S) wins = window.S.wins || 0;
+    if (grade === undefined && window.S) grade = window.S.gradeNum || "";
+    const upd = { xp, coins, level, streak, wins: wins || 0 };
     if (linkCode) upd.linkCode = linkCode;
     await updateDoc(doc(db, "users", user.uid), upd);
+    try {
+      await setDoc(doc(db, "public_profiles", user.uid), {
+        xp, level, grade: grade || "", wins: wins || 0,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch(e) {}
   };
 
   window.loadProgress = async function() {
@@ -5466,15 +5995,67 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   };
 
   window.startLeaderboard = function(callback) {
-    const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(20));
+    const q = query(collection(db, "public_profiles"), orderBy("xp", "desc"), limit(20));
     return onSnapshot(q, snapshot => {
       const leaders = snapshot.docs.map((d, i) => ({
-        rank: i+1, name: d.data().displayName,
+        rank: i+1, name: d.data().displayLabel,
         xp: d.data().xp, level: d.data().level,
         grade: d.data().grade
       }));
       callback(leaders);
     });
+  };
+
+  // One-shot leaderboard read (no live listener) used by renderLeaderboard().
+  // gradeNum=null means unfiltered ("National"); reads only the safe
+  // public_profiles mirror, never the private users collection.
+  window.fetchLeaderboard = async function(gradeNum, topN) {
+    try {
+      const clauses = [collection(db, "public_profiles")];
+      if (gradeNum) clauses.push(where("grade", "==", String(gradeNum)));
+      clauses.push(orderBy("xp", "desc"));
+      clauses.push(limit(topN || 20));
+      const snap = await getDocs(query.apply(null, clauses));
+      return snap.docs.map((d, i) => ({
+        rank: i + 1, uid: d.id, name: d.data().displayLabel || "Player",
+        xp: d.data().xp || 0, level: d.data().level || 1,
+        wins: d.data().wins || 0, grade: d.data().grade || ""
+      }));
+    } catch (e) {
+      console.log("fetchLeaderboard error:", e.message);
+      return null;
+    }
+  };
+
+  // ── CROWN HOLDER (per-grade title, Junior League) ────────────
+  window.getCrownHolderRemote = async function(gradeNum) {
+    try {
+      const snap = await getDoc(doc(db, "crown_holders", String(gradeNum)));
+      return snap.exists() ? snap.data() : null;
+    } catch (e) {
+      console.log("getCrownHolderRemote error:", e.message);
+      return null;
+    }
+  };
+
+  // Self-reported, like the rest of this app's XP/coins (no server-side
+  // validation of "did this student really win" without Cloud Functions) —
+  // written only for the winner's own uid, consistent with the existing
+  // trust model for users/{uid} and public_profiles/{uid}.
+  window.setCrownHolderRemote = async function(gradeNum, holder) {
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+      await setDoc(doc(db, "crown_holders", String(gradeNum)), {
+        uid: user.uid,
+        name: holder.name,
+        wins: holder.wins || 1,
+        winRate: holder.winRate || 0.6,
+        updatedAt: serverTimestamp()
+      });
+    } catch (e) {
+      console.log("setCrownHolderRemote error:", e.message);
+    }
   };
 
   onAuthStateChanged(auth, async (user) => {
@@ -5517,10 +6098,11 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       });
     }
 
-    // Step 2: Query Firestore users — NO orderBy to avoid index requirement
+    // Step 2: Query the public_profiles mirror — safe fields only (no
+    // email/full name), NO orderBy to avoid an index requirement.
     try {
       const snap = await getDocs(query(
-        collection(db, "users"),
+        collection(db, "public_profiles"),
         limit(300)
       ));
       snap.docs.forEach(d => {
@@ -5528,7 +6110,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
         // Skip if already in results from LIVE_PLAYERS
         if (results.some(r => r.uid === d.id)) return;
         const data = d.data();
-        const name = (data.name || data.displayName || "").toLowerCase();
+        const name = (data.displayLabel || "").toLowerCase();
         if (name.indexOf(q) > -1) {
           const isOnline = window.LIVE_PLAYERS &&
             window.LIVE_PLAYERS.some(p => p.uid === d.id);
@@ -5537,13 +6119,13 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
             : null;
           results.push({
             uid: d.id,
-            name: data.name || data.displayName || "Student",
+            name: data.displayLabel || "Student",
             grade: data.grade || "",
             level: data.level || 1,
             xp: data.xp || 0,
             online: isOnline,
             inBattle: liveData ? liveData.inBattle : false,
-            avatar: (data.name || data.displayName || "S")[0].toUpperCase()
+            avatar: (data.displayLabel || "S")[0].toUpperCase()
           });
         }
       });

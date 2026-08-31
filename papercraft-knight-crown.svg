@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="1100" viewBox="0 0 850 1100" font-family="Verdana, sans-serif">
+  <rect width="850" height="1100" fill="#ffffff"/>
+
+  <text x="425" y="50" text-anchor="middle" font-size="30" font-weight="bold" fill="#1C3A6E">MathCrown — Papercraft Knight Crown</text>
+  <text x="425" y="80" text-anchor="middle" font-size="16" fill="#555">Print on card stock, cut the solid lines, fold the dashed lines, and glue the tabs.</text>
+
+  <!-- Crown band -->
+  <g transform="translate(75,140)">
+    <polygon points="0,150 0,90 50,10 100,90 150,10 200,90 250,10 300,90 350,10 400,90 450,10 500,90 550,10 600,90 650,10 700,90 700,150"
+      fill="#FFD93D" stroke="#111" stroke-width="3"/>
+    <text x="350" y="130" text-anchor="middle" font-size="20" font-weight="bold" fill="#5A3E00">Crown Band — wrap around head, glue end tab to opposite edge</text>
+
+    <!-- Glue tab -->
+    <polygon points="700,90 700,150 740,150 740,110" fill="none" stroke="#111" stroke-dasharray="6,4" stroke-width="2"/>
+    <text x="720" y="130" font-size="12" fill="#555" transform="rotate(90 720 130)">GLUE</text>
+  </g>
+
+  <!-- Jewels (cut separately, glue onto band) -->
+  <g transform="translate(150,420)">
+    <circle cx="0" cy="0" r="28" fill="#3D8BFF" stroke="#111" stroke-width="3"/>
+    <circle cx="90" cy="0" r="28" fill="#06D6A0" stroke="#111" stroke-width="3"/>
+    <circle cx="180" cy="0" r="28" fill="#FF6B6B" stroke="#111" stroke-width="3"/>
+    <circle cx="270" cy="0" r="28" fill="#3D8BFF" stroke="#111" stroke-width="3"/>
+    <circle cx="360" cy="0" r="28" fill="#06D6A0" stroke="#111" stroke-width="3"/>
+    <circle cx="450" cy="0" r="28" fill="#FF6B6B" stroke="#111" stroke-width="3"/>
+    <text x="225" y="60" text-anchor="middle" font-size="14" fill="#555">Jewels — cut out and glue onto the crown points</text>
+  </g>
+
+  <!-- Knight shield avatar stand -->
+  <g transform="translate(225,560)">
+    <path d="M0,0 L200,0 L200,140 Q200,240 100,280 Q0,240 0,140 Z"
+      fill="#1C3A6E" stroke="#111" stroke-width="3"/>
+    <text x="100" y="90" text-anchor="middle" font-size="22" font-weight="bold" fill="#FFD93D">MC</text>
+    <text x="100" y="130" text-anchor="middle" font-size="14" fill="#F0F6FF">Knight of</text>
+    <text x="100" y="152" text-anchor="middle" font-size="14" fill="#F0F6FF">MathCrown</text>
+    <text x="100" y="320" text-anchor="middle" font-size="14" fill="#555">Shield — fold the two side flaps back to make it free-standing</text>
+
+    <!-- fold flaps -->
+    <line x1="0" y1="0" x2="0" y2="140" stroke="#111" stroke-width="2" stroke-dasharray="6,4"/>
+    <line x1="200" y1="0" x2="200" y2="140" stroke="#111" stroke-width="2" stroke-dasharray="6,4"/>
+    <polygon points="0,0 -40,20 -40,120 0,140" fill="none" stroke="#111" stroke-width="2"/>
+    <polygon points="200,0 240,20 240,120 200,140" fill="none" stroke="#111" stroke-width="2"/>
+  </g>
+
+  <text x="425" y="960" text-anchor="middle" font-size="14" fill="#555">1. Cut out the crown band, jewels, and shield along the solid lines.</text>
+  <text x="425" y="985" text-anchor="middle" font-size="14" fill="#555">2. Fold the dashed lines and glue the shield side flaps to make it stand.</text>
+  <text x="425" y="1010" text-anchor="middle" font-size="14" fill="#555">3. Wrap the crown band around your head and glue the end tab.</text>
+  <text x="425" y="1035" text-anchor="middle" font-size="14" fill="#555">4. Glue the jewels onto the crown points and display your shield on your desk!</text>
+  <text x="425" y="1070" text-anchor="middle" font-size="16" font-weight="bold" fill="#1C3A6E">👑 Wear your crown proudly, Knight! 👑</text>
+</svg>
