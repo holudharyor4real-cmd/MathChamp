@@ -2745,7 +2745,7 @@ window.MATHCHAMP_LOADED = true;
 // ── STATE ──────────────────────────────────────────────
 var S = {
   name:"", grade:"", gradeNum:0,
-  xp:0, level:1, streak:0, coins:0,
+  xp:0, level:1, streak:0, coins:0, wins:0,
   isPreview:false, triviaMode:"trivia",
   plan:"free", linkCode:""
 };
@@ -3169,6 +3169,14 @@ function showToast(msg, dur){
   setTimeout(function(){ t.classList.remove("show"); }, dur||2800);
 }
 
+// Privacy-safe label for showing a student to OTHER students/parents:
+// first name + last-initial only, never the full legal name.
+function displayLabel(fullName){
+  var parts=(fullName||"Player").trim().split(/\s+/);
+  if(parts.length<2) return parts[0]||"Player";
+  return parts[0]+" "+parts[parts.length-1][0].toUpperCase()+".";
+}
+
 function gradeBand(n){
   n = parseInt(n)||7;
   if(n<=3)  return "grades_1_3";
@@ -3251,10 +3259,15 @@ function saveSession(){
   try{
     var key = "mc_"+S.name.split(" ")[0].toLowerCase()+"_"+S.gradeNum;
     localStorage.setItem(key, JSON.stringify({
-      xp:S.xp, level:S.level, streak:S.streak, coins:S.coins,
+      xp:S.xp, level:S.level, streak:S.streak, coins:S.coins, wins:S.wins||0,
       name:S.name, grade:S.grade, gradeNum:S.gradeNum
     }));
   }catch(e){}
+  // Mirror to the real backend too, so MathCoins/XP/wins are a genuine
+  // per-account balance instead of only a per-browser localStorage number.
+  if(window.saveProgress){
+    window.saveProgress(S.xp, S.coins, S.level, S.streak, null, S.wins, S.gradeNum).catch(function(){});
+  }
 }
 
 function registerPlayer(name, grade){
@@ -3520,7 +3533,7 @@ async function loginStudent(){
   if(!gr){ showToast("Please select your grade!"); return; }
   if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
   if(!password){ showToast("Please enter your password!"); return; }
-  S.xp=0; S.level=1; S.streak=0; S.coins=0;
+  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.wins=0;
   var loginBtn=document.querySelector("#login-tab-student .btn-sun");
   if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
   if(window.firebaseLogin){
@@ -3529,7 +3542,7 @@ async function loginStudent(){
       var data=await window.loadProgress();
       if(data){
         S.xp=data.xp||0; S.level=data.level||1;
-        S.streak=data.streak||0; S.coins=data.coins||0;
+        S.streak=data.streak||0; S.coins=data.coins||0; S.wins=data.wins||0;
         S.plan=data.plan||"free";
         fn=data.displayName||fn;
         if(data.grade){ gr=String(data.grade); }
@@ -3657,28 +3670,68 @@ function showK5PapercraftReward(){
 // The Crown Holder is a per-grade "title belt": computed from the existing
 // OPPS roster (already has a bot per grade with wins/win-rate) unless a real
 // student has won the title, in which case that win is remembered locally.
-function getCrownHolder(gradeNum){
-  try{
-    var raw=localStorage.getItem("mc_crown_g"+gradeNum);
-    if(raw){ var d=JSON.parse(raw); if(d && d.name) return d; }
-  }catch(e){}
+// Crown Holder data flow: an in-memory cache (K5_CROWN_CACHE) backs every
+// synchronous read so the UI never blocks on a network round-trip. It's
+// filled from — in order of preference — a real Firestore doc
+// (crown_holders/{grade}, via getCrownHolderRemote), a localStorage
+// fallback (offline/guest play, or signed-out demo mode), or the seeded
+// default bot from OPPS if nobody has ever taken the title.
+var K5_CROWN_CACHE = {};
+
+function getCrownHolderDefault(gradeNum){
   var opp = OPPS.find(function(o){ return o.gradeN===gradeNum; }) || OPPS[0];
   var winsMatch = (opp.meta||"").match(/(\d+)\s*Wins/);
   return {name:opp.n, e:opp.e, bg:opp.bg, winRate:opp.winRate||0.6, wins:winsMatch?parseInt(winsMatch[1]):10, isPlayer:false};
 }
 
-function setCrownHolder(gradeNum, holder){
-  try{ localStorage.setItem("mc_crown_g"+gradeNum, JSON.stringify(holder)); }catch(e){}
+function getCrownHolder(gradeNum){
+  if(K5_CROWN_CACHE[gradeNum]) return K5_CROWN_CACHE[gradeNum];
+  try{
+    var raw=localStorage.getItem("mc_crown_g"+gradeNum);
+    if(raw){ var d=JSON.parse(raw); if(d && d.name) return d; }
+  }catch(e){}
+  return getCrownHolderDefault(gradeNum);
 }
 
-function renderK5Kingdom(){
-  if(S.tier!=="k5") return;
-  var ch=getCrownHolder(S.gradeNum);
+// Fetches the real cross-device Crown Holder from Firestore (when signed in
+// and online) and refreshes the cache + on-screen panel. Falls back to the
+// cache/localStorage/default chain above when offline, in preview/guest
+// mode, or if the read fails for any reason.
+function refreshCrownHolder(gradeNum){
+  if(!window.getCrownHolderRemote || S.isPreview){ renderK5ChampionUI(getCrownHolder(gradeNum)); return; }
+  window.getCrownHolderRemote(gradeNum).then(function(remote){
+    var holder;
+    if(remote && remote.name){
+      var myUid = window.auth && window.auth.currentUser ? window.auth.currentUser.uid : null;
+      holder = {name:remote.name, wins:remote.wins||1, winRate:remote.winRate||0.6, uid:remote.uid, isPlayer:!!(myUid && remote.uid===myUid)};
+    } else {
+      holder = getCrownHolderDefault(gradeNum);
+    }
+    K5_CROWN_CACHE[gradeNum]=holder;
+    if(S.tier==="k5" && S.gradeNum===gradeNum) renderK5ChampionUI(holder);
+  }).catch(function(){ renderK5ChampionUI(getCrownHolder(gradeNum)); });
+}
+
+function setCrownHolder(gradeNum, holder){
+  K5_CROWN_CACHE[gradeNum]=holder;
+  try{ localStorage.setItem("mc_crown_g"+gradeNum, JSON.stringify(holder)); }catch(e){}
+  if(window.setCrownHolderRemote && !S.isPreview){
+    window.setCrownHolderRemote(gradeNum, holder).catch(function(){});
+  }
+}
+
+function renderK5ChampionUI(ch){
   var nameEl=$$("k5-champ-name"); if(nameEl) nameEl.textContent = ch.isPlayer ? "You!" : ch.name;
   var subEl=$$("k5-champ-sub");
   if(subEl) subEl.textContent = ch.isPlayer
     ? "You hold the Crown! Defend it in Monster Woods."
     : (ch.wins||10)+" wins · "+Math.round((ch.winRate||0.6)*100)+"% win rate";
+}
+
+function renderK5Kingdom(){
+  if(S.tier!=="k5") return;
+  renderK5ChampionUI(getCrownHolder(S.gradeNum)); // best guess, instantly
+  refreshCrownHolder(S.gradeNum); // then reconcile with the real backend
 
   // Place the avatar once per session; k5WalkTo moves it from then on.
   var av=$$("k5-avatar");
@@ -3811,12 +3864,13 @@ function endK5CrownClash(bs){
   clearInterval(bs.timer); clearInterval(bs.oppTimer);
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?220:tie?110:60, coins=win?170:tie?85:30;
-  S.xp+=xp; S.coins+=coins; saveSession();
+  S.xp+=xp; S.coins+=coins; if(win) S.wins=(S.wins||0)+1; saveSession();
   renderK5Rewards();
 
   var becameChamp=false;
   if(bs.isTitleFight && win){
-    setCrownHolder(S.gradeNum, {name:S.name.split(" ")[0], isPlayer:true, wins:1, winRate:0.6});
+    var prevWins = (getCrownHolder(S.gradeNum).isPlayer ? getCrownHolder(S.gradeNum).wins : 0) || 0;
+    setCrownHolder(S.gradeNum, {name:displayLabel(S.name), isPlayer:true, wins:prevWins+1, winRate:0.6});
     becameChamp=true;
   }
   renderK5Kingdom();
@@ -4741,19 +4795,20 @@ function setLBTab(tab,btn){
   renderLeaderboard();
 }
 
-function renderLeaderboard(){
-  var tab=window.currentLBTab||"grade";
-  var gn=S.gradeNum||7;
+// Sample data shown only as a placeholder: while a real query is in
+// flight, if it fails, or (during early rollout) if there simply aren't
+// enough real students in a grade yet to fill a leaderboard.
+function leaderboardSampleData(tab, gn){
   var gl=gn+"th";
   var BASE=[
-    {n:"Jordan K.",g:gl,  pts:5820,e:"J",chg:"+2",up:true},
-    {n:"Sam P.",   g:gl,  pts:5410,e:"S",chg:"+1",up:true},
-    {n:"Riley M.", g:gl,  pts:5200,e:"R",chg:"0", up:false},
-    {n:"Alex J.",  g:gl,  pts:3240,e:"A",chg:"+3",up:true},
-    {n:"Casey T.", g:gl,  pts:3100,e:"C",chg:"-1",up:false},
-    {n:"Morgan L.",g:gl,  pts:2980,e:"M",chg:"+4",up:true},
-    {n:"Taylor B.",g:gl,  pts:2750,e:"T",chg:"-2",up:false},
-    {n:"Drew K.",  g:gl,  pts:2640,e:"D",chg:"+5",up:true}
+    {n:"Jordan K.",g:gl,  pts:5820,e:"J",chg:"",up:true},
+    {n:"Sam P.",   g:gl,  pts:5410,e:"S",chg:"",up:true},
+    {n:"Riley M.", g:gl,  pts:5200,e:"R",chg:"",up:false},
+    {n:"Alex J.",  g:gl,  pts:3240,e:"A",chg:"",up:true},
+    {n:"Casey T.", g:gl,  pts:3100,e:"C",chg:"",up:false},
+    {n:"Morgan L.",g:gl,  pts:2980,e:"M",chg:"",up:true},
+    {n:"Taylor B.",g:gl,  pts:2750,e:"T",chg:"",up:false},
+    {n:"Drew K.",  g:gl,  pts:2640,e:"D",chg:"",up:true}
   ];
   var ALL=[
     {n:"Priya S.", g:"11th",pts:8200,e:"P",chg:"+3",up:true},
@@ -4766,14 +4821,14 @@ function renderLeaderboard(){
     {n:"Taylor B.",g:"10th",pts:3200,e:"T",chg:"-2",up:false}
   ];
   var NAT=[
-    {n:"Mathew K.",g:"12th",pts:18200,e:"M",chg:"+1",up:true},
-    {n:"Priya S.", g:"11th",pts:15800,e:"P",chg:"+2",up:true},
-    {n:"Jordan K.",g:"5th", pts:14200,e:"J",chg:"+3",up:true},
-    {n:"Devon R.", g:"9th", pts:11900,e:"D",chg:"0", up:false},
-    {n:"Sam P.",   g:"7th", pts:10500,e:"S",chg:"+1",up:true},
-    {n:"Riley M.", g:"8th", pts:9800, e:"R",chg:"-1",up:false},
-    {n:"Alex J.",  g:"10th",pts:8700, e:"A",chg:"+2",up:true},
-    {n:"Casey T.", g:"3rd", pts:7200, e:"C",chg:"+1",up:true}
+    {n:"Mathew K.",g:"12th",pts:18200,e:"M",chg:"",up:true},
+    {n:"Priya S.", g:"11th",pts:15800,e:"P",chg:"",up:true},
+    {n:"Jordan K.",g:"5th", pts:14200,e:"J",chg:"",up:true},
+    {n:"Devon R.", g:"9th", pts:11900,e:"D",chg:"",up:false},
+    {n:"Sam P.",   g:"7th", pts:10500,e:"S",chg:"",up:true},
+    {n:"Riley M.", g:"8th", pts:9800, e:"R",chg:"",up:false},
+    {n:"Alex J.",  g:"10th",pts:8700, e:"A",chg:"",up:true},
+    {n:"Casey T.", g:"3rd", pts:7200, e:"C",chg:"",up:true}
   ];
   var WK=[
     {n:"Taylor B.",g:"10th",pts:980, e:"T",chg:"+5",up:true},
@@ -4785,10 +4840,45 @@ function renderLeaderboard(){
     {n:"Drew K.",  g:"8th", pts:480, e:"D",chg:"-2",up:false},
     {n:"Riley M.", g:"9th", pts:420, e:"R",chg:"+1",up:true}
   ];
-  var DATA=tab==="national"?NAT:tab==="school"?ALL:tab==="weekly"?WK:BASE;
+  return tab==="national"?NAT:tab==="school"?ALL:tab==="weekly"?WK:BASE;
+}
+
+function renderLeaderboard(){
+  var tab=window.currentLBTab||"grade";
+  var gn=S.gradeNum||7;
+
+  // "My Grade" and "National" are backed by the real public_profiles
+  // leaderboard. "Weekly" and "School" stay sample data for now — there's
+  // no weekly-reset or school/roster data model yet to make them real.
+  if(tab!=="grade" && tab!=="national"){
+    renderLeaderboardRows(leaderboardSampleData(tab, gn));
+    return;
+  }
+  if(!window.fetchLeaderboard){
+    renderLeaderboardRows(leaderboardSampleData(tab, gn));
+    return;
+  }
+  var gradeFilter = tab==="grade" ? gn : null;
+  var requestedTab = tab; // guard against a stale response after a tab switch
+  window.fetchLeaderboard(gradeFilter, 20).then(function(real){
+    if(window.currentLBTab!==requestedTab) return;
+    if(real && real.length){
+      renderLeaderboardRows(real.map(function(p){
+        return {n:p.name, g:(p.grade||gn)+"th", pts:p.xp||0, e:(p.name||"?")[0].toUpperCase(), chg:"", up:true};
+      }));
+    } else {
+      renderLeaderboardRows(leaderboardSampleData(tab, gn));
+    }
+  }).catch(function(){
+    if(window.currentLBTab!==requestedTab) return;
+    renderLeaderboardRows(leaderboardSampleData(tab, gn));
+  });
+}
+
+function renderLeaderboardRows(DATA){
   var colors=["linear-gradient(135deg,var(--sun),var(--sun2))","linear-gradient(135deg,#c0c0c0,#a0a0a0)","linear-gradient(135deg,#cd7f32,#a06020)"];
   var pod=$$("lb-podium");
-  if(pod){
+  if(pod && DATA.length>=3){
     var order=[1,0,2], html="";
     order.forEach(function(i){
       var p=DATA[i];
@@ -4801,6 +4891,8 @@ function renderLeaderboard(){
         +"</div>";
     });
     pod.innerHTML=html;
+  } else if(pod){
+    pod.innerHTML="";
   }
   var full=$$("lb-full");
   if(full){
@@ -5583,55 +5675,14 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   window.auth = auth;
   window.db = db;
 
-  window.firebaseSignUp = async function(email, password, displayName, role, grade) {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    // Generate permanent 6-digit link code
-    const linkCode = Math.floor(100000 + Math.random() * 900000).toString();
-    await setDoc(doc(db, "users", cred.user.uid), {
-      name: displayName,
-      displayName: displayName,
-      email: email,
-      role: role,
-      grade: grade || "",
-      linkCode: linkCode,
-      xp: 0, coins: 0, level: 1, streak: 0,
-      createdAt: new Date()
-    });
-    return cred.user;
-  };
-
-  window.firebaseLogin = async function(email, password) {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    return cred.user;
-  };
-
-  window.firebaseLogout = function() { return signOut(auth); };
-
-  window.saveProgress = async function(xp, coins, level, streak, linkCode) {
-    const user = auth.currentUser;
-    if (!user) return;
-    const upd = { xp, coins, level, streak };
-    if (linkCode) upd.linkCode = linkCode;
-    await updateDoc(doc(db, "users", user.uid), upd);
-  };
-
-  window.loadProgress = async function() {
-    const user = auth.currentUser;
-    if (!user) return null;
-    const snap = await getDoc(doc(db, "users", user.uid));
-    return snap.exists() ? snap.data() : null;
-  };
-
-  window.startLeaderboard = function(callback) {
-    const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(20));
-    return onSnapshot(q, snapshot => {
-      const leaders = snapshot.docs.map((d, i) => ({
-        rank: i + 1, name: d.data().displayName,
-        xp: d.data().xp, level: d.data().level
-      }));
-      callback(leaders);
-    });
-  };
+  // Privacy-safe label mirror of the main script's displayLabel(): first
+  // name + last-initial only. Kept in sync manually since this module
+  // script has its own scope, separate from the page's main <script>.
+  function safeLabel(fullName){
+    var parts=(fullName||"Player").trim().split(/\s+/);
+    if(parts.length<2) return parts[0]||"Player";
+    return parts[0]+" "+parts[parts.length-1][0].toUpperCase()+".";
+  }
 
   // ── REAL-TIME PRESENCE ──────────────────────────────────────
   let presenceInterval = null;
@@ -5648,7 +5699,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       try {
         await setDoc(presRef, {
           uid,
-          name: window.S ? window.S.name : "Player",
+          name: window.S ? safeLabel(window.S.name) : "Player",
           grade: window.S ? window.S.gradeNum : 0,
           avatar: window.S ? (window.S.name||"P")[0].toUpperCase() : "P",
           status: "online",
@@ -5882,12 +5933,24 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   // ── EXISTING FUNCTIONS ────────────────────────────────────────
   window.firebaseSignUp = async function(email, password, displayName, role, grade) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const linkCode = Math.floor(100000 + Math.random() * 900000).toString();
     await setDoc(doc(db, "users", cred.user.uid), {
       name: displayName, displayName, email, role,
       grade: grade || "",
+      linkCode: linkCode,
       xp: 0, coins: 0, level: 1, streak: 0,
       createdAt: serverTimestamp()
     });
+    // Public, privacy-safe mirror (first name + last-initial only — never the
+    // full name/email) used by the leaderboard, Crown Holder, and search.
+    if (role === "student") {
+      await setDoc(doc(db, "public_profiles", cred.user.uid), {
+        displayLabel: safeLabel(displayName),
+        grade: grade || "",
+        xp: 0, level: 1, wins: 0,
+        updatedAt: serverTimestamp()
+      });
+    }
     return cred.user;
   };
 
@@ -5898,12 +5961,20 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
 
   window.firebaseLogout = function() { return signOut(auth); };
 
-  window.saveProgress = async function(xp, coins, level, streak, linkCode) {
+  window.saveProgress = async function(xp, coins, level, streak, linkCode, wins, grade) {
     const user = auth.currentUser;
     if (!user) return;
-    const upd = { xp, coins, level, streak };
+    if (wins === undefined && window.S) wins = window.S.wins || 0;
+    if (grade === undefined && window.S) grade = window.S.gradeNum || "";
+    const upd = { xp, coins, level, streak, wins: wins || 0 };
     if (linkCode) upd.linkCode = linkCode;
     await updateDoc(doc(db, "users", user.uid), upd);
+    try {
+      await setDoc(doc(db, "public_profiles", user.uid), {
+        xp, level, grade: grade || "", wins: wins || 0,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch(e) {}
   };
 
   window.loadProgress = async function() {
@@ -5924,15 +5995,67 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
   };
 
   window.startLeaderboard = function(callback) {
-    const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(20));
+    const q = query(collection(db, "public_profiles"), orderBy("xp", "desc"), limit(20));
     return onSnapshot(q, snapshot => {
       const leaders = snapshot.docs.map((d, i) => ({
-        rank: i+1, name: d.data().displayName,
+        rank: i+1, name: d.data().displayLabel,
         xp: d.data().xp, level: d.data().level,
         grade: d.data().grade
       }));
       callback(leaders);
     });
+  };
+
+  // One-shot leaderboard read (no live listener) used by renderLeaderboard().
+  // gradeNum=null means unfiltered ("National"); reads only the safe
+  // public_profiles mirror, never the private users collection.
+  window.fetchLeaderboard = async function(gradeNum, topN) {
+    try {
+      const clauses = [collection(db, "public_profiles")];
+      if (gradeNum) clauses.push(where("grade", "==", String(gradeNum)));
+      clauses.push(orderBy("xp", "desc"));
+      clauses.push(limit(topN || 20));
+      const snap = await getDocs(query.apply(null, clauses));
+      return snap.docs.map((d, i) => ({
+        rank: i + 1, uid: d.id, name: d.data().displayLabel || "Player",
+        xp: d.data().xp || 0, level: d.data().level || 1,
+        wins: d.data().wins || 0, grade: d.data().grade || ""
+      }));
+    } catch (e) {
+      console.log("fetchLeaderboard error:", e.message);
+      return null;
+    }
+  };
+
+  // ── CROWN HOLDER (per-grade title, Junior League) ────────────
+  window.getCrownHolderRemote = async function(gradeNum) {
+    try {
+      const snap = await getDoc(doc(db, "crown_holders", String(gradeNum)));
+      return snap.exists() ? snap.data() : null;
+    } catch (e) {
+      console.log("getCrownHolderRemote error:", e.message);
+      return null;
+    }
+  };
+
+  // Self-reported, like the rest of this app's XP/coins (no server-side
+  // validation of "did this student really win" without Cloud Functions) —
+  // written only for the winner's own uid, consistent with the existing
+  // trust model for users/{uid} and public_profiles/{uid}.
+  window.setCrownHolderRemote = async function(gradeNum, holder) {
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+      await setDoc(doc(db, "crown_holders", String(gradeNum)), {
+        uid: user.uid,
+        name: holder.name,
+        wins: holder.wins || 1,
+        winRate: holder.winRate || 0.6,
+        updatedAt: serverTimestamp()
+      });
+    } catch (e) {
+      console.log("setCrownHolderRemote error:", e.message);
+    }
   };
 
   onAuthStateChanged(auth, async (user) => {
@@ -5975,10 +6098,11 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       });
     }
 
-    // Step 2: Query Firestore users — NO orderBy to avoid index requirement
+    // Step 2: Query the public_profiles mirror — safe fields only (no
+    // email/full name), NO orderBy to avoid an index requirement.
     try {
       const snap = await getDocs(query(
-        collection(db, "users"),
+        collection(db, "public_profiles"),
         limit(300)
       ));
       snap.docs.forEach(d => {
@@ -5986,7 +6110,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
         // Skip if already in results from LIVE_PLAYERS
         if (results.some(r => r.uid === d.id)) return;
         const data = d.data();
-        const name = (data.name || data.displayName || "").toLowerCase();
+        const name = (data.displayLabel || "").toLowerCase();
         if (name.indexOf(q) > -1) {
           const isOnline = window.LIVE_PLAYERS &&
             window.LIVE_PLAYERS.some(p => p.uid === d.id);
@@ -5995,13 +6119,13 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
             : null;
           results.push({
             uid: d.id,
-            name: data.name || data.displayName || "Student",
+            name: data.displayLabel || "Student",
             grade: data.grade || "",
             level: data.level || 1,
             xp: data.xp || 0,
             online: isOnline,
             inBattle: liveData ? liveData.inBattle : false,
-            avatar: (data.name || data.displayName || "S")[0].toUpperCase()
+            avatar: (data.displayLabel || "S")[0].toUpperCase()
           });
         }
       });
