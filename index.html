@@ -381,6 +381,27 @@ function resumePendingCheckoutIfAny() {
   --glow-coral:0 0 28px rgba(61,139,255,0.45);
 }
 
+/* ── GRADE TIER SKIN: Junior League (K-5) — playful kingdom theme ── */
+body[data-tier="k5"]{
+  --sun:     #FFC93C;
+  --sun2:    #FFB100;
+  --coral:   #FF6B6B;
+  --mint:    #2FD675;
+  --sky:     #4FC3F7;
+  --r:       26px;
+  --r2:      20px;
+  --border:  rgba(255,201,60,0.28);
+}
+body[data-tier="k5"] .page-title{ font-family:'Fredoka One',cursive; }
+body[data-tier="k5"] .nav-item.on{
+  background:linear-gradient(135deg,rgba(255,201,60,0.22),rgba(255,107,107,0.14));
+}
+body[data-tier="k5"] .btn{ border-radius:100px; }
+
+/* Tier-conditional widgets: hidden by default, shown only for their tier */
+.tier-k5-only{ display:none; }
+body[data-tier="k5"] .tier-k5-only{ display:block; }
+
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
@@ -1953,11 +1974,11 @@ body{
       <span class="nav-icon">🏠</span> Home
     </button>
     <button class="nav-item" onclick="goPage('room',this)">
-      <span class="nav-icon">🌐</span> Common Room
+      <span class="nav-icon">🌐</span> <span data-nav="room">Common Room</span>
       <span class="nav-badge" id="room-badge" style="display:none">0</span>
     </button>
     <button class="nav-item" onclick="goPage('challenge',this)">
-      <span class="nav-icon">⚔️</span> Challenge
+      <span class="nav-icon">⚔️</span> <span data-nav="challenge">Challenge</span>
     </button>
     <button class="nav-item" onclick="goPage('tournament',this)">
       <span class="nav-icon">🏆</span> Tournaments
@@ -1980,7 +2001,7 @@ body{
       <span class="nav-icon">📊</span> Leaderboard
     </button>
     <button class="nav-item" onclick="goPage('wallet',this)">
-      <span class="nav-icon">💰</span> Rewards Wallet
+      <span class="nav-icon">💰</span> <span data-nav="wallet">Rewards Wallet</span>
     </button>
     <button class="nav-item" onclick="goPage('profile',this)">
       <span class="nav-icon">👤</span> My Profile
@@ -2066,6 +2087,25 @@ body{
           <div class="stat-card">
             <div class="stat-icon" style="background:rgba(6,214,160,0.15)">🪙</div>
             <div><div class="stat-num" id="home-coins" style="color:var(--mint)">0</div><div class="stat-lbl">MathCoins</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Junior League: Treasure Chest & College Fund Tree (K-5 dashboard skin only) -->
+      <div class="card tier-k5-only" id="k5-rewards-card" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(255,201,60,0.12),rgba(47,214,117,0.08));border:1.5px solid rgba(255,201,60,0.3)">
+        <div style="font-family:'Fredoka One',cursive;font-size:18px;margin-bottom:14px">🏰 Your Kingdom Treasures</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px;text-align:center">
+            <div id="k5-chest-emoji" style="font-size:52px;line-height:1">🧰</div>
+            <div style="font-weight:800;margin-top:6px" id="k5-chest-coins">0 Gold Coins</div>
+            <div style="font-size:12px;color:var(--text2)">Treasure Chest</div>
+          </div>
+          <div style="flex:1;min-width:180px;text-align:center">
+            <div id="k5-tree-emoji" style="font-size:52px;line-height:1">🌱</div>
+            <div class="prog-wrap" style="margin-top:10px">
+              <div class="prog-fill" id="k5-tree-prog" style="width:0%;background:var(--mint)"></div>
+            </div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">🎓 College Fund Tree — grows as you earn!</div>
           </div>
         </div>
       </div>
@@ -2341,14 +2381,14 @@ body{
 
     <!-- ════ AI TUTOR ════ -->
     <div class="page" id="p-tutor">
-      <div class="page-title">🤖 AI Math Tutor</div>
-      <div class="page-sub">Your personal math coach · Available 24/7 · Powered by Claude AI</div>
+      <div class="page-title" id="tutor-title">🤖 AI Math Tutor</div>
+      <div class="page-sub" id="tutor-sub">Your personal math coach · Available 24/7 · Powered by Claude AI</div>
 
       <div class="tutor-header">
-        <div class="tutor-ava">🤖</div>
+        <div class="tutor-ava" id="tutor-ava">🤖</div>
         <div>
-          <div class="tutor-name">Axiom</div>
-          <div class="tutor-tag">Your AI Math Coach · Powered by Claude</div>
+          <div class="tutor-name" id="tutor-name">Axiom</div>
+          <div class="tutor-tag" id="tutor-tag">Your AI Math Coach · Powered by Claude</div>
           <div style="font-size:12px;color:var(--text2);margin-top:4px">Speaks your grade level · Explains step-by-step · Never judges mistakes</div>
         </div>
       </div>
@@ -3053,6 +3093,63 @@ function getGradeBandNum(n){
   return 5;
 }
 
+// ── GRADE TIER (redesign: dashboard skin per age group) ──
+function tierFor(n){
+  n = parseInt(n)||7;
+  if(n<=5) return "k5";
+  if(n<=8) return "6-8";
+  return "9-12";
+}
+
+var TIER_COPY = {
+  "k5": {
+    greet: function(name){ return "Welcome back, Knight "+name+"!"; },
+    sub: "The Fraction Fields are being attacked. Ready your shield!",
+    navChallenge: "Crown Clashes",
+    navRoom: "Kingdom Square",
+    navWallet: "Treasure Chest",
+    battleIntro: "A monster approaches! Answer fast to banish it!",
+    battleWin: "🏆 Monster Banished! You win the Crown Clash!",
+    battleTie: "🤝 A hard-fought draw! The monster retreats for now.",
+    battleLoss: "😮 The monster escaped this time — ready your shield and try again!",
+    axiomName: "Axiom the Wizard",
+    axiomAvatar: "🧙"
+  }
+};
+
+function applyTierCopy(tier){
+  var c = TIER_COPY[tier];
+  var navChallenge = document.querySelector('[data-nav="challenge"]');
+  var navRoom = document.querySelector('[data-nav="room"]');
+  var navWallet = document.querySelector('[data-nav="wallet"]');
+  var setEl = function(id,val){ var e=$$(id); if(e) e.textContent=val; };
+  if(c){
+    if(navChallenge) navChallenge.textContent = c.navChallenge;
+    if(navRoom) navRoom.textContent = c.navRoom;
+    if(navWallet) navWallet.textContent = c.navWallet;
+  } else {
+    if(navChallenge) navChallenge.textContent = "Challenge";
+    if(navRoom) navRoom.textContent = "Common Room";
+    if(navWallet) navWallet.textContent = "Rewards Wallet";
+  }
+  var seedWho = $$("chat-box") ? $$("chat-box").querySelector(".chat-who-bot") : null;
+  if(tier==="k5"){
+    setEl("tutor-title", "🧙 Ask the Wizard");
+    setEl("tutor-sub", "Your friendly math wizard · Ready to help anytime!");
+    setEl("tutor-ava", TIER_COPY.k5.axiomAvatar);
+    setEl("tutor-name", TIER_COPY.k5.axiomName);
+    setEl("tutor-tag", "Your Math Wizard Companion");
+    if(seedWho) seedWho.textContent = TIER_COPY.k5.axiomAvatar+" "+TIER_COPY.k5.axiomName;
+  } else {
+    setEl("tutor-title", "🤖 AI Math Tutor");
+    setEl("tutor-sub", "Your personal math coach · Available 24/7 · Powered by Claude AI");
+    setEl("tutor-ava", "🤖");
+    setEl("tutor-name", "Axiom");
+    setEl("tutor-tag", "Your AI Math Coach · Powered by Claude");
+    if(seedWho) seedWho.textContent = "🤖 Axiom";
+  }
+}
+
 
 
 function shuffle(arr){ return arr.slice().sort(function(){ return Math.random()-.5; }); }
@@ -3143,12 +3240,17 @@ function goPage(id, el, mob){
 // ── ENTER APP ──────────────────────────────────────────
 function enterApp(name, grade, gradeNum, isPreview){
   S.name=name; S.grade=grade; S.gradeNum=gradeNum; S.isPreview=isPreview;
+  S.tier = tierFor(gradeNum);
+  document.body.setAttribute("data-tier", S.tier);
+  applyTierCopy(S.tier);
   var ava = name[0].toUpperCase();
   var setEl = function(id,val){ var e=$$(id); if(e) e.textContent=val; };
   setEl("sb-avatar", ava); setEl("prof-ava", ava);
   setEl("sb-name", name.split(" ")[0]+(name.split(" ")[1]?" "+name.split(" ")[1][0]+".":""));
   setEl("sb-ulevel", "Level "+S.level+" - "+(S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner"));
-  setEl("home-greet", "Welcome, "+name.split(" ")[0]+"! Earn Your Crown!");
+  var tc = TIER_COPY[S.tier];
+  setEl("home-greet", tc ? tc.greet(name.split(" ")[0]) : "Welcome, "+name.split(" ")[0]+"! Earn Your Crown!");
+  setEl("home-sub", tc ? tc.sub : "Complete your first trivia to start earning XP and MathCoins! 🚀");
   setEl("prof-name", name); setEl("prof-grade", grade+" - Math Champ");
   setEl("stat-wins","0"); setEl("stat-streak",S.streak); setEl("stat-rank","--");
   setEl("home-coins",S.coins.toLocaleString()); setEl("wallet-coins",S.coins.toLocaleString());
@@ -3338,6 +3440,7 @@ async function loginStudent(){
         S.streak=data.streak||0; S.coins=data.coins||0;
         S.plan=data.plan||"free";
         fn=data.displayName||fn;
+        if(data.grade){ gr=String(data.grade); }
         // Restore linkCode from Firestore
         if(data.linkCode){
           S.linkCode=data.linkCode;
@@ -3362,7 +3465,11 @@ async function loginStudent(){
   }
   try{
     var saved=localStorage.getItem("mc_"+fn.toLowerCase()+"_"+gr);
-    if(saved){ var d=JSON.parse(saved); S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0; }
+    if(saved){
+      var d=JSON.parse(saved);
+      S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
+      if(d.gradeNum){ gr=String(d.gradeNum); }
+    }
   }catch(e){}
   closeLoginModal();
   enterApp(fn, gr+"th Grade", parseInt(gr)||7, false);
@@ -3372,7 +3479,8 @@ async function loginStudent(){
 function logout(){
   saveSession();
   // Reset student state
-  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false;
+  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier="";
+  document.body.removeAttribute("data-tier");
   // Reset parent state
   PARENT.isLoggedIn=false;
   // Hide parent nav
@@ -3400,6 +3508,57 @@ function renderHome(){
   if(gs) gs.style.display = (S.xp>0&&!S.isPreview)?"none":"block";
   renderMiniLB();
   var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
+  if(S.tier==="k5") renderK5Rewards();
+}
+
+// ── JUNIOR LEAGUE (K-5) REWARDS: Treasure Chest + College Fund Tree ──
+var K5_TREE_STAGES = [
+  {min:0,    emoji:"🌱", label:"Seedling"},
+  {min:100,  emoji:"🌿", label:"Sprout"},
+  {min:300,  emoji:"🌳", label:"Young Tree"},
+  {min:700,  emoji:"🌳✨",label:"Mighty Tree"}
+];
+var K5_PAPERCRAFT_MILESTONE = 500;
+
+function renderK5Rewards(){
+  var chestEl=$$("k5-chest-coins"); if(chestEl) chestEl.textContent=S.coins.toLocaleString()+" Gold Coins";
+
+  var stage=K5_TREE_STAGES[0], next=null;
+  for(var i=0;i<K5_TREE_STAGES.length;i++){
+    if(S.coins>=K5_TREE_STAGES[i].min){ stage=K5_TREE_STAGES[i]; next=K5_TREE_STAGES[i+1]||null; }
+  }
+  var treeEl=$$("k5-tree-emoji"); if(treeEl) treeEl.textContent=stage.emoji;
+  var span=next?(next.min-stage.min):200;
+  var pct=next?Math.min(100,Math.round((S.coins-stage.min)/span*100)):100;
+  var progEl=$$("k5-tree-prog"); if(progEl) progEl.style.width=pct+"%";
+
+  checkK5PapercraftMilestone();
+}
+
+function checkK5PapercraftMilestone(){
+  if(S.tier!=="k5" || S.isPreview || !S.name) return;
+  if(S.coins < K5_PAPERCRAFT_MILESTONE) return;
+  var flagKey="mc_papercraft_"+S.name.split(" ")[0].toLowerCase();
+  try{ if(localStorage.getItem(flagKey)) return; }catch(e){}
+  try{ localStorage.setItem(flagKey,"1"); }catch(e){}
+  showK5PapercraftReward();
+}
+
+function showK5PapercraftReward(){
+  var m=$$("k5-papercraft-modal");
+  if(m){ m.classList.add("open"); return; }
+  var div=document.createElement("div");
+  div.id="k5-papercraft-modal";
+  div.className="modal-overlay open";
+  div.innerHTML =
+    '<div class="modal" style="max-width:420px;text-align:center">'+
+      '<div style="font-size:52px;margin-bottom:8px">👑</div>'+
+      '<div style="font-family:\'Fredoka One\',cursive;font-size:20px;margin-bottom:10px">You Unlocked a Papercraft Crown!</div>'+
+      '<div style="font-size:14px;color:var(--text2);margin-bottom:18px">Print, cut, and fold your very own MathCrown knight avatar to display on your desk!</div>'+
+      '<a href="papercraft-knight-crown.svg" download="papercraft-knight-crown.svg" class="btn btn-sun" style="display:inline-block;margin-bottom:10px;text-decoration:none">⬇️ Download Template</a><br>'+
+      '<button class="btn btn-ghost btn-xs" onclick="document.getElementById(\'k5-papercraft-modal\').classList.remove(\'open\')">Close</button>'+
+    '</div>';
+  document.body.appendChild(div);
 }
 
 function renderMiniLB(){
@@ -3532,7 +3691,7 @@ function answerQ(sel,correct,btn){
   clearInterval(triviaTimer);
   document.querySelectorAll(".q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
-  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; sndCorrect(); showToast("Correct! +10 MathCoins"); }
+  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; sndCorrect(); showToast("Correct! +10 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll(".q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); sndWrong(); showToast("Not quite!"); }
   var q=session.qs[session.idx];
   if(q.explanation){
@@ -4062,6 +4221,7 @@ async function startBattleWith(name,emoji,bg,winRate){
   for(var i=0;i<5;i++) bs.qs.push(getRandQ(S.gradeNum));
   if(aiQs) bs.qs=bs.qs.slice(0,3).concat(aiQs.slice(0,2));
   bs.qs=shuffle(bs.qs).slice(0,5);
+  if(S.tier==="k5") showToast("🐉 "+TIER_COPY.k5.battleIntro, 3200);
   nextBattleRound(bs);
 }
 
@@ -4118,9 +4278,18 @@ function battleAnswer(sel,correct,btn,bs){
     if(opts[correct]) opts[correct].classList.add("correct");
     // Opponent more likely to get it right when you're wrong
     if(Math.random()<bs.opp.winRate){ bs.oppScore++; var os2=$$("b-opp-score"); if(os2) os2.textContent=bs.oppScore; }
+    if(S.tier==="k5") showToast("🧙 "+K5_WIZARD_HINTS[Math.floor(Math.random()*K5_WIZARD_HINTS.length)], 3200);
   }
   bs.round++; setTimeout(function(){ nextBattleRound(bs); },1400);
 }
+
+var K5_WIZARD_HINTS = [
+  "Try breaking the problem into smaller steps!",
+  "Read the question one more time — sometimes the answer hides in the details!",
+  "Draw it out! Pictures can make tricky problems easier.",
+  "Take a deep breath, Knight — every mistake helps you level up!",
+  "Check your work by trying the answer backwards!"
+];
 
 function endBattle(bs){
   if(!bs) return;
@@ -4128,11 +4297,17 @@ function endBattle(bs){
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?200:tie?100:50, coins=win?150:tie?75:25;
   S.xp+=xp; S.coins+=coins; saveSession();
+  if(S.tier==="k5") renderK5Rewards();
   var wrap=$$("battle-q-wrap"); if(!wrap) return;
   var msg=win?"Victory!":tie?"Draw!":"Keep Training!";
+  var bigMsg=msg;
+  if(S.tier==="k5"){
+    var tck=TIER_COPY.k5;
+    bigMsg = win?tck.battleWin:tie?tck.battleTie:tck.battleLoss;
+  }
   var div=document.createElement("div"); div.style.textAlign="center"; div.style.padding="24px";
-  div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+msg+"</div>"
-    +"<div style='font-size:26px;font-weight:800;color:var(--sun);margin-bottom:8px'>"+msg+"</div>"
+  div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+(win?"🏆":tie?"🤝":"🛡️")+"</div>"
+    +"<div style='font-size:22px;font-weight:800;color:var(--sun);margin-bottom:8px'>"+bigMsg+"</div>"
     +"<div style='font-size:16px;margin-bottom:16px'>"+bs.myScore+" - "+bs.oppScore+" vs "+bs.opp.name+"</div>"
     +"<div style='display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap'>"
     +"<span class='badge b-sun'>+"+xp+" XP</span><span class='badge b-mint'>+"+coins+" MathCoins</span></div>";
@@ -4459,20 +4634,24 @@ async function sendMsg(){
 
   input.value="";
   chat.innerHTML+="<div class='chat-msg chat-user'><div class='chat-who chat-who-user'>You</div>"+msg+"</div>";
+  var axiomLabel = S.tier==="k5" ? TIER_COPY.k5.axiomAvatar+" "+TIER_COPY.k5.axiomName : "Axiom";
   var thinking=document.createElement("div"); thinking.className="chat-msg chat-bot";
-  thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div><span style='color:var(--text2)'>Thinking...</span>";
+  thinking.innerHTML="<div class='chat-who chat-who-bot'>"+axiomLabel+"</div><span style='color:var(--text2)'>Thinking...</span>";
   chat.appendChild(thinking); chat.scrollTop=chat.scrollHeight;
   try{
+    var sysPrompt = S.tier==="k5"
+      ? "You are Axiom the Wizard, a friendly, encouraging wizard math tutor for MathCrown, a K-12 competitive math platform. Student: "+S.name+", "+S.grade+" (elementary school). Use simple words, short sentences, and fun visual comparisons a young child would understand (counting objects, splitting pizzas, etc). Stay warm and playful, use light wizard/kingdom flavor sparingly, and keep responses to 3-5 short sentences."
+      : "You are Axiom, the AI math coach for MathCrown at mymathcrown.com — the K-12 competitive math platform. Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear.";
     var r=await fetch(MC_API_BASE + "/ai",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,
-        system:"You are Axiom, the AI math coach for MathCrown at mymathcrown.com — the K-12 competitive math platform. Student: "+S.name+", "+S.grade+". Keep responses to 3-5 sentences. Be encouraging and clear.",
+        system:sysPrompt,
         messages:[{role:"user",content:msg}]})
     });
     var d=await r.json();
     if(d.error){
-      thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>Axiom hit an error: "+d.error;
+      thinking.innerHTML="<div class='chat-who chat-who-bot'>"+axiomLabel+"</div>"+axiomLabel+" hit an error: "+d.error;
       console.error("Axiom API error:", d.error);
       chat.scrollTop=chat.scrollHeight;
       return;
@@ -4481,15 +4660,15 @@ async function sendMsg(){
     reply=stripMarkdown(reply);
     if(!axiomHasUnlimited()) axiomRecordUse();
     updateAxiomCounter();
-    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>";
+    thinking.innerHTML="<div class='chat-who chat-who-bot'>"+axiomLabel+"</div>";
     var body=document.createElement("div");
     body.textContent=reply;
     thinking.appendChild(body);
   }catch(e){
     var hint = (MC_API_BASE.indexOf("YOUR-SUBDOMAIN")>-1)
-      ? "Axiom is not configured yet (API URL missing)."
-      : "Axiom could not be reached. ("+(e.message||"network error")+")";
-    thinking.innerHTML="<div class='chat-who chat-who-bot'>Axiom</div>"+hint;
+      ? axiomLabel+" is not configured yet (API URL missing)."
+      : axiomLabel+" could not be reached. ("+(e.message||"network error")+")";
+    thinking.innerHTML="<div class='chat-who chat-who-bot'>"+axiomLabel+"</div>"+hint;
     console.error("Axiom error:", e);
   }
   chat.scrollTop=chat.scrollHeight;
@@ -4562,7 +4741,7 @@ function answerPractice(sel,correct,btn){
   clearInterval(practiceTimer);
   document.querySelectorAll("#p-opts .q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
-  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; showToast("Correct! +8 MathCoins"); }
+  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; showToast("Correct! +8 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll("#p-opts .q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); }
   practiceSession.idx++; setTimeout(renderPracticeQ, right?1800:2400);
 }
