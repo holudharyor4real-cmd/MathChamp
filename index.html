@@ -402,6 +402,39 @@ body[data-tier="k5"] .btn{ border-radius:100px; }
 .tier-k5-only{ display:none; }
 body[data-tier="k5"] .tier-k5-only{ display:block; }
 
+/* Kingdom Map nodes (Junior League) */
+.k5-map-node{
+  position:absolute;transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;
+  border:3px solid rgba(255,255,255,0.85);border-radius:50%;
+  width:72px;height:72px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#4ecdc4,#2196f3);
+  box-shadow:0 6px 14px rgba(0,0,0,0.25);
+  animation:k5-bob 2.6s ease-in-out infinite;
+  padding:0;
+}
+.k5-map-node:hover{ filter:brightness(1.12); }
+.k5-map-emoji{font-size:26px;line-height:1;}
+.k5-map-label{
+  position:absolute;top:80px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-size:11px;font-weight:800;color:#1C3A6E;background:rgba(255,255,255,0.9);
+  padding:2px 9px;border-radius:100px;
+}
+.k5-map-node-crown{
+  width:88px;height:88px;
+  background:linear-gradient(135deg,#FFC93C,#FFB100);border-color:#fff;
+  animation:k5-bob 2.6s ease-in-out infinite, k5-pulse-glow 2s ease-in-out infinite;
+}
+.k5-map-node-crown .k5-map-emoji{ font-size:32px; }
+.k5-map-node-crown .k5-map-label{ top:96px; }
+@keyframes k5-bob{
+  0%,100%{ transform:translate(-50%,-50%) translateY(0); }
+  50%{ transform:translate(-50%,-50%) translateY(-8px); }
+}
+@keyframes k5-pulse-glow{
+  0%,100%{ box-shadow:0 0 0 0 rgba(255,201,60,0.55),0 6px 14px rgba(0,0,0,0.25); }
+  50%{ box-shadow:0 0 0 16px rgba(255,201,60,0),0 6px 14px rgba(0,0,0,0.25); }
+}
+
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
@@ -2033,6 +2066,42 @@ body{
       <div class="page-title" id="home-greet">Welcome to MathCrown! 🎉</div>
       <div class="page-sub" id="home-sub">Complete your first trivia to start earning XP and MathCoins! 🚀</div>
 
+      <!-- Kingdom Map (Junior League / K-5 only) -->
+      <div class="card tier-k5-only" id="k5-kingdom-card" style="margin-bottom:20px;padding:0;overflow:hidden;border:2px solid rgba(255,201,60,0.4)">
+        <div style="padding:14px 18px 0;background:linear-gradient(180deg,#8ed1fc,#bfe6a8)">
+          <div style="font-family:'Fredoka One',cursive;font-size:18px;color:#1C3A6E">🗺️ Your Kingdom Map</div>
+        </div>
+        <div style="position:relative;height:250px;background:linear-gradient(180deg,#8ed1fc 0%,#bfe6a8 45%,#8bc76b 100%)">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+            <path d="M 8 68 Q 20 40 30 18 T 56 62 T 80 12" fill="none" stroke="#5a3e00" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+          </svg>
+          <button class="k5-map-node" style="left:8%;top:68%;background:linear-gradient(135deg,#2e7d32,#66bb6a)" onclick="k5MonsterDuel()" title="Monster Woods — Crown Clash vs a random monster">
+            <span class="k5-map-emoji">🐉</span>
+            <span class="k5-map-label">Monster Woods</span>
+          </button>
+          <button class="k5-map-node" style="left:30%;top:18%;background:linear-gradient(135deg,#6a4fb3,#9b7bd6)" onclick="goPage('tutor',null)" title="Wizard's Tower — Ask Axiom the Wizard">
+            <span class="k5-map-emoji">🧙</span>
+            <span class="k5-map-label">Wizard's Tower</span>
+          </button>
+          <button class="k5-map-node" style="left:56%;top:62%;background:linear-gradient(135deg,#d17d00,#ffb100)" onclick="goPage('wallet',null)" title="Treasure Vault — See your MathCoins &amp; prizes">
+            <span class="k5-map-emoji">💰</span>
+            <span class="k5-map-label">Treasure Vault</span>
+          </button>
+          <button class="k5-map-node k5-map-node-crown" style="left:80%;top:12%" onclick="k5ChallengeCrownHolder()" title="Crown Castle — Challenge the Crown Holder">
+            <span class="k5-map-emoji">🏰</span>
+            <span class="k5-map-label">Crown Castle</span>
+          </button>
+        </div>
+        <div style="padding:14px 18px;background:rgba(8,15,30,0.85);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-size:12px;color:var(--text2)">👑 Reigning Crown Holder (Grade)</div>
+            <div style="font-weight:800" id="k5-champ-name">—</div>
+            <div style="font-size:12px;color:var(--text2)" id="k5-champ-sub">—</div>
+          </div>
+          <button class="btn btn-sun btn-xs" onclick="k5ChallengeCrownHolder()">⚔️ Challenge for the Crown</button>
+        </div>
+      </div>
+
       <!-- XP Bar — all dynamic, starts at zero for new users -->
       <div class="xp-bar">
         <div class="xp-badge">
@@ -3508,7 +3577,7 @@ function renderHome(){
   if(gs) gs.style.display = (S.xp>0&&!S.isPreview)?"none":"block";
   renderMiniLB();
   var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
-  if(S.tier==="k5") renderK5Rewards();
+  if(S.tier==="k5"){ renderK5Rewards(); renderK5Kingdom(); }
 }
 
 // ── JUNIOR LEAGUE (K-5) REWARDS: Treasure Chest + College Fund Tree ──
@@ -3559,6 +3628,148 @@ function showK5PapercraftReward(){
       '<button class="btn btn-ghost btn-xs" onclick="document.getElementById(\'k5-papercraft-modal\').classList.remove(\'open\')">Close</button>'+
     '</div>';
   document.body.appendChild(div);
+}
+
+// ── JUNIOR LEAGUE (K-5): CROWN HOLDER + KINGDOM MAP + CROWN CLASH DUEL ──
+// The Crown Holder is a per-grade "title belt": computed from the existing
+// OPPS roster (already has a bot per grade with wins/win-rate) unless a real
+// student has won the title, in which case that win is remembered locally.
+function getCrownHolder(gradeNum){
+  try{
+    var raw=localStorage.getItem("mc_crown_g"+gradeNum);
+    if(raw){ var d=JSON.parse(raw); if(d && d.name) return d; }
+  }catch(e){}
+  var opp = OPPS.find(function(o){ return o.gradeN===gradeNum; }) || OPPS[0];
+  var winsMatch = (opp.meta||"").match(/(\d+)\s*Wins/);
+  return {name:opp.n, e:opp.e, bg:opp.bg, winRate:opp.winRate||0.6, wins:winsMatch?parseInt(winsMatch[1]):10, isPlayer:false};
+}
+
+function setCrownHolder(gradeNum, holder){
+  try{ localStorage.setItem("mc_crown_g"+gradeNum, JSON.stringify(holder)); }catch(e){}
+}
+
+function renderK5Kingdom(){
+  if(S.tier!=="k5") return;
+  var ch=getCrownHolder(S.gradeNum);
+  var nameEl=$$("k5-champ-name"); if(nameEl) nameEl.textContent = ch.isPlayer ? "You!" : ch.name;
+  var subEl=$$("k5-champ-sub");
+  if(subEl) subEl.textContent = ch.isPlayer
+    ? "You hold the Crown! Defend it in Monster Woods."
+    : (ch.wins||10)+" wins · "+Math.round((ch.winRate||0.6)*100)+"% win rate";
+}
+
+function k5ChallengeCrownHolder(){
+  var ch=getCrownHolder(S.gradeNum);
+  if(ch.isPlayer){ showToast("👑 You already hold the Crown! Keep winning Monster Woods duels to defend it."); return; }
+  goPage("challenge",null);
+  startK5CrownClash(ch.name, ch.e||"👑", ch.bg||"linear-gradient(135deg,var(--sun),var(--sun2))", ch.winRate||0.6, true);
+}
+
+function k5MonsterDuel(){
+  var o=OPPS[Math.floor(Math.random()*OPPS.length)];
+  goPage("challenge",null);
+  startK5CrownClash(o.n, o.e, o.bg, o.winRate||0.6, false);
+}
+
+// A single continuous 60-second sprint — students answer as many
+// questions as they can before time runs out, framed as a "Crown Clash."
+function startK5CrownClash(name, emoji, bg, winRate, isTitleFight){
+  var bs={
+    opp:{name:name, emoji:emoji, winRate:winRate},
+    myScore:0, oppScore:0, timeLeft:60, active:true,
+    qs:[], qi:0, timer:null, oppTimer:null, isTitleFight:!!isTitleFight
+  };
+  S.battleState=bs;
+  for(var i=0;i<20;i++) bs.qs.push(getRandQ(S.gradeNum));
+  var ba=$$("battle-arena"); if(ba){ ba.style.display="block"; ba.scrollIntoView({behavior:"smooth",block:"nearest"}); }
+  var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
+  var fn=S.name.split(" ")[0]||"You";
+  setEl("b-my-name",fn); setEl("b-opp-name",name); setEl("b-my-score","0"); setEl("b-opp-score","0");
+  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=fn[0]; myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
+  var oppAva=$$("b-opp-ava"); if(oppAva){ oppAva.textContent=emoji; oppAva.style.background=bg||"linear-gradient(135deg,var(--coral),var(--pink))"; }
+  var rEl=$$("b-round"); if(rEl) rEl.textContent = isTitleFight ? "👑 CROWN CLASH — TITLE FIGHT" : "⚔️ CROWN CLASH";
+  showToast(isTitleFight ? "👑 Defeat "+name+" to become the new Crown Holder!" : "🐉 "+TIER_COPY.k5.battleIntro, 3400);
+
+  bs.timer=setInterval(function(){
+    bs.timeLeft--; updateBTimer(bs);
+    if(bs.timeLeft<=0) endK5CrownClash(bs);
+  },1000);
+  bs.oppTimer=setInterval(function(){
+    if(!bs.active) return;
+    if(Math.random()<winRate*0.55){ bs.oppScore++; var os=$$("b-opp-score"); if(os) os.textContent=bs.oppScore; }
+  },3500);
+  updateBTimer(bs);
+  k5NextQuestion(bs);
+}
+
+function k5NextQuestion(bs){
+  if(!bs.active) return;
+  if(bs.qi>=bs.qs.length) bs.qs.push(getRandQ(S.gradeNum));
+  var q=bs.qs[bs.qi];
+  var wrap=$$("battle-q-wrap"); if(!wrap) return;
+  var letters=["A","B","C","D"];
+  var div=document.createElement("div"); div.style.cssText="background:rgba(0,0,0,0.3);border-radius:14px;padding:18px;margin-bottom:12px;";
+  div.innerHTML="<div class='q-topic'>"+(q.topic||"Math")+"</div><div class='q-text'>"+q.q+"</div>";
+  var optsDiv=document.createElement("div"); optsDiv.className="q-opts";
+  (q.a||[]).forEach(function(ans,i){
+    var btn=document.createElement("button"); btn.className="q-opt";
+    btn.innerHTML="<span class='opt-letter'>"+letters[i]+"</span>"+ans;
+    btn.addEventListener("click",function(){ k5AnswerQuestion(i,q.c,btn,bs); });
+    optsDiv.appendChild(btn);
+  });
+  div.appendChild(optsDiv);
+  wrap.innerHTML=""; wrap.appendChild(div);
+}
+
+function k5AnswerQuestion(sel,correct,btn,bs){
+  if(!bs.active) return;
+  var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
+  opts.forEach(function(o){ o.disabled=true; });
+  if(sel===correct){
+    btn.classList.add("correct"); bs.myScore++;
+    var ms=$$("b-my-score"); if(ms) ms.textContent=bs.myScore;
+  } else {
+    btn.classList.add("wrong");
+    if(opts[correct]) opts[correct].classList.add("correct");
+    showToast("🧙 "+K5_WIZARD_HINTS[Math.floor(Math.random()*K5_WIZARD_HINTS.length)], 2200);
+  }
+  bs.qi++;
+  setTimeout(function(){ k5NextQuestion(bs); }, 500);
+}
+
+function endK5CrownClash(bs){
+  if(!bs || !bs.active) return;
+  bs.active=false;
+  clearInterval(bs.timer); clearInterval(bs.oppTimer);
+  var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
+  var xp=win?220:tie?110:60, coins=win?170:tie?85:30;
+  S.xp+=xp; S.coins+=coins; saveSession();
+  renderK5Rewards();
+
+  var becameChamp=false;
+  if(bs.isTitleFight && win){
+    setCrownHolder(S.gradeNum, {name:S.name.split(" ")[0], isPlayer:true, wins:1, winRate:0.6});
+    becameChamp=true;
+  }
+  renderK5Kingdom();
+
+  var wrap=$$("battle-q-wrap"); if(!wrap) return;
+  var tck=TIER_COPY.k5;
+  var bigMsg = becameChamp ? "👑 YOU ARE THE NEW CROWN HOLDER!" : (win?tck.battleWin:tie?tck.battleTie:tck.battleLoss);
+  var div=document.createElement("div"); div.style.textAlign="center"; div.style.padding="24px";
+  div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+(becameChamp?"👑":win?"🏆":tie?"🤝":"🛡️")+"</div>"
+    +"<div style='font-size:22px;font-weight:800;color:var(--sun);margin-bottom:8px'>"+bigMsg+"</div>"
+    +"<div style='font-size:16px;margin-bottom:16px'>"+bs.myScore+" - "+bs.oppScore+" vs "+bs.opp.name+"</div>"
+    +"<div style='display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap'>"
+    +"<span class='badge b-sun'>+"+xp+" XP</span><span class='badge b-mint'>+"+coins+" MathCoins</span></div>";
+  var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;";
+  var b1=document.createElement("button"); b1.className="btn btn-coral btn-sm"; b1.textContent="Rematch";
+  b1.addEventListener("click",function(){ startK5CrownClash(bs.opp.name, bs.opp.emoji, "", bs.opp.winRate, bs.isTitleFight); });
+  var b2=document.createElement("button"); b2.className="btn btn-ghost btn-sm"; b2.textContent="Close";
+  b2.addEventListener("click",function(){ var ba=$$("battle-arena"); if(ba) ba.style.display="none"; });
+  btnRow.appendChild(b1); btnRow.appendChild(b2); div.appendChild(btnRow);
+  wrap.innerHTML=""; wrap.appendChild(div);
+  showToast(becameChamp ? "👑 New Crown Holder! +"+coins+" MathCoins" : (win?"Victory! +"+coins+" MathCoins":"Good fight! +"+xp+" XP"));
 }
 
 function renderMiniLB(){
@@ -4207,6 +4418,7 @@ function startBattle(){
 }
 
 async function startBattleWith(name,emoji,bg,winRate){
+  if(S.tier==="k5"){ startK5CrownClash(name,emoji,bg,winRate,false); return; }
   var bs={opp:{name:name,emoji:emoji,winRate:winRate},myScore:0,oppScore:0,round:0,active:true,qs:[],timeLeft:30,timer:null};
   S.battleState=bs;
   var ba=$$("battle-arena"); if(ba){ ba.style.display="block"; ba.scrollIntoView({behavior:"smooth",block:"nearest"}); }
@@ -4221,7 +4433,6 @@ async function startBattleWith(name,emoji,bg,winRate){
   for(var i=0;i<5;i++) bs.qs.push(getRandQ(S.gradeNum));
   if(aiQs) bs.qs=bs.qs.slice(0,3).concat(aiQs.slice(0,2));
   bs.qs=shuffle(bs.qs).slice(0,5);
-  if(S.tier==="k5") showToast("🐉 "+TIER_COPY.k5.battleIntro, 3200);
   nextBattleRound(bs);
 }
 
