@@ -435,6 +435,27 @@ body[data-tier="k5"] .tier-k5-only{ display:block; }
   50%{ box-shadow:0 0 0 16px rgba(255,201,60,0),0 6px 14px rgba(0,0,0,0.25); }
 }
 
+/* Kingdom Map: walking avatar */
+.k5-avatar{
+  position:absolute;transform:translate(-50%,-50%);
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--purple),var(--sky));
+  color:#fff;font-weight:800;font-size:15px;
+  border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.35);
+  z-index:5;left:8%;top:90%;
+  transition:left 1.1s ease-in-out, top 1.1s ease-in-out;
+}
+.k5-avatar.walking{ animation:k5-walk-bounce 0.3s ease-in-out infinite; }
+@keyframes k5-walk-bounce{
+  0%,100%{ transform:translate(-50%,-50%) translateY(0) scale(1); }
+  50%{ transform:translate(-50%,-50%) translateY(-9px) scale(1.05); }
+}
+.k5-map-home{
+  position:absolute;left:8%;top:90%;transform:translate(-50%,-50%);
+  font-size:26px;opacity:0.85;
+}
+
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
@@ -2073,21 +2094,23 @@ body{
         </div>
         <div style="position:relative;height:250px;background:linear-gradient(180deg,#8ed1fc 0%,#bfe6a8 45%,#8bc76b 100%)">
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
-            <path d="M 8 68 Q 20 40 30 18 T 56 62 T 80 12" fill="none" stroke="#5a3e00" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+            <path d="M 8 90 L 8 68 Q 20 40 30 18 T 56 62 T 80 12" fill="none" stroke="#5a3e00" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
           </svg>
-          <button class="k5-map-node" style="left:8%;top:68%;background:linear-gradient(135deg,#2e7d32,#66bb6a)" onclick="k5MonsterDuel()" title="Monster Woods — Crown Clash vs a random monster">
+          <div class="k5-map-home" title="Home Village">🏠</div>
+          <div class="k5-avatar" id="k5-avatar">A</div>
+          <button class="k5-map-node" style="left:8%;top:68%;background:linear-gradient(135deg,#2e7d32,#66bb6a)" onclick="k5WalkTo('woods',k5MonsterDuel)" title="Monster Woods — Crown Clash vs a random monster">
             <span class="k5-map-emoji">🐉</span>
             <span class="k5-map-label">Monster Woods</span>
           </button>
-          <button class="k5-map-node" style="left:30%;top:18%;background:linear-gradient(135deg,#6a4fb3,#9b7bd6)" onclick="goPage('tutor',null)" title="Wizard's Tower — Ask Axiom the Wizard">
+          <button class="k5-map-node" style="left:30%;top:18%;background:linear-gradient(135deg,#6a4fb3,#9b7bd6)" onclick="k5WalkTo('tower',function(){goPage('tutor',null);})" title="Wizard's Tower — Ask Axiom the Wizard">
             <span class="k5-map-emoji">🧙</span>
             <span class="k5-map-label">Wizard's Tower</span>
           </button>
-          <button class="k5-map-node" style="left:56%;top:62%;background:linear-gradient(135deg,#d17d00,#ffb100)" onclick="goPage('wallet',null)" title="Treasure Vault — See your MathCoins &amp; prizes">
+          <button class="k5-map-node" style="left:56%;top:62%;background:linear-gradient(135deg,#d17d00,#ffb100)" onclick="k5WalkTo('vault',function(){goPage('wallet',null);})" title="Treasure Vault — See your MathCoins &amp; prizes">
             <span class="k5-map-emoji">💰</span>
             <span class="k5-map-label">Treasure Vault</span>
           </button>
-          <button class="k5-map-node k5-map-node-crown" style="left:80%;top:12%" onclick="k5ChallengeCrownHolder()" title="Crown Castle — Challenge the Crown Holder">
+          <button class="k5-map-node k5-map-node-crown" style="left:80%;top:12%" onclick="k5WalkTo('castle',k5ChallengeCrownHolder)" title="Crown Castle — Challenge the Crown Holder">
             <span class="k5-map-emoji">🏰</span>
             <span class="k5-map-label">Crown Castle</span>
           </button>
@@ -2098,7 +2121,7 @@ body{
             <div style="font-weight:800" id="k5-champ-name">—</div>
             <div style="font-size:12px;color:var(--text2)" id="k5-champ-sub">—</div>
           </div>
-          <button class="btn btn-sun btn-xs" onclick="k5ChallengeCrownHolder()">⚔️ Challenge for the Crown</button>
+          <button class="btn btn-sun btn-xs" onclick="k5WalkTo('castle',k5ChallengeCrownHolder)">⚔️ Challenge for the Crown</button>
         </div>
       </div>
 
@@ -3656,6 +3679,51 @@ function renderK5Kingdom(){
   if(subEl) subEl.textContent = ch.isPlayer
     ? "You hold the Crown! Defend it in Monster Woods."
     : (ch.wins||10)+" wins · "+Math.round((ch.winRate||0.6)*100)+"% win rate";
+
+  // Place the avatar once per session; k5WalkTo moves it from then on.
+  var av=$$("k5-avatar");
+  if(av && !av.dataset.initialized){
+    av.dataset.initialized="1";
+    av.textContent=(S.name||"?")[0].toUpperCase();
+    var pos=K5_MAP_NODES[k5AvatarNode]||K5_MAP_NODES.home;
+    av.style.left=pos.left+"%"; av.style.top=pos.top+"%";
+  }
+}
+
+// Map coordinates (must match the node <button> left/top values in the HTML)
+var K5_MAP_NODES = {
+  home:   {left:8,  top:90},
+  woods:  {left:8,  top:68},
+  tower:  {left:30, top:18},
+  vault:  {left:56, top:62},
+  castle: {left:80, top:12}
+};
+var k5AvatarNode = "home";
+var k5AvatarWalking = false;
+
+// Animates the avatar walking to a map node, then runs the action for
+// that location (opening a duel, or navigating to another page).
+function k5WalkTo(nodeKey, onArrive){
+  if(k5AvatarWalking) return;
+  var av=$$("k5-avatar");
+  if(!av){ if(onArrive) onArrive(); return; }
+  if(k5AvatarNode===nodeKey){ if(onArrive) onArrive(); return; }
+  var pos=K5_MAP_NODES[nodeKey]||K5_MAP_NODES.home;
+  k5AvatarNode=nodeKey;
+  k5AvatarWalking=true;
+  av.classList.add("walking");
+  av.style.left=pos.left+"%";
+  av.style.top=pos.top+"%";
+  var done=false;
+  var finish=function(){
+    if(done) return; done=true;
+    k5AvatarWalking=false;
+    av.classList.remove("walking");
+    av.removeEventListener("transitionend", finish);
+    if(onArrive) onArrive();
+  };
+  av.addEventListener("transitionend", finish);
+  setTimeout(finish, 1300);
 }
 
 function k5ChallengeCrownHolder(){
