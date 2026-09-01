@@ -63,14 +63,25 @@ service cloud.firestore {
       allow read, write: if signedIn();
     }
 
-    // Classroom code -> teacher lookup. Any signed-in user can read (a
-    // student needs to verify a code is real before joining); only the
-    // teacher who owns a code can create it, and it's never updated or
-    // deleted after creation.
+    // Classroom code -> teacher lookup, plus the current Class Session
+    // (same question set, same grade band, everyone in the class answers
+    // independently at their own pace — see class_scores below for
+    // results). Any signed-in user can read; only the owning teacher can
+    // create/update it (e.g. to start/end a session); never deleted.
     match /classrooms/{classCode} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.teacherUid == request.auth.uid;
-      allow update, delete: if false;
+      allow update: if signedIn() && resource.data.teacherUid == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // Per-student results for the CURRENT class session only (overwritten
+    // each time a new session starts) — a student can only write their
+    // own doc; the teacher and classmates can read all of them to build
+    // the session leaderboard.
+    match /classrooms/{classCode}/scores/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid;
     }
   }
 }

@@ -2159,6 +2159,18 @@ body{
       <div class="page-title" id="home-greet">Welcome to MathCrown! 🎉</div>
       <div class="page-sub" id="home-sub">Complete your first trivia to start earning XP and MathCoins! 🚀</div>
 
+      <!-- Class Session banner (shown only while your teacher has one live) -->
+      <div class="card" id="class-session-banner" style="display:none;margin-bottom:20px;background:linear-gradient(135deg,rgba(6,214,160,0.15),rgba(78,205,196,0.08));border:1.5px solid rgba(6,214,160,0.35);cursor:pointer" onclick="openClassSession()">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="font-size:36px">🎯</div>
+          <div style="flex:1">
+            <div style="font-weight:800;font-size:16px">Your teacher started a Class Session!</div>
+            <div style="font-size:12px;color:var(--text2)">Tap to join — same questions as your classmates, see who scores highest.</div>
+          </div>
+          <button class="btn btn-mint btn-sm" style="color:var(--dark)">Join Now →</button>
+        </div>
+      </div>
+
       <!-- Kingdom Map (Junior League / K-5 only) -->
       <div class="card tier-k5-only" id="k5-kingdom-card" style="margin-bottom:20px;padding:0;overflow:hidden;border:2px solid rgba(255,201,60,0.4)">
         <div style="padding:14px 18px 0;background:linear-gradient(180deg,#8ed1fc,#bfe6a8)">
@@ -2863,6 +2875,50 @@ body{
             <div style="font-size:12px;color:var(--text2);margin-top:4px">Students enter this once from their Profile page → "Join a Class"</div>
           </div>
           <button class="btn btn-sun btn-sm" onclick="copyClassCode()">📋 Copy Code</button>
+        </div>
+      </div>
+
+      <!-- Class Session: same question set for everyone, own pace, shared leaderboard -->
+      <div class="card" style="margin-top:20px;background:rgba(6,214,160,0.08);border:1.5px solid rgba(6,214,160,0.25)">
+        <div class="sec-title" style="margin-bottom:6px">🎯 Class Session</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Give your whole class the same set of questions right now — a quick warm-up, review, or class-break challenge. Everyone answers at their own pace; the leaderboard shows who's leading.</div>
+
+        <div id="session-setup">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Grade Level</label>
+              <select class="form-select" id="session-grade" style="max-width:180px">
+                <option value="3">K-5 (easier)</option>
+                <option value="7">6-8 (medium)</option>
+                <option value="10">9-12 (harder)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Questions</label>
+              <select class="form-select" id="session-count" style="max-width:120px">
+                <option value="5">5</option>
+                <option value="8" selected>8</option>
+                <option value="12">12</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Time Limit</label>
+              <select class="form-select" id="session-duration" style="max-width:160px">
+                <option value="5">5 minutes</option>
+                <option value="10" selected>10 minutes</option>
+                <option value="15">15 minutes</option>
+              </select>
+            </div>
+            <button class="btn btn-mint btn-sm" style="color:var(--dark)" onclick="teacherStartSession()">▶️ Start Session</button>
+          </div>
+        </div>
+
+        <div id="session-active" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+            <div style="font-size:14px;font-weight:800;color:var(--mint)" id="session-status-text">Session live!</div>
+            <button class="btn btn-ghost btn-xs" onclick="teacherEndSession()">⏹ End Session</button>
+          </div>
+          <div id="session-leaderboard"></div>
         </div>
       </div>
 
@@ -3599,13 +3655,14 @@ function closeLinkChildModal(){ var m=$$("link-child-modal"); if(m) m.classList.
 
 // ── NAVIGATION ─────────────────────────────────────────
 function goPage(id, el, mob){
+  if(id!=="teacherdash" && typeof sessionLeaderboardTimer!=="undefined"){ clearInterval(sessionLeaderboardTimer); }
   document.querySelectorAll(".page").forEach(function(p){ p.classList.remove("on"); });
   var pg = $$("p-"+id); if(pg) pg.classList.add("on");
   var navSel = mob ? ".mob-item" : ".nav-item";
   document.querySelectorAll(navSel).forEach(function(n){ n.classList.remove("on"); });
   if(el) el.classList.add("on");
   var renderMap = {
-    room:renderRoom, challenge:renderChallenge,
+    home:renderHome, room:renderRoom, challenge:renderChallenge,
     leaderboard:renderLeaderboard, tournament:renderTournaments,
     wallet:renderWallet, skills:renderSkills,
     profile:renderProfile, tutor:renderTutor,
@@ -3894,6 +3951,72 @@ function renderHome(){
   renderMiniLB();
   var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
   if(S.tier==="k5"){ renderK5Rewards(); renderK5Kingdom(); }
+  if(S.classCode) checkClassSession();
+}
+
+// ── CLASS SESSION (student side): same questions, own pace ──────
+var classSessionCache=null;
+var classSessionState=null;
+
+function checkClassSession(){
+  if(!S.classCode || !window.getClassSession) return;
+  window.getClassSession(S.classCode).then(function(session){
+    classSessionCache=(session && session.active)?session:null;
+    var banner=$$("class-session-banner");
+    if(banner) banner.style.display=classSessionCache?"block":"none";
+  }).catch(function(){});
+}
+
+function openClassSession(){
+  if(!classSessionCache){ showToast("That session just ended — ask your teacher!"); return; }
+  classSessionState={ session:classSessionCache, qIndex:0, score:0 };
+  renderClassSessionModal();
+}
+
+function renderClassSessionModal(){
+  var cs=classSessionState;
+  var old=$$("class-session-modal"); if(old) old.remove();
+  var div=document.createElement("div");
+  div.id="class-session-modal";
+  div.className="modal-overlay open";
+  var qs=cs.session.questions||[];
+
+  if(cs.qIndex>=qs.length){
+    if(window.submitClassSessionScore) window.submitClassSessionScore(S.classCode, cs.session.sessionId, cs.score, qs.length);
+    div.innerHTML="<div class='modal' style='max-width:420px;text-align:center'>"
+      +"<div style='font-size:52px;margin-bottom:8px'>🎉</div>"
+      +"<div style='font-size:20px;font-weight:800;margin-bottom:10px'>You scored "+cs.score+" / "+qs.length+"!</div>"
+      +"<div style='font-size:14px;color:var(--text2);margin-bottom:18px'>Your teacher can see the class leaderboard. Nice work!</div>"
+      +"<button class='btn btn-mint btn-sm' style='color:var(--dark)' onclick=\"document.getElementById('class-session-modal').remove()\">Close</button>"
+      +"</div>";
+    document.body.appendChild(div);
+    var banner=$$("class-session-banner"); if(banner) banner.style.display="none";
+    classSessionCache=null;
+    return;
+  }
+
+  var q=qs[cs.qIndex];
+  var letters=["A","B","C","D"];
+  var optsHtml="";
+  (q.a||[]).forEach(function(ans,i){
+    optsHtml+="<button class='q-opt' onclick='answerClassSessionQ("+i+","+q.c+")'><span class='opt-letter'>"+letters[i]+"</span>"+ans+"</button>";
+  });
+  div.innerHTML="<div class='modal' style='max-width:520px'>"
+    +"<div style='font-size:12px;color:var(--text2);margin-bottom:6px'>🎯 Class Session — Question "+(cs.qIndex+1)+" of "+qs.length+"</div>"
+    +"<div class='q-topic'>"+(q.topic||"Math")+"</div><div class='q-text' style='margin-bottom:14px'>"+q.q+"</div>"
+    +"<div class='q-opts'>"+optsHtml+"</div>"
+    +"</div>";
+  document.body.appendChild(div);
+}
+
+function answerClassSessionQ(sel, correct){
+  var cs=classSessionState; if(!cs) return;
+  var opts=document.querySelectorAll("#class-session-modal .q-opt");
+  opts.forEach(function(o){ o.disabled=true; });
+  if(sel===correct){ cs.score++; if(opts[sel]) opts[sel].classList.add("correct"); }
+  else { if(opts[sel]) opts[sel].classList.add("wrong"); if(opts[correct]) opts[correct].classList.add("correct"); }
+  cs.qIndex++;
+  setTimeout(renderClassSessionModal, 900);
 }
 
 // ── JUNIOR LEAGUE (K-5) REWARDS: Treasure Chest + College Fund Tree ──
@@ -5873,20 +5996,22 @@ async function renderTeacherDash(){
   setEl("t-stat-wins", totalWins);
   setEl("t-stat-problems", totalProblems);
 
-  if(!list) return;
-  if(!roster.length){
-    list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>No students have joined yet — share your Class Code above!</div>";
-    return;
+  if(list){
+    if(!roster.length){
+      list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>No students have joined yet — share your Class Code above!</div>";
+    } else {
+      roster.sort(function(a,b){ return b.xp-a.xp; });
+      var html="";
+      roster.forEach(function(s){
+        html+="<div class='lb-row'><div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+s.avatar+"</div>"
+          +"<div class='lb-info'><div class='lb-name'>"+s.name+"</div><div class='lb-grade'>"+(s.grade?gradeOrdinal(s.grade):"")+" · Level "+s.level+"</div></div>"
+          +"<div class='lb-pts-wrap'><div class='lb-pts'>"+s.xp.toLocaleString()+" XP</div>"
+          +"<div style='font-size:11px;color:var(--text2)'>"+s.wins+" wins · "+s.problemsSolved+" solved</div></div></div>";
+      });
+      list.innerHTML=html;
+    }
   }
-  roster.sort(function(a,b){ return b.xp-a.xp; });
-  var html="";
-  roster.forEach(function(s){
-    html+="<div class='lb-row'><div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+s.avatar+"</div>"
-      +"<div class='lb-info'><div class='lb-name'>"+s.name+"</div><div class='lb-grade'>"+(s.grade?gradeOrdinal(s.grade):"")+" · Level "+s.level+"</div></div>"
-      +"<div class='lb-pts-wrap'><div class='lb-pts'>"+s.xp.toLocaleString()+" XP</div>"
-      +"<div style='font-size:11px;color:var(--text2)'>"+s.wins+" wins · "+s.problemsSolved+" solved</div></div></div>";
-  });
-  list.innerHTML=html;
+  checkActiveClassSession();
 }
 
 function copyClassCode(){
@@ -5895,6 +6020,87 @@ function copyClassCode(){
     navigator.clipboard.writeText(TEACHER.classCode);
     showToast("Class code copied: "+TEACHER.classCode);
   }catch(e){ showToast("Your class code is "+TEACHER.classCode); }
+}
+
+// ── CLASS SESSION (teacher side) ─────────────────────────────
+var CURRENT_CLASS_SESSION=null;
+var sessionLeaderboardTimer=null;
+
+async function checkActiveClassSession(){
+  if(!TEACHER.classCode || !window.getClassSession) return;
+  var session=await window.getClassSession(TEACHER.classCode);
+  if(session && session.active){
+    CURRENT_CLASS_SESSION=session;
+    showSessionActiveUI(session);
+    startSessionLeaderboardPolling();
+  } else {
+    showSessionSetupUI();
+  }
+}
+
+function showSessionActiveUI(session){
+  var setup=$$("session-setup"), active=$$("session-active");
+  if(setup) setup.style.display="none";
+  if(active) active.style.display="block";
+  var statusEl=$$("session-status-text");
+  if(statusEl){
+    var msLeft=session.endsAt-Date.now();
+    statusEl.textContent = msLeft>0
+      ? "Session live! Ends in about "+Math.ceil(msLeft/60000)+" min"
+      : "Session live! (time's up — end it whenever you're ready)";
+  }
+}
+
+function showSessionSetupUI(){
+  var setup=$$("session-setup"), active=$$("session-active");
+  if(setup) setup.style.display="block";
+  if(active) active.style.display="none";
+  clearInterval(sessionLeaderboardTimer);
+  CURRENT_CLASS_SESSION=null;
+}
+
+async function teacherStartSession(){
+  if(!TEACHER.classCode || !window.startClassSession){ showToast("Class Session needs an internet connection — try again in a moment."); return; }
+  var gradeNum=parseInt($$("session-grade")?$$("session-grade").value:7)||7;
+  var count=parseInt($$("session-count")?$$("session-count").value:8)||8;
+  var duration=parseInt($$("session-duration")?$$("session-duration").value:10)||10;
+  var questions=[];
+  for(var i=0;i<count;i++) questions.push(getRandQ(gradeNum));
+  var result=await window.startClassSession(TEACHER.classCode, questions, duration);
+  if(!result.ok){ showToast("❌ "+result.error); return; }
+  CURRENT_CLASS_SESSION={active:true, sessionId:result.sessionId, questions:questions, durationMin:duration, endsAt:Date.now()+duration*60000};
+  showSessionActiveUI(CURRENT_CLASS_SESSION);
+  startSessionLeaderboardPolling();
+  showToast("🎯 Class Session started! Tell your students to open MathCrown now.");
+}
+
+async function teacherEndSession(){
+  if(!TEACHER.classCode || !window.endClassSession) return;
+  await window.endClassSession(TEACHER.classCode);
+  showSessionSetupUI();
+  showToast("Session ended.");
+}
+
+function startSessionLeaderboardPolling(){
+  clearInterval(sessionLeaderboardTimer);
+  refreshSessionLeaderboard();
+  sessionLeaderboardTimer=setInterval(refreshSessionLeaderboard, 4000);
+}
+
+async function refreshSessionLeaderboard(){
+  if(!CURRENT_CLASS_SESSION || !window.fetchClassSessionScores) return;
+  var scores=await window.fetchClassSessionScores(TEACHER.classCode, CURRENT_CLASS_SESSION.sessionId);
+  var el=$$("session-leaderboard"); if(!el) return;
+  if(!scores.length){ el.innerHTML="<div style='padding:14px;text-align:center;color:var(--text2)'>Waiting for students to finish...</div>"; return; }
+  var html="";
+  scores.forEach(function(s,i){
+    var rank=i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1);
+    html+="<div class='lb-row'><div class='lb-rank'>"+rank+"</div>"
+      +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+(s.avatar||"S")+"</div>"
+      +"<div class='lb-info'><div class='lb-name'>"+s.name+"</div></div>"
+      +"<div class='lb-pts-wrap'><div class='lb-pts'>"+s.score+" / "+s.total+"</div></div></div>";
+  });
+  el.innerHTML=html;
 }
 
 function showJoinedClassUI(teacherName){
@@ -5913,6 +6119,7 @@ async function joinClass(){
   S.classCode=code.trim();
   showJoinedClassUI(result.teacherName);
   showToast("🎉 Joined the class!");
+  checkClassSession();
 }
 
 async function joinWaitlist(){
@@ -6537,6 +6744,75 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       }));
     } catch (e) {
       console.log("fetchClassRoster error:", e.message);
+      return [];
+    }
+  };
+
+  // ── CLASS SESSION: same question set, everyone's own pace ─────
+  // (see the design note in index.html's main script for why this is
+  // NOT a Kahoot-style lockstep game.)
+  window.startClassSession = async function(classCode, questions, durationMin) {
+    const user = auth.currentUser;
+    if (!user) return { ok: false, error: "Not signed in." };
+    const sessionId = String(Date.now());
+    try {
+      await updateDoc(doc(db, "classrooms", classCode), {
+        session: {
+          active: true, sessionId, questions,
+          startedAt: serverTimestamp(),
+          endsAt: Date.now() + (durationMin || 10) * 60000,
+          durationMin: durationMin || 10
+        }
+      });
+      return { ok: true, sessionId };
+    } catch (e) {
+      return { ok: false, error: e.message || "Could not start session." };
+    }
+  };
+
+  window.endClassSession = async function(classCode) {
+    try {
+      await updateDoc(doc(db, "classrooms", classCode), { "session.active": false });
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  };
+
+  window.getClassSession = async function(classCode) {
+    if (!classCode) return null;
+    try {
+      const snap = await getDoc(doc(db, "classrooms", classCode));
+      return snap.exists() ? (snap.data().session || null) : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  window.submitClassSessionScore = async function(classCode, sessionId, score, total) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const name = (window.displayLabel && window.S) ? window.displayLabel(window.S.name) : "Student";
+    const avatar = window.myAvatarGlyph ? window.myAvatarGlyph() : "S";
+    try {
+      await setDoc(doc(db, "classrooms", classCode, "scores", user.uid), {
+        name, avatar, sessionId, score, total,
+        finishedAt: serverTimestamp()
+      });
+    } catch (e) {
+      console.log("submitClassSessionScore error:", e.message);
+    }
+  };
+
+  window.fetchClassSessionScores = async function(classCode, sessionId) {
+    try {
+      const snap = await getDocs(collection(db, "classrooms", classCode, "scores"));
+      return snap.docs
+        .map(d => ({ uid: d.id, ...d.data() }))
+        .filter(s => s.sessionId === sessionId)
+        .sort((a, b) => b.score - a.score);
+    } catch (e) {
+      console.log("fetchClassSessionScores error:", e.message);
       return [];
     }
   };
