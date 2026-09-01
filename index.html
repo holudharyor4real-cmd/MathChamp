@@ -1657,7 +1657,7 @@ body{
           <li>✅ 5 challenges per day</li>
           <li>✅ Grade leaderboard</li>
           <li>✅ Basic skills tracker</li>
-          <li>✅ MathCoins earning (capped)</li>
+          <li>✅ MathCoins earning (150/day cap)</li>
           <li>❌ Prize redemption</li>
           <li>❌ Tournament entry</li>
           <li>✅ Axiom AI Tutor — 5 questions/day</li>
@@ -1676,7 +1676,7 @@ body{
           <li>✅ Weekly leaderboard prizes</li>
           <li>✅ Tournament entry included</li>
           <li>✅ Full parent dashboard</li>
-          <li>✅ Unlimited MathCoins earning</li>
+          <li>✅ Higher MathCoins cap (300/day)</li>
           <li>✅ Axiom AI Tutor — 5 questions/day</li>
         </ul>
         <button class="btn btn-sun" style="width:100%" onclick="upgradeToPlan('premium')">Start Premium</button>
@@ -2640,9 +2640,9 @@ body{
           </button>
         </div>
         <div class="wallet-actions">
-          <button class="btn btn-sun btn-sm" onclick="showToast('🎁 Opening prize store...')">🎁 Redeem Prizes</button>
+          <button class="btn btn-sun btn-sm" onclick="openPrizeStore()">🎁 Redeem Prizes</button>
           <button class="btn btn-ghost btn-sm" onclick="showToast('📊 Earnings history...')">📜 History</button>
-          <button class="btn btn-mint btn-sm" onclick="showToast('🎓 529 College Savings setup...')">🎓 529 Option</button>
+          <button class="btn btn-mint btn-sm" onclick="open529Option()">🎓 529 Option</button>
         </div>
       </div>
 
@@ -2981,7 +2981,8 @@ var S = {
   name:"", grade:"", gradeNum:0,
   xp:0, level:1, streak:0, coins:0, wins:0, problemsSolved:0, avatarId:"", classCode:"", vault:null, topicStats:{},
   isPreview:false, triviaMode:"trivia",
-  plan:"free", linkCode:""
+  plan:"free", linkCode:"",
+  coinCapDate:"", coinCapEarned:0, coinCapNotified:false
 };
 
 // ═══ AXIOM ACCESS CONTROL ═══
@@ -3013,6 +3014,39 @@ function axiomRemaining(){
   if(axiomHasUnlimited()) return Infinity;
   return Math.max(0, AXIOM_FREE_DAILY - axiomUsedToday());
 }
+
+// ═══ MATHCOINS DAILY CAP ═══
+// Coins are the one thing that turns into real money in the Prize Store,
+// unlike XP (levels only) — so unlike Axiom's access model above, paid
+// plans get a HIGHER daily ceiling here, never an unlimited one. Without
+// this, per-account payout cost scales with how long a kid plays in a day,
+// which doesn't bound the business's redemption liability.
+var COIN_DAILY_CAP_FREE = 150;
+var COIN_DAILY_CAP_PAID = 300;
+
+function isPaidPlan(){ return (S.plan||"free").toLowerCase()!=="free"; }
+function coinDailyCap(){ return isPaidPlan() ? COIN_DAILY_CAP_PAID : COIN_DAILY_CAP_FREE; }
+
+// amount is the coins an activity WOULD pay out; returns the amount
+// actually credited (0..amount) after the daily cap. Always use this to
+// credit coins — never add to S.coins directly — so no earning path can
+// bypass the cap.
+function awardCoins(amount){
+  amount = amount||0;
+  if(amount<=0) return 0;
+  var today=axiomToday();
+  if(S.coinCapDate!==today){ S.coinCapDate=today; S.coinCapEarned=0; S.coinCapNotified=false; }
+  var remaining=Math.max(0, coinDailyCap()-(S.coinCapEarned||0));
+  var granted=Math.min(amount, remaining);
+  S.coins=(S.coins||0)+granted;
+  S.coinCapEarned=(S.coinCapEarned||0)+granted;
+  if(granted<amount && !S.coinCapNotified){
+    S.coinCapNotified=true;
+    showToast("🪙 Daily MathCoins limit reached ("+coinDailyCap()+")! More tomorrow — great playing today!");
+  }
+  return granted;
+}
+
 var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[] };
 var TEACHER = { name:"", email:"", school:"", classCode:"", isLoggedIn:false };
 
@@ -3617,7 +3651,8 @@ function saveSession(){
     localStorage.setItem(key, JSON.stringify({
       xp:S.xp, level:S.level, streak:S.streak, coins:S.coins, wins:S.wins||0,
       problemsSolved:S.problemsSolved||0, avatarId:S.avatarId||"", vault:S.vault||null, topicStats:S.topicStats||{},
-      name:S.name, grade:S.grade, gradeNum:S.gradeNum
+      name:S.name, grade:S.grade, gradeNum:S.gradeNum,
+      coinCapDate:S.coinCapDate||"", coinCapEarned:S.coinCapEarned||0
     }));
   }catch(e){}
   // Mirror to the real backend too, so MathCoins/XP/wins are a genuine
@@ -3910,6 +3945,7 @@ async function loginStudent(){
         S.problemsSolved=data.problemsSolved||0; S.avatarId=data.avatarId||"";
         S.classCode=data.classCode||""; S.vault=data.vault||null; S.topicStats=data.topicStats||{};
         S.plan=data.plan||"free";
+        S.coinCapDate=data.coinCapDate||""; S.coinCapEarned=data.coinCapEarned||0;
         fn=data.displayName||fn;
         if(data.grade){ gr=String(data.grade); }
         // Restore linkCode from Firestore
@@ -4136,8 +4172,9 @@ function claimPiggyBank(){
   if(!S.vault || !S.vault.amount) return;
   if(Date.now() < S.vault.unlockAt){ showToast("Not ready yet — keep waiting!"); return; }
   var bonus=Math.round(S.vault.amount*S.vault.bonusPct);
-  S.coins += S.vault.amount + bonus;
-  showToast("🎉 Piggy Bank matured! +"+S.vault.amount+" coins + "+bonus+" bonus!");
+  S.coins += S.vault.amount; // returning your own locked-away coins, not new earnings
+  var bonusGranted=awardCoins(bonus); // interest IS new coins, so it still counts against today's cap
+  showToast("🎉 Piggy Bank matured! +"+S.vault.amount+" coins + "+bonusGranted+" bonus!");
   S.vault=null;
   saveSession();
   renderPiggyBank();
@@ -4376,7 +4413,7 @@ function endK5CrownClash(bs){
   clearInterval(bs.timer); clearInterval(bs.oppTimer);
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?220:tie?110:60, coins=win?170:tie?85:30;
-  S.xp+=xp; S.coins+=coins; if(win) S.wins=(S.wins||0)+1; saveSession();
+  S.xp+=xp; coins=awardCoins(coins); if(win) S.wins=(S.wins||0)+1; saveSession();
   renderK5Rewards();
 
   var becameChamp=false;
@@ -4537,7 +4574,7 @@ function answerQ(sel,correct,btn){
   document.querySelectorAll(".q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
   recordTopicAnswer(session.qs[session.idx] && session.qs[session.idx].topic, right);
-  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; S.problemsSolved=(S.problemsSolved||0)+1; sndCorrect(); showToast("Correct! +10 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
+  if(right){ btn.classList.add("correct"); session.correct++; var qCoins=awardCoins(10); S.xp+=50; session.coinsEarned=(session.coinsEarned||0)+qCoins; session.xpEarned=(session.xpEarned||0)+50; S.problemsSolved=(S.problemsSolved||0)+1; sndCorrect(); showToast("Correct! +"+qCoins+" MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll(".q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); sndWrong(); showToast("Not quite!"); }
   var q=session.qs[session.idx];
   if(q.explanation){
@@ -4553,8 +4590,11 @@ function answerQ(sel,correct,btn){
 function showTriviaResult(){
   clearInterval(triviaTimer);
   var t=session.qs.length, c=session.correct, pct=Math.round(c/t*100);
-  var coinsEarned=c*10+(c===t?25:0), xpEarned=c*50+(c===t?100:0);
-  S.coins+=coinsEarned; S.xp+=xpEarned;
+  // Per-question coins/XP were already credited in answerQ (through the
+  // daily cap) as each answer landed — only the perfect-score bonus is new.
+  var perfectBonus = c===t ? awardCoins(25) : 0;
+  var coinsEarned=(session.coinsEarned||0)+perfectBonus, xpEarned=(session.xpEarned||0)+(c===t?100:0);
+  S.xp+=(c===t?100:0);
   saveSession();
   var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
   var msg=pct===100?"Perfect!":pct>=70?"Great Job!":"Keep Going!";
@@ -4986,7 +5026,7 @@ window.endRealBattle = function(data, role){
   if(won) sndWin(); else if(!tied) sndLose();
   var xpGain = won?120:tied?60:30;
   var coinGain = won?50:tied?20:10;
-  S.xp += xpGain; S.coins += coinGain;
+  S.xp += xpGain; coinGain = awardCoins(coinGain);
   if(won) S.wins = (S.wins||0)+1;
   saveSession();
   showToast((won?"🏆 Won! ":"")+"+" + xpGain + " XP, +" + coinGain + " coins!");
@@ -5143,7 +5183,7 @@ function endBattle(bs){
   clearInterval(bs.timer);
   var win=bs.myScore>bs.oppScore, tie=bs.myScore===bs.oppScore;
   var xp=win?200:tie?100:50, coins=win?150:tie?75:25;
-  S.xp+=xp; S.coins+=coins; saveSession();
+  S.xp+=xp; coins=awardCoins(coins); saveSession();
   if(S.tier==="k5") renderK5Rewards();
   var wrap=$$("battle-q-wrap"); if(!wrap) return;
   var msg=win?"Victory!":tie?"Draw!":"Keep Training!";
@@ -5627,7 +5667,7 @@ function answerPractice(sel,correct,btn){
   document.querySelectorAll("#p-opts .q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
   recordTopicAnswer(practiceSession.qs[practiceSession.idx] && practiceSession.qs[practiceSession.idx].topic, right);
-  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; S.problemsSolved=(S.problemsSolved||0)+1; showToast("Correct! +8 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
+  if(right){ btn.classList.add("correct"); practiceSession.correct++; var qCoins=awardCoins(8); practiceSession.coinsEarned=(practiceSession.coinsEarned||0)+qCoins; S.problemsSolved=(S.problemsSolved||0)+1; showToast("Correct! +"+qCoins+" MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll("#p-opts .q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); }
   practiceSession.idx++; setTimeout(renderPracticeQ, right?1800:2400);
 }
@@ -5635,15 +5675,18 @@ function answerPractice(sel,correct,btn){
 function showPracticeResult(){
   clearInterval(practiceTimer);
   var c=practiceSession.correct, t=practiceSession.qs.length, pct=Math.round(c/t*100);
-  S.xp+=c*40; S.coins+=c*8; saveSession();
+  // Coins were already credited per-question in answerPractice (through
+  // the daily cap) — only XP is awarded here.
+  var xpEarned=c*40, coinsEarned=practiceSession.coinsEarned||0;
+  S.xp+=xpEarned; saveSession();
   var wrap=$$("practice-q-wrap"); if(!wrap) return;
   var msg=pct===100?"Perfect!":pct>=70?"Great Job!":"Keep Going!";
   var div=document.createElement("div"); div.className="result-card";
   div.innerHTML="<div style='font-size:48px;margin-bottom:12px'>"+msg+"</div>"
     +"<div style='font-family:Fredoka One,cursive;font-size:26px;color:var(--sun)'>"+msg+"</div>"
     +"<div style='color:var(--text2);margin-bottom:16px'>"+c+"/"+t+" correct - "+pct+"%</div>"
-    +"<div class='result-grid'><div class='result-box'><div class='result-val' style='color:var(--sun)'>+"+(c*40)+"</div><div class='result-key'>XP</div></div>"
-    +"<div class='result-box'><div class='result-val' style='color:var(--mint)'>+"+(c*8)+"</div><div class='result-key'>MathCoins</div></div></div>";
+    +"<div class='result-grid'><div class='result-box'><div class='result-val' style='color:var(--sun)'>+"+xpEarned+"</div><div class='result-key'>XP</div></div>"
+    +"<div class='result-box'><div class='result-val' style='color:var(--mint)'>+"+coinsEarned+"</div><div class='result-key'>MathCoins</div></div></div>";
   var btnRow=document.createElement("div"); btnRow.style.cssText="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;";
   var b1=document.createElement("button"); b1.className="btn btn-sun btn-sm"; b1.textContent="Pick Another Topic";
   b1.addEventListener("click",renderPractice);
@@ -5654,9 +5697,23 @@ function showPracticeResult(){
 }
 
 // ── WALLET ─────────────────────────────────────────────
+// Prize redemption (real gift cards / 529 contributions) is gated to paid
+// plans: that ties "who can cash out" to a verified, billed parent account
+// rather than any signed-up student, bounding it the same way the coin
+// cap bounds how fast a balance can grow.
+function openPrizeStore(){
+  if(!isPaidPlan()){ upgradeToPlan("premium"); return; }
+  showToast("🎁 Opening prize store...");
+}
+function open529Option(){
+  if(!isPaidPlan()){ upgradeToPlan("premium"); return; }
+  showToast("🎓 529 College Savings setup...");
+}
 function renderWallet(){
   var wc=$$("wallet-coins"); if(wc) wc.textContent=S.coins.toLocaleString();
   if(S.tier==="k5") renderPiggyBank();
+  var pb=$$("wallet-plan-badge"); if(pb) pb.textContent=planLabel(S.plan).toUpperCase()+" PLAN";
+  var cta=$$("wallet-upgrade-cta"); if(cta) cta.style.display=isPaidPlan()?"none":"block";
   var cg=$$("coin-guide");
   if(cg){
     var html="";
@@ -5671,10 +5728,18 @@ function renderWallet(){
   var ps=$$("prize-store");
   if(ps){
     ps.innerHTML="";
+    var paid=isPaidPlan();
     PRIZES.forEach(function(p){
       var card=document.createElement("div"); card.className="card prize-card"; card.style.cursor="pointer";
-      card.setAttribute("data-msg",p.n+" costs "+p.cost+" MathCoins - parent redeems!");
-      card.addEventListener("click",function(){ showToast(this.getAttribute("data-msg")); });
+      if(!paid) card.style.opacity="0.55";
+      var affordable = S.coins >= p.cost;
+      card.setAttribute("data-msg", !paid ? "Upgrade to Premium to unlock prize redemption!" :
+        (affordable ? p.n+" costs "+p.cost+" MathCoins — ask your parent to redeem it!" :
+          p.n+" costs "+p.cost+" MathCoins — you have "+S.coins.toLocaleString()+", keep earning!"));
+      card.addEventListener("click",function(){
+        if(!paid){ upgradeToPlan("premium"); return; }
+        showToast(this.getAttribute("data-msg"));
+      });
       card.innerHTML="<div class='prize-emo'>"+p.e+"</div><div class='prize-name'>"+p.n+"</div><div class='prize-cost'>"+p.cost+" coins</div><div style='font-size:11px;color:var(--text2);margin-top:2px'>"+p.val+"</div>";
       ps.appendChild(card);
     });
@@ -6754,8 +6819,10 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     const vault = window.S ? (window.S.vault || null) : null;
     const topicStats = window.S ? (window.S.topicStats || {}) : {};
     const classCode = window.S ? (window.S.classCode || null) : null;
+    const coinCapDate = window.S ? (window.S.coinCapDate || "") : "";
+    const coinCapEarned = window.S ? (window.S.coinCapEarned || 0) : 0;
     const avatarEmoji = window.myAvatarGlyph ? window.myAvatarGlyph() : null;
-    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault, topicStats };
+    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault, topicStats, coinCapDate, coinCapEarned };
     if (linkCode) upd.linkCode = linkCode;
     await updateDoc(doc(db, "users", user.uid), upd);
     try {
