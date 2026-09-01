@@ -1186,6 +1186,20 @@ body{
 .ach-name{font-size:14px;font-weight:800;}
 .ach-desc{font-size:12px;color:var(--text2);margin-top:2px;}
 
+/* ── AVATAR PICKER ── */
+.avatar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px;}
+.avatar-pick{
+  background:rgba(255,255,255,0.04);border:2px solid var(--border);border-radius:16px;
+  padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;
+}
+.avatar-pick:hover{border-color:var(--sun);background:rgba(255,217,61,0.08);transform:translateY(-2px);}
+.avatar-pick-emoji{font-size:32px;line-height:1;margin-bottom:6px;}
+.avatar-pick-name{font-size:12px;font-weight:800;}
+.avatar-pick-req{font-size:10px;color:var(--text2);margin-top:2px;}
+.avatar-locked{cursor:default;opacity:0.55;}
+.avatar-locked:hover{border-color:var(--border);background:rgba(255,255,255,0.04);transform:none;}
+.avatar-selected{border-color:var(--mint);background:rgba(6,214,160,0.1);box-shadow:0 0 0 2px rgba(6,214,160,0.3);}
+
 /* ════════════════════════════════
    LANDING PAGE SECTIONS
    ════════════════════════════════ */
@@ -2599,7 +2613,13 @@ body{
         </div>
       </div>
 
-      <div class="g2">
+      <div class="card" style="margin-top:20px">
+        <div class="sec-title" style="margin-bottom:6px">🎭 Choose Your Avatar</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Earn MathCoins, win duels, and solve problems to unlock more!</div>
+        <div class="avatar-grid" id="avatar-picker"></div>
+      </div>
+
+      <div class="g2" style="margin-top:20px">
         <div class="card">
           <div class="sec-title" style="margin-bottom:14px">📈 All-Time Stats</div>
           <div id="all-stats"></div>
@@ -2745,7 +2765,7 @@ window.MATHCHAMP_LOADED = true;
 // ── STATE ──────────────────────────────────────────────
 var S = {
   name:"", grade:"", gradeNum:0,
-  xp:0, level:1, streak:0, coins:0, wins:0,
+  xp:0, level:1, streak:0, coins:0, wins:0, problemsSolved:0, avatarId:"",
   isPreview:false, triviaMode:"trivia",
   plan:"free", linkCode:""
 };
@@ -2948,6 +2968,93 @@ var ACHIEVEMENTS_DATA = [
   {n:"Giant Slayer", d:"Beat a Diamond tier player",  i:"G",  bg:"rgba(255,107,107,0.15)", unlocked:false},
   {n:"Math Scholar", d:"Complete 500 questions",      i:"M",  bg:"rgba(155,93,229,0.15)",  unlocked:false}
 ];
+
+// ── AVATAR CATALOG ──────────────────────────────────────
+// Selectable profile avatars — no photo uploads needed. Some are free
+// from the start; others unlock by earning MathCoins, winning duels, or
+// solving problems, so leveling up has a visible, collectible payoff.
+// Shared across every grade tier (K-5 today; 6-8/9-12 reuse the same
+// picker once those dashboards exist).
+var AVATAR_CATALOG = [
+  {id:"fox",     emoji:"🦊", name:"Fox",       req:{type:"free"}},
+  {id:"cat",     emoji:"🐱", name:"Cat",       req:{type:"free"}},
+  {id:"owl",     emoji:"🦉", name:"Owl",       req:{type:"free"}},
+  {id:"robot",   emoji:"🤖", name:"Robot",     req:{type:"free"}},
+  {id:"panda",   emoji:"🐼", name:"Panda",     req:{type:"coins", value:150}},
+  {id:"knight",  emoji:"🛡️", name:"Knight",    req:{type:"coins", value:300}},
+  {id:"wizard",  emoji:"🧙", name:"Wizard",    req:{type:"problems", value:100}},
+  {id:"ninja",   emoji:"🥷", name:"Ninja",     req:{type:"wins", value:5}},
+  {id:"dragon",  emoji:"🐉", name:"Dragon",    req:{type:"coins", value:800}},
+  {id:"unicorn", emoji:"🦄", name:"Unicorn",   req:{type:"problems", value:300}},
+  {id:"champion",emoji:"🏆", name:"Champion",  req:{type:"wins", value:15}},
+  {id:"diamond", emoji:"💎", name:"Diamond",   req:{type:"coins", value:2000}}
+];
+
+function avatarUnlocked(av){
+  if(!av || !av.req) return false;
+  switch(av.req.type){
+    case "free":     return true;
+    case "coins":    return (S.coins||0) >= av.req.value;
+    case "wins":     return (S.wins||0) >= av.req.value;
+    case "problems": return (S.problemsSolved||0) >= av.req.value;
+    default:         return false;
+  }
+}
+
+function avatarReqLabel(av){
+  switch(av.req.type){
+    case "coins":    return av.req.value+" 🪙 MathCoins";
+    case "wins":     return av.req.value+" duel wins";
+    case "problems": return av.req.value+" problems solved";
+    default:         return "";
+  }
+}
+
+// The glyph to show for "me" anywhere an avatar circle appears — the
+// chosen (and still-unlocked) avatar's emoji, or the first-letter
+// fallback used before anyone has picked one / after re-locking is
+// impossible (avatars never re-lock, but a corrupted save could point
+// at an unknown id).
+function myAvatarGlyph(){
+  if(S.avatarId){
+    var av=AVATAR_CATALOG.find(function(a){ return a.id===S.avatarId; });
+    if(av && avatarUnlocked(av)) return av.emoji;
+  }
+  return (S.name||"?")[0].toUpperCase();
+}
+
+function applyAvatarEverywhere(){
+  var glyph=myAvatarGlyph();
+  ["sb-avatar","prof-ava","b-my-ava","k5-avatar"].forEach(function(id){
+    var e=$$(id); if(e) e.textContent=glyph;
+  });
+}
+
+function selectAvatar(id){
+  var av=AVATAR_CATALOG.find(function(a){ return a.id===id; });
+  if(!av || !avatarUnlocked(av)){ showToast("🔒 Keep playing to unlock this avatar!"); return; }
+  S.avatarId=id;
+  applyAvatarEverywhere();
+  saveSession();
+  renderAvatarPicker();
+  showToast(av.emoji+" Avatar equipped: "+av.name+"!");
+}
+
+function renderAvatarPicker(){
+  var grid=$$("avatar-picker"); if(!grid) return;
+  var html="";
+  AVATAR_CATALOG.forEach(function(av){
+    var unlocked=avatarUnlocked(av);
+    var selected=S.avatarId===av.id;
+    html+="<div class='avatar-pick"+(unlocked?"":" avatar-locked")+(selected?" avatar-selected":"")+"' "
+      +(unlocked?"onclick=\"selectAvatar('"+av.id+"')\"":"")+" title=\""+(unlocked?av.name:av.name+" — needs "+avatarReqLabel(av))+"\">"
+      +"<div class='avatar-pick-emoji'>"+(unlocked?av.emoji:"🔒")+"</div>"
+      +"<div class='avatar-pick-name'>"+av.name+"</div>"
+      +(unlocked?"":"<div class='avatar-pick-req'>"+avatarReqLabel(av)+"</div>")
+      +"</div>";
+  });
+  grid.innerHTML=html;
+}
 
 var FUN_FACTS = [
   "A googol is 1 followed by 100 zeros!",
@@ -3260,6 +3367,7 @@ function saveSession(){
     var key = "mc_"+S.name.split(" ")[0].toLowerCase()+"_"+S.gradeNum;
     localStorage.setItem(key, JSON.stringify({
       xp:S.xp, level:S.level, streak:S.streak, coins:S.coins, wins:S.wins||0,
+      problemsSolved:S.problemsSolved||0, avatarId:S.avatarId||"",
       name:S.name, grade:S.grade, gradeNum:S.gradeNum
     }));
   }catch(e){}
@@ -3348,7 +3456,7 @@ function enterApp(name, grade, gradeNum, isPreview){
   S.tier = tierFor(gradeNum);
   document.body.setAttribute("data-tier", S.tier);
   applyTierCopy(S.tier);
-  var ava = name[0].toUpperCase();
+  var ava = myAvatarGlyph();
   var setEl = function(id,val){ var e=$$(id); if(e) e.textContent=val; };
   setEl("sb-avatar", ava); setEl("prof-ava", ava);
   setEl("sb-name", name.split(" ")[0]+(name.split(" ")[1]?" "+name.split(" ")[1][0]+".":""));
@@ -3533,7 +3641,7 @@ async function loginStudent(){
   if(!gr){ showToast("Please select your grade!"); return; }
   if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
   if(!password){ showToast("Please enter your password!"); return; }
-  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.wins=0;
+  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.wins=0; S.problemsSolved=0; S.avatarId="";
   var loginBtn=document.querySelector("#login-tab-student .btn-sun");
   if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
   if(window.firebaseLogin){
@@ -3543,6 +3651,7 @@ async function loginStudent(){
       if(data){
         S.xp=data.xp||0; S.level=data.level||1;
         S.streak=data.streak||0; S.coins=data.coins||0; S.wins=data.wins||0;
+        S.problemsSolved=data.problemsSolved||0; S.avatarId=data.avatarId||"";
         S.plan=data.plan||"free";
         fn=data.displayName||fn;
         if(data.grade){ gr=String(data.grade); }
@@ -3573,6 +3682,7 @@ async function loginStudent(){
     if(saved){
       var d=JSON.parse(saved);
       S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
+      S.wins=d.wins||0; S.problemsSolved=d.problemsSolved||0; S.avatarId=d.avatarId||"";
       if(d.gradeNum){ gr=String(d.gradeNum); }
     }
   }catch(e){}
@@ -3737,7 +3847,7 @@ function renderK5Kingdom(){
   var av=$$("k5-avatar");
   if(av && !av.dataset.initialized){
     av.dataset.initialized="1";
-    av.textContent=(S.name||"?")[0].toUpperCase();
+    av.textContent=myAvatarGlyph();
     var pos=K5_MAP_NODES[k5AvatarNode]||K5_MAP_NODES.home;
     av.style.left=pos.left+"%"; av.style.top=pos.top+"%";
   }
@@ -3806,7 +3916,7 @@ function startK5CrownClash(name, emoji, bg, winRate, isTitleFight){
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
   var fn=S.name.split(" ")[0]||"You";
   setEl("b-my-name",fn); setEl("b-opp-name",name); setEl("b-my-score","0"); setEl("b-opp-score","0");
-  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=fn[0]; myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
+  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=myAvatarGlyph(); myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
   var oppAva=$$("b-opp-ava"); if(oppAva){ oppAva.textContent=emoji; oppAva.style.background=bg||"linear-gradient(135deg,var(--coral),var(--pink))"; }
   var rEl=$$("b-round"); if(rEl) rEl.textContent = isTitleFight ? "👑 CROWN CLASH — TITLE FIGHT" : "⚔️ CROWN CLASH";
   showToast(isTitleFight ? "👑 Defeat "+name+" to become the new Crown Holder!" : "🐉 "+TIER_COPY.k5.battleIntro, 3400);
@@ -3847,7 +3957,7 @@ function k5AnswerQuestion(sel,correct,btn,bs){
   var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
   opts.forEach(function(o){ o.disabled=true; });
   if(sel===correct){
-    btn.classList.add("correct"); bs.myScore++;
+    btn.classList.add("correct"); bs.myScore++; S.problemsSolved=(S.problemsSolved||0)+1;
     var ms=$$("b-my-score"); if(ms) ms.textContent=bs.myScore;
   } else {
     btn.classList.add("wrong");
@@ -4024,7 +4134,7 @@ function answerQ(sel,correct,btn){
   clearInterval(triviaTimer);
   document.querySelectorAll(".q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
-  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; sndCorrect(); showToast("Correct! +10 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
+  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; S.problemsSolved=(S.problemsSolved||0)+1; sndCorrect(); showToast("Correct! +10 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll(".q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); sndWrong(); showToast("Not quite!"); }
   var q=session.qs[session.idx];
   if(q.explanation){
@@ -4364,7 +4474,7 @@ window.enterRealBattle = function(battleId, role, oppName){
   setEl("b-opp-name", oppName);
   setEl("b-my-score","0"); setEl("b-opp-score","0");
   var myAva=document.getElementById("b-my-ava");
-  if(myAva){ myAva.textContent=myName[0]; myAva.style.background="linear-gradient(135deg,#1C3A6E,#06D6A0)"; }
+  if(myAva){ myAva.textContent=myAvatarGlyph(); myAva.style.background="linear-gradient(135deg,#1C3A6E,#06D6A0)"; }
   var oppAva=document.getElementById("b-opp-ava");
   if(oppAva){ oppAva.textContent=oppName[0]||"?"; oppAva.style.background="linear-gradient(135deg,#FFD93D,#E8B800)"; }
   var wrap=document.getElementById("battle-q-wrap");
@@ -4547,7 +4657,7 @@ async function startBattleWith(name,emoji,bg,winRate){
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
   var fn=S.name.split(" ")[0]||"You";
   setEl("b-my-name",fn); setEl("b-opp-name",name); setEl("b-my-score","0"); setEl("b-opp-score","0");
-  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=fn[0]; myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
+  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=myAvatarGlyph(); myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
   var oppAva=$$("b-opp-ava"); if(oppAva){ oppAva.textContent=emoji; oppAva.style.background=bg; }
   var wrap=$$("battle-q-wrap"); if(wrap) wrap.innerHTML="<div style='text-align:center;padding:24px'>Loading battle...</div>";
   var aiQs=await genAIQuestions(S.gradeNum,2,"challenge");
@@ -4599,7 +4709,7 @@ function battleAnswer(sel,correct,btn,bs){
   var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
   opts.forEach(function(o){ o.disabled=true; });
   if(sel===correct){
-    btn.classList.add("correct"); bs.myScore++;
+    btn.classList.add("correct"); bs.myScore++; S.problemsSolved=(S.problemsSolved||0)+1;
     var speedBonus = timeUsed <= 5 ? " 🚀 Speed Bonus!" : timeUsed <= 10 ? " ⚡ Fast!" : "";
     var ms=$$("b-my-score"); if(ms) ms.textContent=bs.myScore;
     showToast("Correct!"+speedBonus+" +1 point");
@@ -5112,7 +5222,7 @@ function answerPractice(sel,correct,btn){
   clearInterval(practiceTimer);
   document.querySelectorAll("#p-opts .q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
-  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; showToast("Correct! +8 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
+  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; S.problemsSolved=(S.problemsSolved||0)+1; showToast("Correct! +8 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll("#p-opts .q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); }
   practiceSession.idx++; setTimeout(renderPracticeQ, right?1800:2400);
 }
@@ -5206,7 +5316,7 @@ function renderProfile(){
   var codeEl=$$("profile-link-code");
   if(codeEl) codeEl.textContent=S.linkCode||"------";
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
-  setEl("prof-ava", S.name?S.name[0].toUpperCase():"?");
+  setEl("prof-ava", S.name?myAvatarGlyph():"?");
   setEl("prof-name", S.name||"Sign up to create your profile");
   setEl("prof-grade", S.grade?(S.grade+" - Math Champ"):"Sign up free to get started");
   var pb=$$("prof-badges-row");
@@ -5217,7 +5327,8 @@ function renderProfile(){
   var stats=[
     ["Total XP",S.xp.toLocaleString()+" XP"],["Level","Level "+S.level],
     ["Day Streak",S.streak+" days"],["MathCoins",S.coins.toLocaleString()+" coins"],
-    ["Grade",S.grade||"Not set"],["Challenges Won","Play to earn wins!"]
+    ["Grade",S.grade||"Not set"],["Challenges Won",(S.wins||0)+" wins"],
+    ["Problems Solved",(S.problemsSolved||0).toLocaleString()]
   ];
   var allStats=$$("all-stats");
   if(allStats){
@@ -5240,6 +5351,7 @@ function renderProfile(){
     });
     achs.innerHTML=ahtml;
   }
+  renderAvatarPicker();
 }
 
 // ── PARENT DASHBOARD ───────────────────────────────────
@@ -5701,7 +5813,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
           uid,
           name: window.S ? safeLabel(window.S.name) : "Player",
           grade: window.S ? window.S.gradeNum : 0,
-          avatar: window.S ? (window.S.name||"P")[0].toUpperCase() : "P",
+          avatar: window.myAvatarGlyph ? window.myAvatarGlyph() : (window.S ? (window.S.name||"P")[0].toUpperCase() : "P"),
           status: "online",
           inBattle: false,
           lastSeen: serverTimestamp()
@@ -5966,14 +6078,16 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     if (!user) return;
     if (wins === undefined && window.S) wins = window.S.wins || 0;
     if (grade === undefined && window.S) grade = window.S.gradeNum || "";
-    const upd = { xp, coins, level, streak, wins: wins || 0 };
+    const problemsSolved = window.S ? (window.S.problemsSolved || 0) : 0;
+    const avatarId = window.S ? (window.S.avatarId || "") : "";
+    const avatarEmoji = window.myAvatarGlyph ? window.myAvatarGlyph() : null;
+    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId };
     if (linkCode) upd.linkCode = linkCode;
     await updateDoc(doc(db, "users", user.uid), upd);
     try {
-      await setDoc(doc(db, "public_profiles", user.uid), {
-        xp, level, grade: grade || "", wins: wins || 0,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      const pub = { xp, level, grade: grade || "", wins: wins || 0, updatedAt: serverTimestamp() };
+      if (avatarEmoji) pub.avatar = avatarEmoji;
+      await setDoc(doc(db, "public_profiles", user.uid), pub, { merge: true });
     } catch(e) {}
   };
 
