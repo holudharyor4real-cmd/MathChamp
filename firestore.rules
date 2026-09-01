@@ -62,5 +62,15 @@ service cloud.firestore {
     match /battles/{battleId} {
       allow read, write: if signedIn();
     }
+
+    // Classroom code -> teacher lookup. Any signed-in user can read (a
+    // student needs to verify a code is real before joining); only the
+    // teacher who owns a code can create it, and it's never updated or
+    // deleted after creation.
+    match /classrooms/{classCode} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.teacherUid == request.auth.uid;
+      allow update, delete: if false;
+    }
   }
 }

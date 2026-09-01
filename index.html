@@ -1800,6 +1800,7 @@ body{
     <div class="tab-row">
       <button class="tab-btn on" id="tab-s-btn" onclick="switchTab('student',this)">🎮 Student</button>
       <button class="tab-btn" id="tab-p-btn" onclick="switchTab('parent',this)">👨‍👩‍👧 Parent</button>
+      <button class="tab-btn" id="tab-t-btn" onclick="switchTab('teacher',this)">🏫 Teacher</button>
     </div>
 
     <div id="tab-student">
@@ -1900,6 +1901,37 @@ body{
       </div>
       <button class="btn btn-mint" style="width:100%" onclick="submitParentSignup()">✅ Create Parent Account</button>
     </div>
+
+    <div id="tab-teacher" style="display:none">
+      <div class="modal-title">Teacher / Classroom Account 🏫</div>
+      <div class="modal-sub">Get a class code, then track your whole class's progress</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-input" type="text" id="t-fn" placeholder="Jordan">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-input" type="text" id="t-ln" placeholder="Rivera">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">School Name (optional)</label>
+        <input class="form-input" type="text" id="t-school" placeholder="Lincoln Elementary">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="t-email" placeholder="teacher@school.edu">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Create Password</label>
+        <input class="form-input" type="password" id="t-password" placeholder="Minimum 6 characters">
+      </div>
+      <div class="consent">
+        <strong>🏫 For educators.</strong> You'll get a Class Code to share with students — they enter it once from their Profile page to join your class. You'll see aggregate class progress (names, grade, XP, wins) — never emails, passwords, or other private account details.
+      </div>
+      <button class="btn btn-coral" style="width:100%" onclick="submitTeacherSignup()">🏫 Create Teacher Account</button>
+    </div>
     <button class="mob-item" onclick="logout()" style="color:var(--coral)">
       <span class="mob-icon">🚪</span>Exit
     </button>
@@ -1956,6 +1988,7 @@ body{
     <div class="tab-row" style="margin-bottom:20px">
       <button class="tab-btn on" id="login-tab-s-btn" onclick="switchLoginTab('student',this)">🎮 Student</button>
       <button class="tab-btn" id="login-tab-p-btn" onclick="switchLoginTab('parent',this)">👨‍👩‍👧 Parent</button>
+      <button class="tab-btn" id="login-tab-t-btn" onclick="switchLoginTab('teacher',this)">🏫 Teacher</button>
     </div>
 
     <!-- Student Login -->
@@ -2014,11 +2047,33 @@ body{
       </div>
     </div>
 
+    <!-- Teacher Login -->
+    <div id="login-tab-teacher" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Your Email</label>
+        <input class="form-input" type="email" id="l-teacher-email" placeholder="Email used during signup">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="l-teacher-password" placeholder="Your password">
+      </div>
+      <button class="btn btn-coral" style="width:100%;margin-bottom:8px" onclick="loginTeacher()">
+        🏫 Go to Teacher Dashboard
+      </button>
+      <div style="text-align:center;margin-bottom:12px">
+        <button onclick="forgotPassword('teacher')" style="background:none;border:none;color:var(--sky);font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline">
+          🔑 Forgot your password?
+        </button>
+      </div>
+    </div>
+
     <div style="text-align:center;font-size:13px;color:var(--text2)">
       New here?
       <button onclick="closeLoginModal();openModal('student')" style="background:none;border:none;color:var(--mint);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create free student account</button>
       &nbsp;|&nbsp;
       <button onclick="closeLoginModal();openModal('parent')" style="background:none;border:none;color:var(--sky);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create parent account</button>
+      &nbsp;|&nbsp;
+      <button onclick="closeLoginModal();openModal('teacher')" style="background:none;border:none;color:var(--coral);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create teacher account</button>
     </div>
   </div>
 </div>
@@ -2076,6 +2131,9 @@ body{
     </button>
     <button class="nav-item" id="nav-parent-dash" onclick="goPage('parentdash',this)" style="display:none">
       <span class="nav-icon">👨‍👩‍👧</span> Parent Dashboard
+    </button>
+    <button class="nav-item" id="nav-teacher-dash" onclick="goPage('teacherdash',this)" style="display:none">
+      <span class="nav-icon">🏫</span> Teacher Dashboard
     </button>
 
     <div class="sb-user">
@@ -2576,6 +2634,42 @@ body{
         </div>
       </div>
 
+      <!-- Piggy Bank Vault (Junior League only) -->
+      <div class="card tier-k5-only" id="k5-piggybank-card" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(255,201,60,0.10),rgba(255,107,107,0.06));border:1.5px solid rgba(255,201,60,0.3)">
+        <div style="font-family:'Fredoka One',cursive;font-size:18px;margin-bottom:6px">🐷 Piggy Bank</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Lock away MathCoins and earn bonus interest when you wait — just like a real savings account!</div>
+        <div id="piggybank-empty">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Coins to lock</label>
+              <input class="form-input" type="number" id="piggybank-amount" min="10" style="max-width:140px" placeholder="e.g. 100">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Term</label>
+              <select class="form-select" id="piggybank-term" style="max-width:220px">
+                <option value="1">1 day — +10% bonus</option>
+                <option value="3" selected>3 days — +25% bonus</option>
+                <option value="7">7 days — +60% bonus</option>
+              </select>
+            </div>
+            <button class="btn btn-sun btn-sm" onclick="lockPiggyBank()">🔒 Lock it in!</button>
+          </div>
+        </div>
+        <div id="piggybank-active" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div>
+              <div style="font-size:12px;color:var(--text2)">Locked away</div>
+              <div style="font-size:24px;font-weight:900;color:var(--sun)" id="piggybank-amount-display">0 🪙</div>
+              <div style="font-size:12px;color:var(--text2)" id="piggybank-status">—</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-mint btn-sm" id="piggybank-claim-btn" onclick="claimPiggyBank()" style="display:none">🎉 Claim + Bonus!</button>
+              <button class="btn btn-ghost btn-xs" onclick="withdrawPiggyBankEarly()">Withdraw early (no bonus)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Coin earning guide -->
       <div class="card" style="margin-bottom:20px">
         <div class="sec-title" style="margin-bottom:14px">🪙 How to Earn MathCoins</div>
@@ -2611,6 +2705,18 @@ body{
             <span class="badge b-mint">🌱 Beginner</span>
           </div>
         </div>
+      </div>
+
+      <div class="card" style="margin-top:20px" id="join-class-card">
+        <div class="sec-title" style="margin-bottom:6px">🏫 My Class</div>
+        <div id="join-class-form">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Ask your teacher for their Class Code to join.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input class="form-input" id="join-class-code" placeholder="6-digit class code" style="max-width:220px;text-transform:uppercase" maxlength="6">
+            <button class="btn btn-coral btn-sm" onclick="joinClass()">Join Class</button>
+          </div>
+        </div>
+        <div id="join-class-joined" style="display:none;font-size:14px;font-weight:800;color:var(--mint)"></div>
       </div>
 
       <div class="card" style="margin-top:20px">
@@ -2732,6 +2838,50 @@ body{
       </div>
     </div>
 
+    <!-- ════ TEACHER DASHBOARD ════ -->
+    <div class="page" id="p-teacherdash">
+      <div class="page-title">🏫 Teacher Dashboard</div>
+      <div class="page-sub">Track your whole class's progress in one place</div>
+
+      <div class="parent-hero">
+        <div class="parent-avatar" id="t-dash-avatar">T</div>
+        <div style="flex:1">
+          <div style="font-size:20px;font-weight:800;margin-bottom:4px" id="t-dash-name">Teacher Account</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px" id="t-dash-school">School: Not set</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span class="badge b-mint">🔒 No emails or passwords shared</span>
+            <span class="badge b-sun" id="t-dash-students-badge">0 Students Joined</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;background:rgba(61,139,255,0.08);border:1.5px solid rgba(61,139,255,0.25)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+          <div>
+            <div style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">Your Class Code</div>
+            <div style="font-size:32px;font-weight:900;letter-spacing:4px;color:var(--sun)" id="t-dash-classcode">------</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">Students enter this once from their Profile page → "Join a Class"</div>
+          </div>
+          <button class="btn btn-sun btn-sm" onclick="copyClassCode()">📋 Copy Code</button>
+        </div>
+      </div>
+
+      <div class="g4" style="margin:20px 0">
+        <div class="card card-sun"><div class="stat-card"><div class="stat-icon" style="background:rgba(255,217,61,0.15)">👥</div><div><div class="stat-num" id="t-stat-count" style="color:var(--sun)">0</div><div class="stat-lbl">Students</div></div></div></div>
+        <div class="card card-mint"><div class="stat-card"><div class="stat-icon" style="background:rgba(6,214,160,0.15)">⭐</div><div><div class="stat-num" id="t-stat-xp" style="color:var(--mint)">0</div><div class="stat-lbl">Avg. XP</div></div></div></div>
+        <div class="card card-coral"><div class="stat-card"><div class="stat-icon" style="background:rgba(255,107,107,0.15)">🏆</div><div><div class="stat-num" id="t-stat-wins" style="color:var(--coral)">0</div><div class="stat-lbl">Total Duel Wins</div></div></div></div>
+        <div class="card card-sky"><div class="stat-card"><div class="stat-icon" style="background:rgba(78,205,196,0.15)">🧮</div><div><div class="stat-num" id="t-stat-problems" style="color:var(--sky)">0</div><div class="stat-lbl">Problems Solved</div></div></div></div>
+      </div>
+
+      <div class="sec-head">
+        <div class="sec-title">📋 Class Roster</div>
+        <button class="btn btn-ghost btn-xs" onclick="renderTeacherDash()">🔄 Refresh</button>
+      </div>
+      <div id="t-roster-list">
+        <!-- Populated by renderTeacherDash() -->
+      </div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /s-app -->
 
@@ -2765,7 +2915,7 @@ window.MATHCHAMP_LOADED = true;
 // ── STATE ──────────────────────────────────────────────
 var S = {
   name:"", grade:"", gradeNum:0,
-  xp:0, level:1, streak:0, coins:0, wins:0, problemsSolved:0, avatarId:"",
+  xp:0, level:1, streak:0, coins:0, wins:0, problemsSolved:0, avatarId:"", classCode:"", vault:null,
   isPreview:false, triviaMode:"trivia",
   plan:"free", linkCode:""
 };
@@ -2800,6 +2950,7 @@ function axiomRemaining(){
   return Math.max(0, AXIOM_FREE_DAILY - axiomUsedToday());
 }
 var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[] };
+var TEACHER = { name:"", email:"", school:"", classCode:"", isLoggedIn:false };
 
 // PARENT.plan holds either the display default "Free" or a raw Stripe
 // plan key ("premium"/"family"/"max") once a subscription is granted —
@@ -3054,6 +3205,7 @@ function renderAvatarPicker(){
       +"</div>";
   });
   grid.innerHTML=html;
+  if(S.tier==="k5") checkPrintableUnlocks();
 }
 
 var FUN_FACTS = [
@@ -3276,6 +3428,13 @@ function showToast(msg, dur){
   setTimeout(function(){ t.classList.remove("show"); }, dur||2800);
 }
 
+function gradeOrdinal(n){
+  n=parseInt(n)||0;
+  if(n<=0) return "";
+  var s=["th","st","nd","rd"], v=n%100;
+  return n+(s[(v-20)%10]||s[v]||s[0])+" Grade";
+}
+
 // Privacy-safe label for showing a student to OTHER students/parents:
 // first name + last-initial only, never the full legal name.
 function displayLabel(fullName){
@@ -3367,7 +3526,7 @@ function saveSession(){
     var key = "mc_"+S.name.split(" ")[0].toLowerCase()+"_"+S.gradeNum;
     localStorage.setItem(key, JSON.stringify({
       xp:S.xp, level:S.level, streak:S.streak, coins:S.coins, wins:S.wins||0,
-      problemsSolved:S.problemsSolved||0, avatarId:S.avatarId||"",
+      problemsSolved:S.problemsSolved||0, avatarId:S.avatarId||"", vault:S.vault||null,
       name:S.name, grade:S.grade, gradeNum:S.gradeNum
     }));
   }catch(e){}
@@ -3388,14 +3547,16 @@ function registerPlayer(name, grade){
 function openModal(t){
   var m = $$("signup-modal"); if(!m) return;
   m.classList.add("open");
-  switchTab(t, $$("tab-"+(t==="student"?"s":"p")+"-btn"));
+  var btnLetter = t==="student"?"s":t==="teacher"?"t":"p";
+  switchTab(t, $$("tab-"+btnLetter+"-btn"));
 }
 function closeModal(){ var m=$$("signup-modal"); if(m) m.classList.remove("open"); }
 
 function switchTab(t, btn){
-  var ts=$$("tab-student"), tp=$$("tab-parent");
+  var ts=$$("tab-student"), tp=$$("tab-parent"), tt=$$("tab-teacher");
   if(ts) ts.style.display = t==="student"?"block":"none";
   if(tp) tp.style.display = t==="parent"?"block":"none";
+  if(tt) tt.style.display = t==="teacher"?"block":"none";
   document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("on"); });
   if(btn) btn.classList.add("on");
 }
@@ -3411,6 +3572,9 @@ async function forgotPassword(role){
   if(role==="student"){
     var emailEl=$$("l-email"); email=emailEl?emailEl.value.trim():"";
     if(!email){ email=prompt("Enter your student email address to reset your password:",""); }
+  } else if(role==="teacher"){
+    var emailEl=$$("l-teacher-email"); email=emailEl?emailEl.value.trim():"";
+    if(!email){ email=prompt("Enter your teacher email address to reset your password:",""); }
   } else {
     var emailEl=$$("l-parent-email"); email=emailEl?emailEl.value.trim():"";
     if(!email){ email=prompt("Enter your parent email address to reset your password:",""); }
@@ -3445,7 +3609,7 @@ function goPage(id, el, mob){
     leaderboard:renderLeaderboard, tournament:renderTournaments,
     wallet:renderWallet, skills:renderSkills,
     profile:renderProfile, tutor:renderTutor,
-    practice:renderPractice, parentdash:renderParentDash
+    practice:renderPractice, parentdash:renderParentDash, teacherdash:renderTeacherDash
   };
   if(renderMap[id]) renderMap[id]();
 }
@@ -3575,9 +3739,10 @@ function showPreviewBanner(){
 }
 
 function switchLoginTab(t, btn){
-  var ts=$$("login-tab-student"), tp=$$("login-tab-parent");
+  var ts=$$("login-tab-student"), tp=$$("login-tab-parent"), tt=$$("login-tab-teacher");
   if(ts) ts.style.display = t==="student"?"block":"none";
   if(tp) tp.style.display = t==="parent"?"block":"none";
+  if(tt) tt.style.display = t==="teacher"?"block":"none";
   document.querySelectorAll("#login-modal .tab-btn").forEach(function(b){ b.classList.remove("on"); });
   if(btn) btn.classList.add("on");
 }
@@ -3652,6 +3817,7 @@ async function loginStudent(){
         S.xp=data.xp||0; S.level=data.level||1;
         S.streak=data.streak||0; S.coins=data.coins||0; S.wins=data.wins||0;
         S.problemsSolved=data.problemsSolved||0; S.avatarId=data.avatarId||"";
+        S.classCode=data.classCode||""; S.vault=data.vault||null;
         S.plan=data.plan||"free";
         fn=data.displayName||fn;
         if(data.grade){ gr=String(data.grade); }
@@ -3683,6 +3849,7 @@ async function loginStudent(){
       var d=JSON.parse(saved);
       S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
       S.wins=d.wins||0; S.problemsSolved=d.problemsSolved||0; S.avatarId=d.avatarId||"";
+      S.vault=d.vault||null;
       if(d.gradeNum){ gr=String(d.gradeNum); }
     }
   }catch(e){}
@@ -3700,6 +3867,9 @@ function logout(){
   PARENT.isLoggedIn=false;
   // Hide parent nav
   var parentNav=$$("nav-parent-dash"); if(parentNav) parentNav.style.display="none";
+  // Reset teacher state
+  TEACHER.isLoggedIn=false; TEACHER.classCode="";
+  var teacherNav=$$("nav-teacher-dash"); if(teacherNav) teacherNav.style.display="none";
   // Switch back to landing page
   var app=$$("s-app"); if(app) app.classList.remove("active");
   var land=$$("s-land"); if(land) land.classList.add("active");
@@ -3733,7 +3903,14 @@ var K5_TREE_STAGES = [
   {min:300,  emoji:"🌳", label:"Young Tree"},
   {min:700,  emoji:"🌳✨",label:"Mighty Tree"}
 ];
-var K5_PAPERCRAFT_MILESTONE = 500;
+// Printable artifacts are tied to specific avatar unlocks (not an arbitrary
+// coin milestone) — one per themed avatar, so unlocking a cooler avatar
+// always comes with a matching physical thing to print and show off.
+var PRINTABLE_CATALOG = {
+  knight:   {file:"papercraft-knight-crown.svg",   label:"Papercraft Crown",       emoji:"👑"},
+  dragon:   {file:"papercraft-dragon.svg",         label:"Papercraft Dragon",      emoji:"🐉"},
+  champion: {file:"papercraft-champion-medal.svg", label:"Champion Medal",         emoji:"🏆"}
+};
 
 function renderK5Rewards(){
   var chestEl=$$("k5-chest-coins"); if(chestEl) chestEl.textContent=S.coins.toLocaleString()+" Gold Coins";
@@ -3747,33 +3924,98 @@ function renderK5Rewards(){
   var pct=next?Math.min(100,Math.round((S.coins-stage.min)/span*100)):100;
   var progEl=$$("k5-tree-prog"); if(progEl) progEl.style.width=pct+"%";
 
-  checkK5PapercraftMilestone();
+  checkPrintableUnlocks();
 }
 
-function checkK5PapercraftMilestone(){
+function checkPrintableUnlocks(){
   if(S.tier!=="k5" || S.isPreview || !S.name) return;
-  if(S.coins < K5_PAPERCRAFT_MILESTONE) return;
-  var flagKey="mc_papercraft_"+S.name.split(" ")[0].toLowerCase();
-  try{ if(localStorage.getItem(flagKey)) return; }catch(e){}
-  try{ localStorage.setItem(flagKey,"1"); }catch(e){}
-  showK5PapercraftReward();
+  Object.keys(PRINTABLE_CATALOG).forEach(function(id){
+    var av=AVATAR_CATALOG.find(function(a){ return a.id===id; });
+    if(!av || !avatarUnlocked(av)) return;
+    var flagKey="mc_printable_"+id+"_"+S.name.split(" ")[0].toLowerCase();
+    try{ if(localStorage.getItem(flagKey)) return; }catch(e){}
+    try{ localStorage.setItem(flagKey,"1"); }catch(e){}
+    showPrintableReward(PRINTABLE_CATALOG[id], av);
+  });
 }
 
-function showK5PapercraftReward(){
-  var m=$$("k5-papercraft-modal");
-  if(m){ m.classList.add("open"); return; }
+function showPrintableReward(printable, av){
+  var old=$$("k5-papercraft-modal"); if(old) old.remove();
   var div=document.createElement("div");
   div.id="k5-papercraft-modal";
   div.className="modal-overlay open";
   div.innerHTML =
     '<div class="modal" style="max-width:420px;text-align:center">'+
-      '<div style="font-size:52px;margin-bottom:8px">👑</div>'+
-      '<div style="font-family:\'Fredoka One\',cursive;font-size:20px;margin-bottom:10px">You Unlocked a Papercraft Crown!</div>'+
-      '<div style="font-size:14px;color:var(--text2);margin-bottom:18px">Print, cut, and fold your very own MathCrown knight avatar to display on your desk!</div>'+
-      '<a href="papercraft-knight-crown.svg" download="papercraft-knight-crown.svg" class="btn btn-sun" style="display:inline-block;margin-bottom:10px;text-decoration:none">⬇️ Download Template</a><br>'+
+      '<div style="font-size:52px;margin-bottom:8px">'+printable.emoji+'</div>'+
+      '<div style="font-family:\'Fredoka One\',cursive;font-size:20px;margin-bottom:10px">You Unlocked the '+av.name+' Avatar!</div>'+
+      '<div style="font-size:14px;color:var(--text2);margin-bottom:18px">Print, cut, and build your very own '+printable.label+' to show off!</div>'+
+      '<a href="'+printable.file+'" download="'+printable.file+'" class="btn btn-sun" style="display:inline-block;margin-bottom:10px;text-decoration:none">⬇️ Download '+printable.label+'</a><br>'+
       '<button class="btn btn-ghost btn-xs" onclick="document.getElementById(\'k5-papercraft-modal\').classList.remove(\'open\')">Close</button>'+
     '</div>';
   document.body.appendChild(div);
+}
+
+// ── JUNIOR LEAGUE (K-5) PIGGY BANK: delayed-gratification vault ──
+var PIGGY_BANK_TERMS = { 1:0.10, 3:0.25, 7:0.60 };
+
+function lockPiggyBank(){
+  if(S.vault && S.vault.amount){ showToast("🐷 You already have coins locked away!"); return; }
+  var amtEl=$$("piggybank-amount"), termEl=$$("piggybank-term");
+  var amount=parseInt(amtEl?amtEl.value:0)||0;
+  var days=parseInt(termEl?termEl.value:3)||3;
+  if(amount<10){ showToast("Lock at least 10 coins!"); return; }
+  if(amount>S.coins){ showToast("You don't have that many coins to lock away!"); return; }
+  S.coins-=amount;
+  S.vault={ amount:amount, bonusPct:PIGGY_BANK_TERMS[days]||0.25, lockedAt:Date.now(), unlockAt:Date.now()+days*24*60*60*1000, days:days };
+  saveSession();
+  renderPiggyBank();
+  renderWallet();
+  showToast("🐷 Locked "+amount+" coins for "+days+" day"+(days>1?"s":"")+"! Come back to claim your bonus.");
+}
+
+function claimPiggyBank(){
+  if(!S.vault || !S.vault.amount) return;
+  if(Date.now() < S.vault.unlockAt){ showToast("Not ready yet — keep waiting!"); return; }
+  var bonus=Math.round(S.vault.amount*S.vault.bonusPct);
+  S.coins += S.vault.amount + bonus;
+  showToast("🎉 Piggy Bank matured! +"+S.vault.amount+" coins + "+bonus+" bonus!");
+  S.vault=null;
+  saveSession();
+  renderPiggyBank();
+  renderWallet();
+  renderK5Rewards();
+}
+
+function withdrawPiggyBankEarly(){
+  if(!S.vault || !S.vault.amount) return;
+  S.coins += S.vault.amount;
+  showToast("Withdrew "+S.vault.amount+" coins early — no bonus this time. Waiting pays off!");
+  S.vault=null;
+  saveSession();
+  renderPiggyBank();
+  renderWallet();
+  renderK5Rewards();
+}
+
+function renderPiggyBank(){
+  var empty=$$("piggybank-empty"), active=$$("piggybank-active");
+  if(!empty || !active) return;
+  if(S.vault && S.vault.amount){
+    empty.style.display="none"; active.style.display="block";
+    var ampEl=$$("piggybank-amount-display"); if(ampEl) ampEl.textContent=S.vault.amount.toLocaleString()+" 🪙";
+    var msLeft=S.vault.unlockAt-Date.now();
+    var claimBtn=$$("piggybank-claim-btn"), statusEl=$$("piggybank-status");
+    if(msLeft<=0){
+      if(statusEl) statusEl.textContent="Ready to claim! +"+Math.round(S.vault.amount*S.vault.bonusPct)+" bonus coins waiting 🎉";
+      if(claimBtn) claimBtn.style.display="inline-flex";
+    } else {
+      var daysLeft=Math.ceil(msLeft/(24*60*60*1000));
+      if(statusEl) statusEl.textContent="Unlocks in "+daysLeft+" day"+(daysLeft!==1?"s":"")+" · +"+Math.round(S.vault.bonusPct*100)+"% bonus waiting";
+      if(claimBtn) claimBtn.style.display="none";
+    }
+  } else {
+    empty.style.display="block"; active.style.display="none";
+  }
 }
 
 // ── JUNIOR LEAGUE (K-5): CROWN HOLDER + KINGDOM MAP + CROWN CLASH DUEL ──
@@ -5251,6 +5493,7 @@ function showPracticeResult(){
 // ── WALLET ─────────────────────────────────────────────
 function renderWallet(){
   var wc=$$("wallet-coins"); if(wc) wc.textContent=S.coins.toLocaleString();
+  if(S.tier==="k5") renderPiggyBank();
   var cg=$$("coin-guide");
   if(cg){
     var html="";
@@ -5319,6 +5562,7 @@ function renderProfile(){
   setEl("prof-ava", S.name?myAvatarGlyph():"?");
   setEl("prof-name", S.name||"Sign up to create your profile");
   setEl("prof-grade", S.grade?(S.grade+" - Math Champ"):"Sign up free to get started");
+  if(S.classCode) showJoinedClassUI();
   var pb=$$("prof-badges-row");
   if(pb){
     var tier=S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner";
@@ -5520,6 +5764,155 @@ async function submitParentSignup(){
     // Synchronous, no setTimeout — see resumePendingCheckoutIfAny() for why.
     openCheckout(planKey);
   }
+}
+
+// ── TEACHER / CLASSROOM ───────────────────────────────────
+async function submitTeacherSignup(){
+  var fn=$$("t-fn")?$$("t-fn").value.trim():"";
+  var ln=$$("t-ln")?$$("t-ln").value.trim():"";
+  var school=$$("t-school")?$$("t-school").value.trim():"";
+  var email=$$("t-email")?$$("t-email").value.trim():"";
+  var password=$$("t-password")?$$("t-password").value:"";
+  var fullName=fn+(ln?" "+ln:"");
+  if(!fn){ showToast("Please enter your first name!"); return; }
+  if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email!"); return; }
+  if(!password||password.length<6){ showToast("Password must be at least 6 characters!"); return; }
+
+  var btn=document.querySelector("#tab-teacher .btn-coral");
+  if(btn){ btn.textContent="Creating account..."; btn.disabled=true; }
+
+  if(!window.firebaseSignUp || !window.createClassroom){
+    showToast("Signup is temporarily unavailable — please try again in a moment.");
+    if(btn){ btn.textContent="🏫 Create Teacher Account"; btn.disabled=false; }
+    return;
+  }
+
+  try{
+    await window.firebaseSignUp(email, password, fullName, "teacher", "");
+    TEACHER.classCode = await window.createClassroom(fullName, school);
+  }catch(e){
+    var code=e.code||"", msg=e.message||"";
+    if(code.indexOf("email-already-in-use")>-1 || msg.indexOf("email-already-in-use")>-1){
+      showToast("That email is already registered. Please log in instead!");
+    } else {
+      var detail=msg.replace("Firebase: ","").split(" (")[0];
+      showToast("Signup error: "+(detail||"please try again"));
+    }
+    if(btn){ btn.textContent="🏫 Create Teacher Account"; btn.disabled=false; }
+    return;
+  }
+
+  TEACHER.name=fullName; TEACHER.email=email; TEACHER.school=school; TEACHER.isLoggedIn=true;
+  if(btn){ btn.textContent="🏫 Create Teacher Account"; btn.disabled=false; }
+  closeModal();
+  var land=$$("s-land"); if(land) land.classList.remove("active");
+  var app=$$("s-app"); if(app) app.classList.add("active");
+  var nav=$$("nav-teacher-dash"); if(nav) nav.style.display="flex";
+  showMobNav(true); showMusicBtn(true); showSfxBtn(true);
+  goPage("teacherdash",$$("nav-teacher-dash"),false);
+  showToast("Class created! Your Class Code is "+TEACHER.classCode+" 🎉",4500);
+}
+
+async function loginTeacher(){
+  var email=$$("l-teacher-email")?$$("l-teacher-email").value.trim():"";
+  var password=$$("l-teacher-password")?$$("l-teacher-password").value:"";
+  if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
+  if(!password){ showToast("Please enter your password!"); return; }
+  var loginBtn=document.querySelector("#login-tab-teacher .btn-coral");
+  if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
+  if(!window.firebaseLogin){
+    showToast("Login is temporarily unavailable — please try again in a moment.");
+    if(loginBtn){ loginBtn.textContent="🏫 Go to Teacher Dashboard"; loginBtn.disabled=false; }
+    return;
+  }
+  try{
+    await window.firebaseLogin(email, password);
+    var data=await window.loadProgress();
+    TEACHER.name=(data&&data.displayName)||email.split("@")[0];
+    TEACHER.email=email; TEACHER.school=(data&&data.school)||"";
+    TEACHER.classCode=(data&&data.classCode)||"";
+    TEACHER.isLoggedIn=true;
+    if(!TEACHER.classCode && window.createClassroom){
+      TEACHER.classCode=await window.createClassroom(TEACHER.name, TEACHER.school);
+    }
+    var nav=$$("nav-teacher-dash"); if(nav) nav.style.display="flex";
+    closeLoginModal();
+    var land=$$("s-land"); if(land) land.classList.remove("active");
+    var app=$$("s-app"); if(app) app.classList.add("active");
+    showMobNav(true); showMusicBtn(true); showSfxBtn(true);
+    goPage("teacherdash",$$("nav-teacher-dash"),false);
+    showToast("Welcome back, "+TEACHER.name.split(" ")[0]+"!");
+  }catch(e){
+    var msg=e.message||"";
+    if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1) showToast("Wrong email or password. Please try again.");
+    else showToast("Login failed: "+msg.replace("Firebase: ","").split(" (")[0]);
+    if(loginBtn){ loginBtn.textContent="🏫 Go to Teacher Dashboard"; loginBtn.disabled=false; }
+  }
+}
+
+async function renderTeacherDash(){
+  var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
+  setEl("t-dash-avatar", (TEACHER.name||"T")[0].toUpperCase());
+  setEl("t-dash-name", TEACHER.name||"Teacher Account");
+  setEl("t-dash-school", TEACHER.school?("School: "+TEACHER.school):"School: Not set");
+  setEl("t-dash-classcode", TEACHER.classCode||"------");
+
+  var list=$$("t-roster-list");
+  if(!TEACHER.classCode || !window.fetchClassRoster){
+    if(list) list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>No class code yet.</div>";
+    return;
+  }
+  if(list) list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>Loading roster...</div>";
+  var roster=await window.fetchClassRoster(TEACHER.classCode);
+
+  setEl("t-stat-count", roster.length);
+  setEl("t-dash-students-badge", roster.length+" Students Joined");
+  var totalXp=0, totalWins=0, totalProblems=0;
+  roster.forEach(function(s){ totalXp+=s.xp; totalWins+=s.wins; totalProblems+=s.problemsSolved; });
+  setEl("t-stat-xp", roster.length?Math.round(totalXp/roster.length).toLocaleString():"0");
+  setEl("t-stat-wins", totalWins);
+  setEl("t-stat-problems", totalProblems);
+
+  if(!list) return;
+  if(!roster.length){
+    list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>No students have joined yet — share your Class Code above!</div>";
+    return;
+  }
+  roster.sort(function(a,b){ return b.xp-a.xp; });
+  var html="";
+  roster.forEach(function(s){
+    html+="<div class='lb-row'><div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+s.avatar+"</div>"
+      +"<div class='lb-info'><div class='lb-name'>"+s.name+"</div><div class='lb-grade'>"+(s.grade?gradeOrdinal(s.grade):"")+" · Level "+s.level+"</div></div>"
+      +"<div class='lb-pts-wrap'><div class='lb-pts'>"+s.xp.toLocaleString()+" XP</div>"
+      +"<div style='font-size:11px;color:var(--text2)'>"+s.wins+" wins · "+s.problemsSolved+" solved</div></div></div>";
+  });
+  list.innerHTML=html;
+}
+
+function copyClassCode(){
+  if(!TEACHER.classCode){ showToast("No class code yet."); return; }
+  try{
+    navigator.clipboard.writeText(TEACHER.classCode);
+    showToast("Class code copied: "+TEACHER.classCode);
+  }catch(e){ showToast("Your class code is "+TEACHER.classCode); }
+}
+
+function showJoinedClassUI(teacherName){
+  var form=$$("join-class-form"), joined=$$("join-class-joined");
+  if(form) form.style.display="none";
+  if(joined){ joined.style.display="block"; joined.textContent="✅ You're in "+(teacherName||"your teacher")+"'s class!"; }
+}
+
+async function joinClass(){
+  var input=$$("join-class-code");
+  var code=input?input.value.trim():"";
+  if(!code){ showToast("Enter your teacher's class code first!"); return; }
+  if(!window.joinClassroom){ showToast("Joining a class needs an internet connection — try again in a moment."); return; }
+  var result=await window.joinClassroom(code);
+  if(!result.ok){ showToast("❌ "+result.error); return; }
+  S.classCode=code.trim();
+  showJoinedClassUI(result.teacherName);
+  showToast("🎉 Joined the class!");
 }
 
 async function joinWaitlist(){
@@ -6080,12 +6473,13 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     if (grade === undefined && window.S) grade = window.S.gradeNum || "";
     const problemsSolved = window.S ? (window.S.problemsSolved || 0) : 0;
     const avatarId = window.S ? (window.S.avatarId || "") : "";
+    const vault = window.S ? (window.S.vault || null) : null;
     const avatarEmoji = window.myAvatarGlyph ? window.myAvatarGlyph() : null;
-    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId };
+    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault };
     if (linkCode) upd.linkCode = linkCode;
     await updateDoc(doc(db, "users", user.uid), upd);
     try {
-      const pub = { xp, level, grade: grade || "", wins: wins || 0, updatedAt: serverTimestamp() };
+      const pub = { xp, level, grade: grade || "", wins: wins || 0, problemsSolved, updatedAt: serverTimestamp() };
       if (avatarEmoji) pub.avatar = avatarEmoji;
       await setDoc(doc(db, "public_profiles", user.uid), pub, { merge: true });
     } catch(e) {}
@@ -6096,6 +6490,55 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     if (!user) return null;
     const snap = await getDoc(doc(db, "users", user.uid));
     return snap.exists() ? snap.data() : null;
+  };
+
+  // ── CLASSROOMS (Teacher <-> Student linking) ─────────────────
+  // A classroom doc is just a code -> teacher lookup, used so a student can
+  // verify a code is real before tagging their own public_profiles doc with
+  // it. Rosters are read straight off public_profiles (no private data).
+  window.createClassroom = async function(teacherName, school) {
+    const user = auth.currentUser;
+    if (!user) return null;
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    await setDoc(doc(db, "classrooms", code), {
+      teacherUid: user.uid, teacherName: teacherName || "", school: school || "",
+      createdAt: serverTimestamp()
+    });
+    await updateDoc(doc(db, "users", user.uid), { classCode: code });
+    return code;
+  };
+
+  window.joinClassroom = async function(classCode) {
+    const user = auth.currentUser;
+    if (!user) return { ok: false, error: "Not signed in." };
+    classCode = (classCode || "").trim();
+    if (!/^\d{6}$/.test(classCode)) return { ok: false, error: "Class codes are 6 digits." };
+    try {
+      const snap = await getDoc(doc(db, "classrooms", classCode));
+      if (!snap.exists()) return { ok: false, error: "No class found with that code." };
+      await updateDoc(doc(db, "users", user.uid), { classCode });
+      await setDoc(doc(db, "public_profiles", user.uid), { classCode }, { merge: true });
+      return { ok: true, teacherName: snap.data().teacherName || "your teacher" };
+    } catch (e) {
+      return { ok: false, error: e.message || "Could not join class." };
+    }
+  };
+
+  window.fetchClassRoster = async function(classCode) {
+    if (!classCode) return [];
+    try {
+      const snap = await getDocs(query(collection(db, "public_profiles"), where("classCode", "==", classCode)));
+      return snap.docs.map(d => ({
+        uid: d.id, name: d.data().displayLabel || "Student",
+        grade: d.data().grade || "", xp: d.data().xp || 0,
+        level: d.data().level || 1, wins: d.data().wins || 0,
+        problemsSolved: d.data().problemsSolved || 0,
+        avatar: d.data().avatar || (d.data().displayLabel || "S")[0].toUpperCase()
+      }));
+    } catch (e) {
+      console.log("fetchClassRoster error:", e.message);
+      return [];
+    }
   };
 
   // Persists the Stripe plan key after checkout so it survives refresh/re-login.
