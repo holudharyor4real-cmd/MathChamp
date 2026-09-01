@@ -62,5 +62,42 @@ service cloud.firestore {
     match /battles/{battleId} {
       allow read, write: if signedIn();
     }
+
+    // Classroom code -> teacher lookup, plus the current Class Session
+    // (same question set, same grade band, everyone in the class answers
+    // independently at their own pace — see class_scores below for
+    // results). Any signed-in user can read; only the owning teacher can
+    // create/update it (e.g. to start/end a session); never deleted.
+    match /classrooms/{classCode} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.teacherUid == request.auth.uid;
+      allow update: if signedIn() && resource.data.teacherUid == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // Per-student results for the CURRENT class session only (overwritten
+    // each time a new session starts) — a student can only write their
+    // own doc; the teacher and classmates can read all of them to build
+    // the session leaderboard.
+    match /classrooms/{classCode}/scores/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Per-topic mastery ("where does this student need help") — the
+    // most sensitive student data in this app, so it gets the strictest
+    // rule here: readable ONLY by the student themselves or by the
+    // teacher of record for the classCode on the doc (one extra lookup
+    // to confirm that teacher actually owns that class) — never by
+    // classmates, unlike public_profiles/leaderboard data. A student can
+    // only write their own doc.
+    match /topic_stats/{uid} {
+      allow read: if signedIn() && (
+        request.auth.uid == uid ||
+        (resource.data.classCode != null &&
+         get(/databases/$(database)/documents/classrooms/$(resource.data.classCode)).data.teacherUid == request.auth.uid)
+      );
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
   }
 }

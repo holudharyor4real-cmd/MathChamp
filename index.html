@@ -1186,6 +1186,20 @@ body{
 .ach-name{font-size:14px;font-weight:800;}
 .ach-desc{font-size:12px;color:var(--text2);margin-top:2px;}
 
+/* ── AVATAR PICKER ── */
+.avatar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px;}
+.avatar-pick{
+  background:rgba(255,255,255,0.04);border:2px solid var(--border);border-radius:16px;
+  padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;
+}
+.avatar-pick:hover{border-color:var(--sun);background:rgba(255,217,61,0.08);transform:translateY(-2px);}
+.avatar-pick-emoji{font-size:32px;line-height:1;margin-bottom:6px;}
+.avatar-pick-name{font-size:12px;font-weight:800;}
+.avatar-pick-req{font-size:10px;color:var(--text2);margin-top:2px;}
+.avatar-locked{cursor:default;opacity:0.55;}
+.avatar-locked:hover{border-color:var(--border);background:rgba(255,255,255,0.04);transform:none;}
+.avatar-selected{border-color:var(--mint);background:rgba(6,214,160,0.1);box-shadow:0 0 0 2px rgba(6,214,160,0.3);}
+
 /* ════════════════════════════════
    LANDING PAGE SECTIONS
    ════════════════════════════════ */
@@ -1786,6 +1800,7 @@ body{
     <div class="tab-row">
       <button class="tab-btn on" id="tab-s-btn" onclick="switchTab('student',this)">🎮 Student</button>
       <button class="tab-btn" id="tab-p-btn" onclick="switchTab('parent',this)">👨‍👩‍👧 Parent</button>
+      <button class="tab-btn" id="tab-t-btn" onclick="switchTab('teacher',this)">🏫 Teacher</button>
     </div>
 
     <div id="tab-student">
@@ -1886,6 +1901,37 @@ body{
       </div>
       <button class="btn btn-mint" style="width:100%" onclick="submitParentSignup()">✅ Create Parent Account</button>
     </div>
+
+    <div id="tab-teacher" style="display:none">
+      <div class="modal-title">Teacher / Classroom Account 🏫</div>
+      <div class="modal-sub">Get a class code, then track your whole class's progress</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-input" type="text" id="t-fn" placeholder="Jordan">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-input" type="text" id="t-ln" placeholder="Rivera">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">School Name (optional)</label>
+        <input class="form-input" type="text" id="t-school" placeholder="Lincoln Elementary">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="t-email" placeholder="teacher@school.edu">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Create Password</label>
+        <input class="form-input" type="password" id="t-password" placeholder="Minimum 6 characters">
+      </div>
+      <div class="consent">
+        <strong>🏫 For educators.</strong> You'll get a Class Code to share with students — they enter it once from their Profile page to join your class. You'll see aggregate class progress (names, grade, XP, wins) — never emails, passwords, or other private account details.
+      </div>
+      <button class="btn btn-coral" style="width:100%" onclick="submitTeacherSignup()">🏫 Create Teacher Account</button>
+    </div>
     <button class="mob-item" onclick="logout()" style="color:var(--coral)">
       <span class="mob-icon">🚪</span>Exit
     </button>
@@ -1942,6 +1988,7 @@ body{
     <div class="tab-row" style="margin-bottom:20px">
       <button class="tab-btn on" id="login-tab-s-btn" onclick="switchLoginTab('student',this)">🎮 Student</button>
       <button class="tab-btn" id="login-tab-p-btn" onclick="switchLoginTab('parent',this)">👨‍👩‍👧 Parent</button>
+      <button class="tab-btn" id="login-tab-t-btn" onclick="switchLoginTab('teacher',this)">🏫 Teacher</button>
     </div>
 
     <!-- Student Login -->
@@ -2000,11 +2047,33 @@ body{
       </div>
     </div>
 
+    <!-- Teacher Login -->
+    <div id="login-tab-teacher" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Your Email</label>
+        <input class="form-input" type="email" id="l-teacher-email" placeholder="Email used during signup">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="l-teacher-password" placeholder="Your password">
+      </div>
+      <button class="btn btn-coral" style="width:100%;margin-bottom:8px" onclick="loginTeacher()">
+        🏫 Go to Teacher Dashboard
+      </button>
+      <div style="text-align:center;margin-bottom:12px">
+        <button onclick="forgotPassword('teacher')" style="background:none;border:none;color:var(--sky);font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline">
+          🔑 Forgot your password?
+        </button>
+      </div>
+    </div>
+
     <div style="text-align:center;font-size:13px;color:var(--text2)">
       New here?
       <button onclick="closeLoginModal();openModal('student')" style="background:none;border:none;color:var(--mint);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create free student account</button>
       &nbsp;|&nbsp;
       <button onclick="closeLoginModal();openModal('parent')" style="background:none;border:none;color:var(--sky);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create parent account</button>
+      &nbsp;|&nbsp;
+      <button onclick="closeLoginModal();openModal('teacher')" style="background:none;border:none;color:var(--coral);font-weight:800;cursor:pointer;font-size:13px;padding:0">Create teacher account</button>
     </div>
   </div>
 </div>
@@ -2063,6 +2132,9 @@ body{
     <button class="nav-item" id="nav-parent-dash" onclick="goPage('parentdash',this)" style="display:none">
       <span class="nav-icon">👨‍👩‍👧</span> Parent Dashboard
     </button>
+    <button class="nav-item" id="nav-teacher-dash" onclick="goPage('teacherdash',this)" style="display:none">
+      <span class="nav-icon">🏫</span> Teacher Dashboard
+    </button>
 
     <div class="sb-user">
       <div class="sb-avatar" id="sb-avatar">A</div>
@@ -2086,6 +2158,18 @@ body{
     <div class="page on" id="p-home">
       <div class="page-title" id="home-greet">Welcome to MathCrown! 🎉</div>
       <div class="page-sub" id="home-sub">Complete your first trivia to start earning XP and MathCoins! 🚀</div>
+
+      <!-- Class Session banner (shown only while your teacher has one live) -->
+      <div class="card" id="class-session-banner" style="display:none;margin-bottom:20px;background:linear-gradient(135deg,rgba(6,214,160,0.15),rgba(78,205,196,0.08));border:1.5px solid rgba(6,214,160,0.35);cursor:pointer" onclick="openClassSession()">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="font-size:36px">🎯</div>
+          <div style="flex:1">
+            <div style="font-weight:800;font-size:16px">Your teacher started a Class Session!</div>
+            <div style="font-size:12px;color:var(--text2)">Tap to join — same questions as your classmates, see who scores highest.</div>
+          </div>
+          <button class="btn btn-mint btn-sm" style="color:var(--dark)">Join Now →</button>
+        </div>
+      </div>
 
       <!-- Kingdom Map (Junior League / K-5 only) -->
       <div class="card tier-k5-only" id="k5-kingdom-card" style="margin-bottom:20px;padding:0;overflow:hidden;border:2px solid rgba(255,201,60,0.4)">
@@ -2562,6 +2646,42 @@ body{
         </div>
       </div>
 
+      <!-- Piggy Bank Vault (Junior League only) -->
+      <div class="card tier-k5-only" id="k5-piggybank-card" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(255,201,60,0.10),rgba(255,107,107,0.06));border:1.5px solid rgba(255,201,60,0.3)">
+        <div style="font-family:'Fredoka One',cursive;font-size:18px;margin-bottom:6px">🐷 Piggy Bank</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Lock away MathCoins and earn bonus interest when you wait — just like a real savings account!</div>
+        <div id="piggybank-empty">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Coins to lock</label>
+              <input class="form-input" type="number" id="piggybank-amount" min="10" style="max-width:140px" placeholder="e.g. 100">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Term</label>
+              <select class="form-select" id="piggybank-term" style="max-width:220px">
+                <option value="1">1 day — +10% bonus</option>
+                <option value="3" selected>3 days — +25% bonus</option>
+                <option value="7">7 days — +60% bonus</option>
+              </select>
+            </div>
+            <button class="btn btn-sun btn-sm" onclick="lockPiggyBank()">🔒 Lock it in!</button>
+          </div>
+        </div>
+        <div id="piggybank-active" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div>
+              <div style="font-size:12px;color:var(--text2)">Locked away</div>
+              <div style="font-size:24px;font-weight:900;color:var(--sun)" id="piggybank-amount-display">0 🪙</div>
+              <div style="font-size:12px;color:var(--text2)" id="piggybank-status">—</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-mint btn-sm" id="piggybank-claim-btn" onclick="claimPiggyBank()" style="display:none">🎉 Claim + Bonus!</button>
+              <button class="btn btn-ghost btn-xs" onclick="withdrawPiggyBankEarly()">Withdraw early (no bonus)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Coin earning guide -->
       <div class="card" style="margin-bottom:20px">
         <div class="sec-title" style="margin-bottom:14px">🪙 How to Earn MathCoins</div>
@@ -2599,7 +2719,25 @@ body{
         </div>
       </div>
 
-      <div class="g2">
+      <div class="card" style="margin-top:20px" id="join-class-card">
+        <div class="sec-title" style="margin-bottom:6px">🏫 My Class</div>
+        <div id="join-class-form">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Ask your teacher for their Class Code to join.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input class="form-input" id="join-class-code" placeholder="6-digit class code" style="max-width:220px;text-transform:uppercase" maxlength="6">
+            <button class="btn btn-coral btn-sm" onclick="joinClass()">Join Class</button>
+          </div>
+        </div>
+        <div id="join-class-joined" style="display:none;font-size:14px;font-weight:800;color:var(--mint)"></div>
+      </div>
+
+      <div class="card" style="margin-top:20px">
+        <div class="sec-title" style="margin-bottom:6px">🎭 Choose Your Avatar</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Earn MathCoins, win duels, and solve problems to unlock more!</div>
+        <div class="avatar-grid" id="avatar-picker"></div>
+      </div>
+
+      <div class="g2" style="margin-top:20px">
         <div class="card">
           <div class="sec-title" style="margin-bottom:14px">📈 All-Time Stats</div>
           <div id="all-stats"></div>
@@ -2712,6 +2850,102 @@ body{
       </div>
     </div>
 
+    <!-- ════ TEACHER DASHBOARD ════ -->
+    <div class="page" id="p-teacherdash">
+      <div class="page-title">🏫 Teacher Dashboard</div>
+      <div class="page-sub">Track your whole class's progress in one place</div>
+
+      <div class="parent-hero">
+        <div class="parent-avatar" id="t-dash-avatar">T</div>
+        <div style="flex:1">
+          <div style="font-size:20px;font-weight:800;margin-bottom:4px" id="t-dash-name">Teacher Account</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px" id="t-dash-school">School: Not set</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span class="badge b-mint">🔒 No emails or passwords shared</span>
+            <span class="badge b-sun" id="t-dash-students-badge">0 Students Joined</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;background:rgba(61,139,255,0.08);border:1.5px solid rgba(61,139,255,0.25)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+          <div>
+            <div style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">Your Class Code</div>
+            <div style="font-size:32px;font-weight:900;letter-spacing:4px;color:var(--sun)" id="t-dash-classcode">------</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">Students enter this once from their Profile page → "Join a Class"</div>
+          </div>
+          <button class="btn btn-sun btn-sm" onclick="copyClassCode()">📋 Copy Code</button>
+        </div>
+      </div>
+
+      <!-- Class Session: same question set for everyone, own pace, shared leaderboard -->
+      <div class="card" style="margin-top:20px;background:rgba(6,214,160,0.08);border:1.5px solid rgba(6,214,160,0.25)">
+        <div class="sec-title" style="margin-bottom:6px">🎯 Class Session</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Give your whole class the same set of questions right now — a quick warm-up, review, or class-break challenge. Everyone answers at their own pace; the leaderboard shows who's leading.</div>
+
+        <div id="session-setup">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Grade Level</label>
+              <select class="form-select" id="session-grade" style="max-width:180px">
+                <option value="3">K-5 (easier)</option>
+                <option value="7">6-8 (medium)</option>
+                <option value="10">9-12 (harder)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Questions</label>
+              <select class="form-select" id="session-count" style="max-width:120px">
+                <option value="5">5</option>
+                <option value="8" selected>8</option>
+                <option value="12">12</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Time Limit</label>
+              <select class="form-select" id="session-duration" style="max-width:160px">
+                <option value="5">5 minutes</option>
+                <option value="10" selected>10 minutes</option>
+                <option value="15">15 minutes</option>
+              </select>
+            </div>
+            <button class="btn btn-mint btn-sm" style="color:var(--dark)" onclick="teacherStartSession()">▶️ Start Session</button>
+          </div>
+        </div>
+
+        <div id="session-active" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+            <div style="font-size:14px;font-weight:800;color:var(--mint)" id="session-status-text">Session live!</div>
+            <button class="btn btn-ghost btn-xs" onclick="teacherEndSession()">⏹ End Session</button>
+          </div>
+          <div id="session-leaderboard"></div>
+        </div>
+      </div>
+
+      <div class="g4" style="margin:20px 0">
+        <div class="card card-sun"><div class="stat-card"><div class="stat-icon" style="background:rgba(255,217,61,0.15)">👥</div><div><div class="stat-num" id="t-stat-count" style="color:var(--sun)">0</div><div class="stat-lbl">Students</div></div></div></div>
+        <div class="card card-mint"><div class="stat-card"><div class="stat-icon" style="background:rgba(6,214,160,0.15)">⭐</div><div><div class="stat-num" id="t-stat-xp" style="color:var(--mint)">0</div><div class="stat-lbl">Avg. XP</div></div></div></div>
+        <div class="card card-coral"><div class="stat-card"><div class="stat-icon" style="background:rgba(255,107,107,0.15)">🏆</div><div><div class="stat-num" id="t-stat-wins" style="color:var(--coral)">0</div><div class="stat-lbl">Total Duel Wins</div></div></div></div>
+        <div class="card card-sky"><div class="stat-card"><div class="stat-icon" style="background:rgba(78,205,196,0.15)">🧮</div><div><div class="stat-num" id="t-stat-problems" style="color:var(--sky)">0</div><div class="stat-lbl">Problems Solved</div></div></div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;background:rgba(255,107,107,0.06);border:1.5px solid rgba(255,107,107,0.2)">
+        <div class="sec-title" style="margin-bottom:6px">🎯 Where Your Class Needs Help</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">The topics with the lowest accuracy across your whole class (needs at least 5 attempts total to show up here — private to you, never shown to students' classmates).</div>
+        <div id="t-weak-topics">
+          <div style="padding:10px;text-align:center;color:var(--text2)">No data yet.</div>
+        </div>
+      </div>
+
+      <div class="sec-head">
+        <div class="sec-title">📋 Class Roster</div>
+        <button class="btn btn-ghost btn-xs" onclick="renderTeacherDash()">🔄 Refresh</button>
+      </div>
+      <div id="t-roster-list">
+        <!-- Populated by renderTeacherDash() -->
+      </div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /s-app -->
 
@@ -2745,7 +2979,7 @@ window.MATHCHAMP_LOADED = true;
 // ── STATE ──────────────────────────────────────────────
 var S = {
   name:"", grade:"", gradeNum:0,
-  xp:0, level:1, streak:0, coins:0, wins:0,
+  xp:0, level:1, streak:0, coins:0, wins:0, problemsSolved:0, avatarId:"", classCode:"", vault:null, topicStats:{},
   isPreview:false, triviaMode:"trivia",
   plan:"free", linkCode:""
 };
@@ -2780,6 +3014,7 @@ function axiomRemaining(){
   return Math.max(0, AXIOM_FREE_DAILY - axiomUsedToday());
 }
 var PARENT = { name:"", email:"", plan:"Free", isLoggedIn:false, children:[] };
+var TEACHER = { name:"", email:"", school:"", classCode:"", isLoggedIn:false };
 
 // PARENT.plan holds either the display default "Free" or a raw Stripe
 // plan key ("premium"/"family"/"max") once a subscription is granted —
@@ -2948,6 +3183,94 @@ var ACHIEVEMENTS_DATA = [
   {n:"Giant Slayer", d:"Beat a Diamond tier player",  i:"G",  bg:"rgba(255,107,107,0.15)", unlocked:false},
   {n:"Math Scholar", d:"Complete 500 questions",      i:"M",  bg:"rgba(155,93,229,0.15)",  unlocked:false}
 ];
+
+// ── AVATAR CATALOG ──────────────────────────────────────
+// Selectable profile avatars — no photo uploads needed. Some are free
+// from the start; others unlock by earning MathCoins, winning duels, or
+// solving problems, so leveling up has a visible, collectible payoff.
+// Shared across every grade tier (K-5 today; 6-8/9-12 reuse the same
+// picker once those dashboards exist).
+var AVATAR_CATALOG = [
+  {id:"fox",     emoji:"🦊", name:"Fox",       req:{type:"free"}},
+  {id:"cat",     emoji:"🐱", name:"Cat",       req:{type:"free"}},
+  {id:"owl",     emoji:"🦉", name:"Owl",       req:{type:"free"}},
+  {id:"robot",   emoji:"🤖", name:"Robot",     req:{type:"free"}},
+  {id:"panda",   emoji:"🐼", name:"Panda",     req:{type:"coins", value:150}},
+  {id:"knight",  emoji:"🛡️", name:"Knight",    req:{type:"coins", value:300}},
+  {id:"wizard",  emoji:"🧙", name:"Wizard",    req:{type:"problems", value:100}},
+  {id:"ninja",   emoji:"🥷", name:"Ninja",     req:{type:"wins", value:5}},
+  {id:"dragon",  emoji:"🐉", name:"Dragon",    req:{type:"coins", value:800}},
+  {id:"unicorn", emoji:"🦄", name:"Unicorn",   req:{type:"problems", value:300}},
+  {id:"champion",emoji:"🏆", name:"Champion",  req:{type:"wins", value:15}},
+  {id:"diamond", emoji:"💎", name:"Diamond",   req:{type:"coins", value:2000}}
+];
+
+function avatarUnlocked(av){
+  if(!av || !av.req) return false;
+  switch(av.req.type){
+    case "free":     return true;
+    case "coins":    return (S.coins||0) >= av.req.value;
+    case "wins":     return (S.wins||0) >= av.req.value;
+    case "problems": return (S.problemsSolved||0) >= av.req.value;
+    default:         return false;
+  }
+}
+
+function avatarReqLabel(av){
+  switch(av.req.type){
+    case "coins":    return av.req.value+" 🪙 MathCoins";
+    case "wins":     return av.req.value+" duel wins";
+    case "problems": return av.req.value+" problems solved";
+    default:         return "";
+  }
+}
+
+// The glyph to show for "me" anywhere an avatar circle appears — the
+// chosen (and still-unlocked) avatar's emoji, or the first-letter
+// fallback used before anyone has picked one / after re-locking is
+// impossible (avatars never re-lock, but a corrupted save could point
+// at an unknown id).
+function myAvatarGlyph(){
+  if(S.avatarId){
+    var av=AVATAR_CATALOG.find(function(a){ return a.id===S.avatarId; });
+    if(av && avatarUnlocked(av)) return av.emoji;
+  }
+  return (S.name||"?")[0].toUpperCase();
+}
+
+function applyAvatarEverywhere(){
+  var glyph=myAvatarGlyph();
+  ["sb-avatar","prof-ava","b-my-ava","k5-avatar"].forEach(function(id){
+    var e=$$(id); if(e) e.textContent=glyph;
+  });
+}
+
+function selectAvatar(id){
+  var av=AVATAR_CATALOG.find(function(a){ return a.id===id; });
+  if(!av || !avatarUnlocked(av)){ showToast("🔒 Keep playing to unlock this avatar!"); return; }
+  S.avatarId=id;
+  applyAvatarEverywhere();
+  saveSession();
+  renderAvatarPicker();
+  showToast(av.emoji+" Avatar equipped: "+av.name+"!");
+}
+
+function renderAvatarPicker(){
+  var grid=$$("avatar-picker"); if(!grid) return;
+  var html="";
+  AVATAR_CATALOG.forEach(function(av){
+    var unlocked=avatarUnlocked(av);
+    var selected=S.avatarId===av.id;
+    html+="<div class='avatar-pick"+(unlocked?"":" avatar-locked")+(selected?" avatar-selected":"")+"' "
+      +(unlocked?"onclick=\"selectAvatar('"+av.id+"')\"":"")+" title=\""+(unlocked?av.name:av.name+" — needs "+avatarReqLabel(av))+"\">"
+      +"<div class='avatar-pick-emoji'>"+(unlocked?av.emoji:"🔒")+"</div>"
+      +"<div class='avatar-pick-name'>"+av.name+"</div>"
+      +(unlocked?"":"<div class='avatar-pick-req'>"+avatarReqLabel(av)+"</div>")
+      +"</div>";
+  });
+  grid.innerHTML=html;
+  if(S.tier==="k5") checkPrintableUnlocks();
+}
 
 var FUN_FACTS = [
   "A googol is 1 followed by 100 zeros!",
@@ -3169,6 +3492,39 @@ function showToast(msg, dur){
   setTimeout(function(){ t.classList.remove("show"); }, dur||2800);
 }
 
+function gradeOrdinal(n){
+  n=parseInt(n)||0;
+  if(n<=0) return "";
+  var s=["th","st","nd","rd"], v=n%100;
+  return n+(s[(v-20)%10]||s[v]||s[0])+" Grade";
+}
+
+// ── PER-TOPIC MASTERY TRACKING (teacher "where does this student need
+// help" view) — recorded on every answer, right or wrong, across trivia,
+// practice, battles, and Class Sessions. Deliberately private: only ever
+// exposed to the student themselves and their own teacher (topic_stats
+// collection, never public_profiles) — see the Firestore rules note.
+function recordTopicAnswer(topic, correct){
+  if(!topic) return;
+  if(!S.topicStats) S.topicStats={};
+  var t=S.topicStats[topic] || (S.topicStats[topic]={correct:0,attempted:0});
+  t.attempted++;
+  if(correct) t.correct++;
+}
+
+// Returns up to `max` topics with the lowest accuracy, requiring at
+// least `minAttempts` tries so a single unlucky guess doesn't brand a
+// topic "weak" — sorted worst-first.
+function getWeakTopics(topicStats, minAttempts, max){
+  minAttempts=minAttempts||3; max=max||3;
+  var rows=Object.keys(topicStats||{}).map(function(topic){
+    var t=topicStats[topic];
+    return {topic:topic, correct:t.correct, attempted:t.attempted, accuracy:t.attempted?t.correct/t.attempted:0};
+  }).filter(function(r){ return r.attempted>=minAttempts; });
+  rows.sort(function(a,b){ return a.accuracy-b.accuracy; });
+  return rows.slice(0,max);
+}
+
 // Privacy-safe label for showing a student to OTHER students/parents:
 // first name + last-initial only, never the full legal name.
 function displayLabel(fullName){
@@ -3260,6 +3616,7 @@ function saveSession(){
     var key = "mc_"+S.name.split(" ")[0].toLowerCase()+"_"+S.gradeNum;
     localStorage.setItem(key, JSON.stringify({
       xp:S.xp, level:S.level, streak:S.streak, coins:S.coins, wins:S.wins||0,
+      problemsSolved:S.problemsSolved||0, avatarId:S.avatarId||"", vault:S.vault||null, topicStats:S.topicStats||{},
       name:S.name, grade:S.grade, gradeNum:S.gradeNum
     }));
   }catch(e){}
@@ -3280,14 +3637,16 @@ function registerPlayer(name, grade){
 function openModal(t){
   var m = $$("signup-modal"); if(!m) return;
   m.classList.add("open");
-  switchTab(t, $$("tab-"+(t==="student"?"s":"p")+"-btn"));
+  var btnLetter = t==="student"?"s":t==="teacher"?"t":"p";
+  switchTab(t, $$("tab-"+btnLetter+"-btn"));
 }
 function closeModal(){ var m=$$("signup-modal"); if(m) m.classList.remove("open"); }
 
 function switchTab(t, btn){
-  var ts=$$("tab-student"), tp=$$("tab-parent");
+  var ts=$$("tab-student"), tp=$$("tab-parent"), tt=$$("tab-teacher");
   if(ts) ts.style.display = t==="student"?"block":"none";
   if(tp) tp.style.display = t==="parent"?"block":"none";
+  if(tt) tt.style.display = t==="teacher"?"block":"none";
   document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("on"); });
   if(btn) btn.classList.add("on");
 }
@@ -3303,6 +3662,9 @@ async function forgotPassword(role){
   if(role==="student"){
     var emailEl=$$("l-email"); email=emailEl?emailEl.value.trim():"";
     if(!email){ email=prompt("Enter your student email address to reset your password:",""); }
+  } else if(role==="teacher"){
+    var emailEl=$$("l-teacher-email"); email=emailEl?emailEl.value.trim():"";
+    if(!email){ email=prompt("Enter your teacher email address to reset your password:",""); }
   } else {
     var emailEl=$$("l-parent-email"); email=emailEl?emailEl.value.trim():"";
     if(!email){ email=prompt("Enter your parent email address to reset your password:",""); }
@@ -3327,17 +3689,18 @@ function closeLinkChildModal(){ var m=$$("link-child-modal"); if(m) m.classList.
 
 // ── NAVIGATION ─────────────────────────────────────────
 function goPage(id, el, mob){
+  if(id!=="teacherdash" && typeof sessionLeaderboardTimer!=="undefined"){ clearInterval(sessionLeaderboardTimer); }
   document.querySelectorAll(".page").forEach(function(p){ p.classList.remove("on"); });
   var pg = $$("p-"+id); if(pg) pg.classList.add("on");
   var navSel = mob ? ".mob-item" : ".nav-item";
   document.querySelectorAll(navSel).forEach(function(n){ n.classList.remove("on"); });
   if(el) el.classList.add("on");
   var renderMap = {
-    room:renderRoom, challenge:renderChallenge,
+    home:renderHome, room:renderRoom, challenge:renderChallenge,
     leaderboard:renderLeaderboard, tournament:renderTournaments,
     wallet:renderWallet, skills:renderSkills,
     profile:renderProfile, tutor:renderTutor,
-    practice:renderPractice, parentdash:renderParentDash
+    practice:renderPractice, parentdash:renderParentDash, teacherdash:renderTeacherDash
   };
   if(renderMap[id]) renderMap[id]();
 }
@@ -3348,7 +3711,7 @@ function enterApp(name, grade, gradeNum, isPreview){
   S.tier = tierFor(gradeNum);
   document.body.setAttribute("data-tier", S.tier);
   applyTierCopy(S.tier);
-  var ava = name[0].toUpperCase();
+  var ava = myAvatarGlyph();
   var setEl = function(id,val){ var e=$$(id); if(e) e.textContent=val; };
   setEl("sb-avatar", ava); setEl("prof-ava", ava);
   setEl("sb-name", name.split(" ")[0]+(name.split(" ")[1]?" "+name.split(" ")[1][0]+".":""));
@@ -3467,9 +3830,10 @@ function showPreviewBanner(){
 }
 
 function switchLoginTab(t, btn){
-  var ts=$$("login-tab-student"), tp=$$("login-tab-parent");
+  var ts=$$("login-tab-student"), tp=$$("login-tab-parent"), tt=$$("login-tab-teacher");
   if(ts) ts.style.display = t==="student"?"block":"none";
   if(tp) tp.style.display = t==="parent"?"block":"none";
+  if(tt) tt.style.display = t==="teacher"?"block":"none";
   document.querySelectorAll("#login-modal .tab-btn").forEach(function(b){ b.classList.remove("on"); });
   if(btn) btn.classList.add("on");
 }
@@ -3533,7 +3897,7 @@ async function loginStudent(){
   if(!gr){ showToast("Please select your grade!"); return; }
   if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
   if(!password){ showToast("Please enter your password!"); return; }
-  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.wins=0;
+  S.xp=0; S.level=1; S.streak=0; S.coins=0; S.wins=0; S.problemsSolved=0; S.avatarId="";
   var loginBtn=document.querySelector("#login-tab-student .btn-sun");
   if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
   if(window.firebaseLogin){
@@ -3543,6 +3907,8 @@ async function loginStudent(){
       if(data){
         S.xp=data.xp||0; S.level=data.level||1;
         S.streak=data.streak||0; S.coins=data.coins||0; S.wins=data.wins||0;
+        S.problemsSolved=data.problemsSolved||0; S.avatarId=data.avatarId||"";
+        S.classCode=data.classCode||""; S.vault=data.vault||null; S.topicStats=data.topicStats||{};
         S.plan=data.plan||"free";
         fn=data.displayName||fn;
         if(data.grade){ gr=String(data.grade); }
@@ -3573,6 +3939,8 @@ async function loginStudent(){
     if(saved){
       var d=JSON.parse(saved);
       S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
+      S.wins=d.wins||0; S.problemsSolved=d.problemsSolved||0; S.avatarId=d.avatarId||"";
+      S.vault=d.vault||null; S.topicStats=d.topicStats||{};
       if(d.gradeNum){ gr=String(d.gradeNum); }
     }
   }catch(e){}
@@ -3590,6 +3958,9 @@ function logout(){
   PARENT.isLoggedIn=false;
   // Hide parent nav
   var parentNav=$$("nav-parent-dash"); if(parentNav) parentNav.style.display="none";
+  // Reset teacher state
+  TEACHER.isLoggedIn=false; TEACHER.classCode="";
+  var teacherNav=$$("nav-teacher-dash"); if(teacherNav) teacherNav.style.display="none";
   // Switch back to landing page
   var app=$$("s-app"); if(app) app.classList.remove("active");
   var land=$$("s-land"); if(land) land.classList.add("active");
@@ -3614,6 +3985,74 @@ function renderHome(){
   renderMiniLB();
   var hc=$$("home-coins"); if(hc) hc.textContent=S.coins.toLocaleString();
   if(S.tier==="k5"){ renderK5Rewards(); renderK5Kingdom(); }
+  if(S.classCode) checkClassSession();
+}
+
+// ── CLASS SESSION (student side): same questions, own pace ──────
+var classSessionCache=null;
+var classSessionState=null;
+
+function checkClassSession(){
+  if(!S.classCode || !window.getClassSession) return;
+  window.getClassSession(S.classCode).then(function(session){
+    classSessionCache=(session && session.active)?session:null;
+    var banner=$$("class-session-banner");
+    if(banner) banner.style.display=classSessionCache?"block":"none";
+  }).catch(function(){});
+}
+
+function openClassSession(){
+  if(!classSessionCache){ showToast("That session just ended — ask your teacher!"); return; }
+  classSessionState={ session:classSessionCache, qIndex:0, score:0 };
+  renderClassSessionModal();
+}
+
+function renderClassSessionModal(){
+  var cs=classSessionState;
+  var old=$$("class-session-modal"); if(old) old.remove();
+  var div=document.createElement("div");
+  div.id="class-session-modal";
+  div.className="modal-overlay open";
+  var qs=cs.session.questions||[];
+
+  if(cs.qIndex>=qs.length){
+    if(window.submitClassSessionScore) window.submitClassSessionScore(S.classCode, cs.session.sessionId, cs.score, qs.length);
+    div.innerHTML="<div class='modal' style='max-width:420px;text-align:center'>"
+      +"<div style='font-size:52px;margin-bottom:8px'>🎉</div>"
+      +"<div style='font-size:20px;font-weight:800;margin-bottom:10px'>You scored "+cs.score+" / "+qs.length+"!</div>"
+      +"<div style='font-size:14px;color:var(--text2);margin-bottom:18px'>Your teacher can see the class leaderboard. Nice work!</div>"
+      +"<button class='btn btn-mint btn-sm' style='color:var(--dark)' onclick=\"document.getElementById('class-session-modal').remove()\">Close</button>"
+      +"</div>";
+    document.body.appendChild(div);
+    var banner=$$("class-session-banner"); if(banner) banner.style.display="none";
+    classSessionCache=null;
+    return;
+  }
+
+  var q=qs[cs.qIndex];
+  var letters=["A","B","C","D"];
+  var optsHtml="";
+  (q.a||[]).forEach(function(ans,i){
+    optsHtml+="<button class='q-opt' onclick='answerClassSessionQ("+i+","+q.c+")'><span class='opt-letter'>"+letters[i]+"</span>"+ans+"</button>";
+  });
+  div.innerHTML="<div class='modal' style='max-width:520px'>"
+    +"<div style='font-size:12px;color:var(--text2);margin-bottom:6px'>🎯 Class Session — Question "+(cs.qIndex+1)+" of "+qs.length+"</div>"
+    +"<div class='q-topic'>"+(q.topic||"Math")+"</div><div class='q-text' style='margin-bottom:14px'>"+q.q+"</div>"
+    +"<div class='q-opts'>"+optsHtml+"</div>"
+    +"</div>";
+  document.body.appendChild(div);
+}
+
+function answerClassSessionQ(sel, correct){
+  var cs=classSessionState; if(!cs) return;
+  var opts=document.querySelectorAll("#class-session-modal .q-opt");
+  opts.forEach(function(o){ o.disabled=true; });
+  var q=cs.session.questions[cs.qIndex];
+  recordTopicAnswer(q && q.topic, sel===correct);
+  if(sel===correct){ cs.score++; if(opts[sel]) opts[sel].classList.add("correct"); }
+  else { if(opts[sel]) opts[sel].classList.add("wrong"); if(opts[correct]) opts[correct].classList.add("correct"); }
+  cs.qIndex++;
+  setTimeout(renderClassSessionModal, 900);
 }
 
 // ── JUNIOR LEAGUE (K-5) REWARDS: Treasure Chest + College Fund Tree ──
@@ -3623,7 +4062,14 @@ var K5_TREE_STAGES = [
   {min:300,  emoji:"🌳", label:"Young Tree"},
   {min:700,  emoji:"🌳✨",label:"Mighty Tree"}
 ];
-var K5_PAPERCRAFT_MILESTONE = 500;
+// Printable artifacts are tied to specific avatar unlocks (not an arbitrary
+// coin milestone) — one per themed avatar, so unlocking a cooler avatar
+// always comes with a matching physical thing to print and show off.
+var PRINTABLE_CATALOG = {
+  knight:   {file:"papercraft-knight-crown.svg",   label:"Papercraft Crown",       emoji:"👑"},
+  dragon:   {file:"papercraft-dragon.svg",         label:"Papercraft Dragon",      emoji:"🐉"},
+  champion: {file:"papercraft-champion-medal.svg", label:"Champion Medal",         emoji:"🏆"}
+};
 
 function renderK5Rewards(){
   var chestEl=$$("k5-chest-coins"); if(chestEl) chestEl.textContent=S.coins.toLocaleString()+" Gold Coins";
@@ -3637,33 +4083,98 @@ function renderK5Rewards(){
   var pct=next?Math.min(100,Math.round((S.coins-stage.min)/span*100)):100;
   var progEl=$$("k5-tree-prog"); if(progEl) progEl.style.width=pct+"%";
 
-  checkK5PapercraftMilestone();
+  checkPrintableUnlocks();
 }
 
-function checkK5PapercraftMilestone(){
+function checkPrintableUnlocks(){
   if(S.tier!=="k5" || S.isPreview || !S.name) return;
-  if(S.coins < K5_PAPERCRAFT_MILESTONE) return;
-  var flagKey="mc_papercraft_"+S.name.split(" ")[0].toLowerCase();
-  try{ if(localStorage.getItem(flagKey)) return; }catch(e){}
-  try{ localStorage.setItem(flagKey,"1"); }catch(e){}
-  showK5PapercraftReward();
+  Object.keys(PRINTABLE_CATALOG).forEach(function(id){
+    var av=AVATAR_CATALOG.find(function(a){ return a.id===id; });
+    if(!av || !avatarUnlocked(av)) return;
+    var flagKey="mc_printable_"+id+"_"+S.name.split(" ")[0].toLowerCase();
+    try{ if(localStorage.getItem(flagKey)) return; }catch(e){}
+    try{ localStorage.setItem(flagKey,"1"); }catch(e){}
+    showPrintableReward(PRINTABLE_CATALOG[id], av);
+  });
 }
 
-function showK5PapercraftReward(){
-  var m=$$("k5-papercraft-modal");
-  if(m){ m.classList.add("open"); return; }
+function showPrintableReward(printable, av){
+  var old=$$("k5-papercraft-modal"); if(old) old.remove();
   var div=document.createElement("div");
   div.id="k5-papercraft-modal";
   div.className="modal-overlay open";
   div.innerHTML =
     '<div class="modal" style="max-width:420px;text-align:center">'+
-      '<div style="font-size:52px;margin-bottom:8px">👑</div>'+
-      '<div style="font-family:\'Fredoka One\',cursive;font-size:20px;margin-bottom:10px">You Unlocked a Papercraft Crown!</div>'+
-      '<div style="font-size:14px;color:var(--text2);margin-bottom:18px">Print, cut, and fold your very own MathCrown knight avatar to display on your desk!</div>'+
-      '<a href="papercraft-knight-crown.svg" download="papercraft-knight-crown.svg" class="btn btn-sun" style="display:inline-block;margin-bottom:10px;text-decoration:none">⬇️ Download Template</a><br>'+
+      '<div style="font-size:52px;margin-bottom:8px">'+printable.emoji+'</div>'+
+      '<div style="font-family:\'Fredoka One\',cursive;font-size:20px;margin-bottom:10px">You Unlocked the '+av.name+' Avatar!</div>'+
+      '<div style="font-size:14px;color:var(--text2);margin-bottom:18px">Print, cut, and build your very own '+printable.label+' to show off!</div>'+
+      '<a href="'+printable.file+'" download="'+printable.file+'" class="btn btn-sun" style="display:inline-block;margin-bottom:10px;text-decoration:none">⬇️ Download '+printable.label+'</a><br>'+
       '<button class="btn btn-ghost btn-xs" onclick="document.getElementById(\'k5-papercraft-modal\').classList.remove(\'open\')">Close</button>'+
     '</div>';
   document.body.appendChild(div);
+}
+
+// ── JUNIOR LEAGUE (K-5) PIGGY BANK: delayed-gratification vault ──
+var PIGGY_BANK_TERMS = { 1:0.10, 3:0.25, 7:0.60 };
+
+function lockPiggyBank(){
+  if(S.vault && S.vault.amount){ showToast("🐷 You already have coins locked away!"); return; }
+  var amtEl=$$("piggybank-amount"), termEl=$$("piggybank-term");
+  var amount=parseInt(amtEl?amtEl.value:0)||0;
+  var days=parseInt(termEl?termEl.value:3)||3;
+  if(amount<10){ showToast("Lock at least 10 coins!"); return; }
+  if(amount>S.coins){ showToast("You don't have that many coins to lock away!"); return; }
+  S.coins-=amount;
+  S.vault={ amount:amount, bonusPct:PIGGY_BANK_TERMS[days]||0.25, lockedAt:Date.now(), unlockAt:Date.now()+days*24*60*60*1000, days:days };
+  saveSession();
+  renderPiggyBank();
+  renderWallet();
+  showToast("🐷 Locked "+amount+" coins for "+days+" day"+(days>1?"s":"")+"! Come back to claim your bonus.");
+}
+
+function claimPiggyBank(){
+  if(!S.vault || !S.vault.amount) return;
+  if(Date.now() < S.vault.unlockAt){ showToast("Not ready yet — keep waiting!"); return; }
+  var bonus=Math.round(S.vault.amount*S.vault.bonusPct);
+  S.coins += S.vault.amount + bonus;
+  showToast("🎉 Piggy Bank matured! +"+S.vault.amount+" coins + "+bonus+" bonus!");
+  S.vault=null;
+  saveSession();
+  renderPiggyBank();
+  renderWallet();
+  renderK5Rewards();
+}
+
+function withdrawPiggyBankEarly(){
+  if(!S.vault || !S.vault.amount) return;
+  S.coins += S.vault.amount;
+  showToast("Withdrew "+S.vault.amount+" coins early — no bonus this time. Waiting pays off!");
+  S.vault=null;
+  saveSession();
+  renderPiggyBank();
+  renderWallet();
+  renderK5Rewards();
+}
+
+function renderPiggyBank(){
+  var empty=$$("piggybank-empty"), active=$$("piggybank-active");
+  if(!empty || !active) return;
+  if(S.vault && S.vault.amount){
+    empty.style.display="none"; active.style.display="block";
+    var ampEl=$$("piggybank-amount-display"); if(ampEl) ampEl.textContent=S.vault.amount.toLocaleString()+" 🪙";
+    var msLeft=S.vault.unlockAt-Date.now();
+    var claimBtn=$$("piggybank-claim-btn"), statusEl=$$("piggybank-status");
+    if(msLeft<=0){
+      if(statusEl) statusEl.textContent="Ready to claim! +"+Math.round(S.vault.amount*S.vault.bonusPct)+" bonus coins waiting 🎉";
+      if(claimBtn) claimBtn.style.display="inline-flex";
+    } else {
+      var daysLeft=Math.ceil(msLeft/(24*60*60*1000));
+      if(statusEl) statusEl.textContent="Unlocks in "+daysLeft+" day"+(daysLeft!==1?"s":"")+" · +"+Math.round(S.vault.bonusPct*100)+"% bonus waiting";
+      if(claimBtn) claimBtn.style.display="none";
+    }
+  } else {
+    empty.style.display="block"; active.style.display="none";
+  }
 }
 
 // ── JUNIOR LEAGUE (K-5): CROWN HOLDER + KINGDOM MAP + CROWN CLASH DUEL ──
@@ -3737,7 +4248,7 @@ function renderK5Kingdom(){
   var av=$$("k5-avatar");
   if(av && !av.dataset.initialized){
     av.dataset.initialized="1";
-    av.textContent=(S.name||"?")[0].toUpperCase();
+    av.textContent=myAvatarGlyph();
     var pos=K5_MAP_NODES[k5AvatarNode]||K5_MAP_NODES.home;
     av.style.left=pos.left+"%"; av.style.top=pos.top+"%";
   }
@@ -3806,7 +4317,7 @@ function startK5CrownClash(name, emoji, bg, winRate, isTitleFight){
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
   var fn=S.name.split(" ")[0]||"You";
   setEl("b-my-name",fn); setEl("b-opp-name",name); setEl("b-my-score","0"); setEl("b-opp-score","0");
-  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=fn[0]; myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
+  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=myAvatarGlyph(); myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
   var oppAva=$$("b-opp-ava"); if(oppAva){ oppAva.textContent=emoji; oppAva.style.background=bg||"linear-gradient(135deg,var(--coral),var(--pink))"; }
   var rEl=$$("b-round"); if(rEl) rEl.textContent = isTitleFight ? "👑 CROWN CLASH — TITLE FIGHT" : "⚔️ CROWN CLASH";
   showToast(isTitleFight ? "👑 Defeat "+name+" to become the new Crown Holder!" : "🐉 "+TIER_COPY.k5.battleIntro, 3400);
@@ -3846,8 +4357,9 @@ function k5AnswerQuestion(sel,correct,btn,bs){
   if(!bs.active) return;
   var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
   opts.forEach(function(o){ o.disabled=true; });
+  recordTopicAnswer(bs.qs[bs.qi] && bs.qs[bs.qi].topic, sel===correct);
   if(sel===correct){
-    btn.classList.add("correct"); bs.myScore++;
+    btn.classList.add("correct"); bs.myScore++; S.problemsSolved=(S.problemsSolved||0)+1;
     var ms=$$("b-my-score"); if(ms) ms.textContent=bs.myScore;
   } else {
     btn.classList.add("wrong");
@@ -4024,7 +4536,8 @@ function answerQ(sel,correct,btn){
   clearInterval(triviaTimer);
   document.querySelectorAll(".q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
-  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; sndCorrect(); showToast("Correct! +10 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
+  recordTopicAnswer(session.qs[session.idx] && session.qs[session.idx].topic, right);
+  if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; S.problemsSolved=(S.problemsSolved||0)+1; sndCorrect(); showToast("Correct! +10 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll(".q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); sndWrong(); showToast("Not quite!"); }
   var q=session.qs[session.idx];
   if(q.explanation){
@@ -4364,7 +4877,7 @@ window.enterRealBattle = function(battleId, role, oppName){
   setEl("b-opp-name", oppName);
   setEl("b-my-score","0"); setEl("b-opp-score","0");
   var myAva=document.getElementById("b-my-ava");
-  if(myAva){ myAva.textContent=myName[0]; myAva.style.background="linear-gradient(135deg,#1C3A6E,#06D6A0)"; }
+  if(myAva){ myAva.textContent=myAvatarGlyph(); myAva.style.background="linear-gradient(135deg,#1C3A6E,#06D6A0)"; }
   var oppAva=document.getElementById("b-opp-ava");
   if(oppAva){ oppAva.textContent=oppName[0]||"?"; oppAva.style.background="linear-gradient(135deg,#FFD93D,#E8B800)"; }
   var wrap=document.getElementById("battle-q-wrap");
@@ -4547,7 +5060,7 @@ async function startBattleWith(name,emoji,bg,winRate){
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
   var fn=S.name.split(" ")[0]||"You";
   setEl("b-my-name",fn); setEl("b-opp-name",name); setEl("b-my-score","0"); setEl("b-opp-score","0");
-  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=fn[0]; myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
+  var myAva=$$("b-my-ava"); if(myAva){ myAva.textContent=myAvatarGlyph(); myAva.style.background="linear-gradient(135deg,var(--purple),var(--sky))"; }
   var oppAva=$$("b-opp-ava"); if(oppAva){ oppAva.textContent=emoji; oppAva.style.background=bg; }
   var wrap=$$("battle-q-wrap"); if(wrap) wrap.innerHTML="<div style='text-align:center;padding:24px'>Loading battle...</div>";
   var aiQs=await genAIQuestions(S.gradeNum,2,"challenge");
@@ -4598,8 +5111,9 @@ function battleAnswer(sel,correct,btn,bs){
   clearInterval(bs.timer);
   var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
   opts.forEach(function(o){ o.disabled=true; });
+  recordTopicAnswer(bs.qs[bs.round] && bs.qs[bs.round].topic, sel===correct);
   if(sel===correct){
-    btn.classList.add("correct"); bs.myScore++;
+    btn.classList.add("correct"); bs.myScore++; S.problemsSolved=(S.problemsSolved||0)+1;
     var speedBonus = timeUsed <= 5 ? " 🚀 Speed Bonus!" : timeUsed <= 10 ? " ⚡ Fast!" : "";
     var ms=$$("b-my-score"); if(ms) ms.textContent=bs.myScore;
     showToast("Correct!"+speedBonus+" +1 point");
@@ -5112,7 +5626,8 @@ function answerPractice(sel,correct,btn){
   clearInterval(practiceTimer);
   document.querySelectorAll("#p-opts .q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
-  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; showToast("Correct! +8 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
+  recordTopicAnswer(practiceSession.qs[practiceSession.idx] && practiceSession.qs[practiceSession.idx].topic, right);
+  if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; S.problemsSolved=(S.problemsSolved||0)+1; showToast("Correct! +8 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll("#p-opts .q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); }
   practiceSession.idx++; setTimeout(renderPracticeQ, right?1800:2400);
 }
@@ -5141,6 +5656,7 @@ function showPracticeResult(){
 // ── WALLET ─────────────────────────────────────────────
 function renderWallet(){
   var wc=$$("wallet-coins"); if(wc) wc.textContent=S.coins.toLocaleString();
+  if(S.tier==="k5") renderPiggyBank();
   var cg=$$("coin-guide");
   if(cg){
     var html="";
@@ -5206,9 +5722,10 @@ function renderProfile(){
   var codeEl=$$("profile-link-code");
   if(codeEl) codeEl.textContent=S.linkCode||"------";
   var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
-  setEl("prof-ava", S.name?S.name[0].toUpperCase():"?");
+  setEl("prof-ava", S.name?myAvatarGlyph():"?");
   setEl("prof-name", S.name||"Sign up to create your profile");
   setEl("prof-grade", S.grade?(S.grade+" - Math Champ"):"Sign up free to get started");
+  if(S.classCode) showJoinedClassUI();
   var pb=$$("prof-badges-row");
   if(pb){
     var tier=S.level>=10?"Diamond":S.level>=7?"Gold":S.level>=4?"Silver":"Beginner";
@@ -5217,7 +5734,8 @@ function renderProfile(){
   var stats=[
     ["Total XP",S.xp.toLocaleString()+" XP"],["Level","Level "+S.level],
     ["Day Streak",S.streak+" days"],["MathCoins",S.coins.toLocaleString()+" coins"],
-    ["Grade",S.grade||"Not set"],["Challenges Won","Play to earn wins!"]
+    ["Grade",S.grade||"Not set"],["Challenges Won",(S.wins||0)+" wins"],
+    ["Problems Solved",(S.problemsSolved||0).toLocaleString()]
   ];
   var allStats=$$("all-stats");
   if(allStats){
@@ -5240,6 +5758,7 @@ function renderProfile(){
     });
     achs.innerHTML=ahtml;
   }
+  renderAvatarPicker();
 }
 
 // ── PARENT DASHBOARD ───────────────────────────────────
@@ -5408,6 +5927,270 @@ async function submitParentSignup(){
     // Synchronous, no setTimeout — see resumePendingCheckoutIfAny() for why.
     openCheckout(planKey);
   }
+}
+
+// ── TEACHER / CLASSROOM ───────────────────────────────────
+async function submitTeacherSignup(){
+  var fn=$$("t-fn")?$$("t-fn").value.trim():"";
+  var ln=$$("t-ln")?$$("t-ln").value.trim():"";
+  var school=$$("t-school")?$$("t-school").value.trim():"";
+  var email=$$("t-email")?$$("t-email").value.trim():"";
+  var password=$$("t-password")?$$("t-password").value:"";
+  var fullName=fn+(ln?" "+ln:"");
+  if(!fn){ showToast("Please enter your first name!"); return; }
+  if(!email||email.indexOf("@")<1){ showToast("Please enter a valid email!"); return; }
+  if(!password||password.length<6){ showToast("Password must be at least 6 characters!"); return; }
+
+  var btn=document.querySelector("#tab-teacher .btn-coral");
+  if(btn){ btn.textContent="Creating account..."; btn.disabled=true; }
+
+  if(!window.firebaseSignUp || !window.createClassroom){
+    showToast("Signup is temporarily unavailable — please try again in a moment.");
+    if(btn){ btn.textContent="🏫 Create Teacher Account"; btn.disabled=false; }
+    return;
+  }
+
+  try{
+    await window.firebaseSignUp(email, password, fullName, "teacher", "");
+    TEACHER.classCode = await window.createClassroom(fullName, school);
+  }catch(e){
+    var code=e.code||"", msg=e.message||"";
+    if(code.indexOf("email-already-in-use")>-1 || msg.indexOf("email-already-in-use")>-1){
+      showToast("That email is already registered. Please log in instead!");
+    } else {
+      var detail=msg.replace("Firebase: ","").split(" (")[0];
+      showToast("Signup error: "+(detail||"please try again"));
+    }
+    if(btn){ btn.textContent="🏫 Create Teacher Account"; btn.disabled=false; }
+    return;
+  }
+
+  TEACHER.name=fullName; TEACHER.email=email; TEACHER.school=school; TEACHER.isLoggedIn=true;
+  if(btn){ btn.textContent="🏫 Create Teacher Account"; btn.disabled=false; }
+  closeModal();
+  var land=$$("s-land"); if(land) land.classList.remove("active");
+  var app=$$("s-app"); if(app) app.classList.add("active");
+  var nav=$$("nav-teacher-dash"); if(nav) nav.style.display="flex";
+  showMobNav(true); showMusicBtn(true); showSfxBtn(true);
+  goPage("teacherdash",$$("nav-teacher-dash"),false);
+  showToast("Class created! Your Class Code is "+TEACHER.classCode+" 🎉",4500);
+}
+
+async function loginTeacher(){
+  var email=$$("l-teacher-email")?$$("l-teacher-email").value.trim():"";
+  var password=$$("l-teacher-password")?$$("l-teacher-password").value:"";
+  if(!email||email.indexOf("@")<1){ showToast("Please enter your email address!"); return; }
+  if(!password){ showToast("Please enter your password!"); return; }
+  var loginBtn=document.querySelector("#login-tab-teacher .btn-coral");
+  if(loginBtn){ loginBtn.textContent="Signing in..."; loginBtn.disabled=true; }
+  if(!window.firebaseLogin){
+    showToast("Login is temporarily unavailable — please try again in a moment.");
+    if(loginBtn){ loginBtn.textContent="🏫 Go to Teacher Dashboard"; loginBtn.disabled=false; }
+    return;
+  }
+  try{
+    await window.firebaseLogin(email, password);
+    var data=await window.loadProgress();
+    TEACHER.name=(data&&data.displayName)||email.split("@")[0];
+    TEACHER.email=email; TEACHER.school=(data&&data.school)||"";
+    TEACHER.classCode=(data&&data.classCode)||"";
+    TEACHER.isLoggedIn=true;
+    if(!TEACHER.classCode && window.createClassroom){
+      TEACHER.classCode=await window.createClassroom(TEACHER.name, TEACHER.school);
+    }
+    var nav=$$("nav-teacher-dash"); if(nav) nav.style.display="flex";
+    closeLoginModal();
+    var land=$$("s-land"); if(land) land.classList.remove("active");
+    var app=$$("s-app"); if(app) app.classList.add("active");
+    showMobNav(true); showMusicBtn(true); showSfxBtn(true);
+    goPage("teacherdash",$$("nav-teacher-dash"),false);
+    showToast("Welcome back, "+TEACHER.name.split(" ")[0]+"!");
+  }catch(e){
+    var msg=e.message||"";
+    if(msg.indexOf("invalid-credential")>-1||msg.indexOf("wrong-password")>-1) showToast("Wrong email or password. Please try again.");
+    else showToast("Login failed: "+msg.replace("Firebase: ","").split(" (")[0]);
+    if(loginBtn){ loginBtn.textContent="🏫 Go to Teacher Dashboard"; loginBtn.disabled=false; }
+  }
+}
+
+async function renderTeacherDash(){
+  var setEl=function(id,v){ var e=$$(id); if(e) e.textContent=v; };
+  setEl("t-dash-avatar", (TEACHER.name||"T")[0].toUpperCase());
+  setEl("t-dash-name", TEACHER.name||"Teacher Account");
+  setEl("t-dash-school", TEACHER.school?("School: "+TEACHER.school):"School: Not set");
+  setEl("t-dash-classcode", TEACHER.classCode||"------");
+
+  var list=$$("t-roster-list");
+  if(!TEACHER.classCode || !window.fetchClassRoster){
+    if(list) list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>No class code yet.</div>";
+    return;
+  }
+  if(list) list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>Loading roster...</div>";
+  var roster=await window.fetchClassRoster(TEACHER.classCode);
+  var topicRows=window.fetchClassTopicStats?await window.fetchClassTopicStats(TEACHER.classCode):[];
+  var topicsByUid={};
+  topicRows.forEach(function(r){ topicsByUid[r.uid]=r.topics; });
+
+  setEl("t-stat-count", roster.length);
+  setEl("t-dash-students-badge", roster.length+" Students Joined");
+  var totalXp=0, totalWins=0, totalProblems=0;
+  roster.forEach(function(s){ totalXp+=s.xp; totalWins+=s.wins; totalProblems+=s.problemsSolved; });
+  setEl("t-stat-xp", roster.length?Math.round(totalXp/roster.length).toLocaleString():"0");
+  setEl("t-stat-wins", totalWins);
+  setEl("t-stat-problems", totalProblems);
+
+  // Class-wide weak topics: merge every student's per-topic tallies into
+  // one combined tally, then find the lowest-accuracy topics overall.
+  var classTopics={};
+  Object.keys(topicsByUid).forEach(function(uid){
+    var t=topicsByUid[uid]||{};
+    Object.keys(t).forEach(function(topic){
+      var c=classTopics[topic]||(classTopics[topic]={correct:0,attempted:0});
+      c.correct+=t[topic].correct||0; c.attempted+=t[topic].attempted||0;
+    });
+  });
+  var weakClassTopics=getWeakTopics(classTopics, 5, 5);
+  var wt=$$("t-weak-topics");
+  if(wt){
+    if(!weakClassTopics.length){
+      wt.innerHTML="<div style='padding:10px;text-align:center;color:var(--text2)'>Not enough answers yet to spot a pattern — check back after some practice!</div>";
+    } else {
+      wt.innerHTML=weakClassTopics.map(function(r){
+        return "<div style='display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)'>"
+          +"<span style='font-size:14px;font-weight:700'>"+r.topic+"</span>"
+          +"<span class='badge b-coral'>"+Math.round(r.accuracy*100)+"% correct ("+r.attempted+" tries)</span></div>";
+      }).join("");
+    }
+  }
+
+  if(list){
+    if(!roster.length){
+      list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>No students have joined yet — share your Class Code above!</div>";
+    } else {
+      roster.sort(function(a,b){ return b.xp-a.xp; });
+      var html="";
+      roster.forEach(function(s){
+        var weak=getWeakTopics(topicsByUid[s.uid]||{}, 3, 1);
+        var weakLine=weak.length
+          ? "<div style='font-size:11px;color:var(--coral);margin-top:2px'>⚠️ Needs help: "+weak[0].topic+"</div>"
+          : "";
+        html+="<div class='lb-row'><div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+s.avatar+"</div>"
+          +"<div class='lb-info'><div class='lb-name'>"+s.name+"</div><div class='lb-grade'>"+(s.grade?gradeOrdinal(s.grade):"")+" · Level "+s.level+"</div>"+weakLine+"</div>"
+          +"<div class='lb-pts-wrap'><div class='lb-pts'>"+s.xp.toLocaleString()+" XP</div>"
+          +"<div style='font-size:11px;color:var(--text2)'>"+s.wins+" wins · "+s.problemsSolved+" solved</div></div></div>";
+      });
+      list.innerHTML=html;
+    }
+  }
+  checkActiveClassSession();
+}
+
+function copyClassCode(){
+  if(!TEACHER.classCode){ showToast("No class code yet."); return; }
+  try{
+    navigator.clipboard.writeText(TEACHER.classCode);
+    showToast("Class code copied: "+TEACHER.classCode);
+  }catch(e){ showToast("Your class code is "+TEACHER.classCode); }
+}
+
+// ── CLASS SESSION (teacher side) ─────────────────────────────
+var CURRENT_CLASS_SESSION=null;
+var sessionLeaderboardTimer=null;
+
+async function checkActiveClassSession(){
+  if(!TEACHER.classCode || !window.getClassSession) return;
+  var session=await window.getClassSession(TEACHER.classCode);
+  if(session && session.active){
+    CURRENT_CLASS_SESSION=session;
+    showSessionActiveUI(session);
+    startSessionLeaderboardPolling();
+  } else {
+    showSessionSetupUI();
+  }
+}
+
+function showSessionActiveUI(session){
+  var setup=$$("session-setup"), active=$$("session-active");
+  if(setup) setup.style.display="none";
+  if(active) active.style.display="block";
+  var statusEl=$$("session-status-text");
+  if(statusEl){
+    var msLeft=session.endsAt-Date.now();
+    statusEl.textContent = msLeft>0
+      ? "Session live! Ends in about "+Math.ceil(msLeft/60000)+" min"
+      : "Session live! (time's up — end it whenever you're ready)";
+  }
+}
+
+function showSessionSetupUI(){
+  var setup=$$("session-setup"), active=$$("session-active");
+  if(setup) setup.style.display="block";
+  if(active) active.style.display="none";
+  clearInterval(sessionLeaderboardTimer);
+  CURRENT_CLASS_SESSION=null;
+}
+
+async function teacherStartSession(){
+  if(!TEACHER.classCode || !window.startClassSession){ showToast("Class Session needs an internet connection — try again in a moment."); return; }
+  var gradeNum=parseInt($$("session-grade")?$$("session-grade").value:7)||7;
+  var count=parseInt($$("session-count")?$$("session-count").value:8)||8;
+  var duration=parseInt($$("session-duration")?$$("session-duration").value:10)||10;
+  var questions=[];
+  for(var i=0;i<count;i++) questions.push(getRandQ(gradeNum));
+  var result=await window.startClassSession(TEACHER.classCode, questions, duration);
+  if(!result.ok){ showToast("❌ "+result.error); return; }
+  CURRENT_CLASS_SESSION={active:true, sessionId:result.sessionId, questions:questions, durationMin:duration, endsAt:Date.now()+duration*60000};
+  showSessionActiveUI(CURRENT_CLASS_SESSION);
+  startSessionLeaderboardPolling();
+  showToast("🎯 Class Session started! Tell your students to open MathCrown now.");
+}
+
+async function teacherEndSession(){
+  if(!TEACHER.classCode || !window.endClassSession) return;
+  await window.endClassSession(TEACHER.classCode);
+  showSessionSetupUI();
+  showToast("Session ended.");
+}
+
+function startSessionLeaderboardPolling(){
+  clearInterval(sessionLeaderboardTimer);
+  refreshSessionLeaderboard();
+  sessionLeaderboardTimer=setInterval(refreshSessionLeaderboard, 4000);
+}
+
+async function refreshSessionLeaderboard(){
+  if(!CURRENT_CLASS_SESSION || !window.fetchClassSessionScores) return;
+  var scores=await window.fetchClassSessionScores(TEACHER.classCode, CURRENT_CLASS_SESSION.sessionId);
+  var el=$$("session-leaderboard"); if(!el) return;
+  if(!scores.length){ el.innerHTML="<div style='padding:14px;text-align:center;color:var(--text2)'>Waiting for students to finish...</div>"; return; }
+  var html="";
+  scores.forEach(function(s,i){
+    var rank=i===0?"1st":i===1?"2nd":i===2?"3rd":"#"+(i+1);
+    html+="<div class='lb-row'><div class='lb-rank'>"+rank+"</div>"
+      +"<div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+(s.avatar||"S")+"</div>"
+      +"<div class='lb-info'><div class='lb-name'>"+s.name+"</div></div>"
+      +"<div class='lb-pts-wrap'><div class='lb-pts'>"+s.score+" / "+s.total+"</div></div></div>";
+  });
+  el.innerHTML=html;
+}
+
+function showJoinedClassUI(teacherName){
+  var form=$$("join-class-form"), joined=$$("join-class-joined");
+  if(form) form.style.display="none";
+  if(joined){ joined.style.display="block"; joined.textContent="✅ You're in "+(teacherName||"your teacher")+"'s class!"; }
+}
+
+async function joinClass(){
+  var input=$$("join-class-code");
+  var code=input?input.value.trim():"";
+  if(!code){ showToast("Enter your teacher's class code first!"); return; }
+  if(!window.joinClassroom){ showToast("Joining a class needs an internet connection — try again in a moment."); return; }
+  var result=await window.joinClassroom(code);
+  if(!result.ok){ showToast("❌ "+result.error); return; }
+  S.classCode=code.trim();
+  showJoinedClassUI(result.teacherName);
+  showToast("🎉 Joined the class!");
+  checkClassSession();
 }
 
 async function joinWaitlist(){
@@ -5701,7 +6484,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
           uid,
           name: window.S ? safeLabel(window.S.name) : "Player",
           grade: window.S ? window.S.gradeNum : 0,
-          avatar: window.S ? (window.S.name||"P")[0].toUpperCase() : "P",
+          avatar: window.myAvatarGlyph ? window.myAvatarGlyph() : (window.S ? (window.S.name||"P")[0].toUpperCase() : "P"),
           status: "online",
           inBattle: false,
           lastSeen: serverTimestamp()
@@ -5966,13 +6749,25 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     if (!user) return;
     if (wins === undefined && window.S) wins = window.S.wins || 0;
     if (grade === undefined && window.S) grade = window.S.gradeNum || "";
-    const upd = { xp, coins, level, streak, wins: wins || 0 };
+    const problemsSolved = window.S ? (window.S.problemsSolved || 0) : 0;
+    const avatarId = window.S ? (window.S.avatarId || "") : "";
+    const vault = window.S ? (window.S.vault || null) : null;
+    const topicStats = window.S ? (window.S.topicStats || {}) : {};
+    const classCode = window.S ? (window.S.classCode || null) : null;
+    const avatarEmoji = window.myAvatarGlyph ? window.myAvatarGlyph() : null;
+    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault, topicStats };
     if (linkCode) upd.linkCode = linkCode;
     await updateDoc(doc(db, "users", user.uid), upd);
     try {
-      await setDoc(doc(db, "public_profiles", user.uid), {
-        xp, level, grade: grade || "", wins: wins || 0,
-        updatedAt: serverTimestamp()
+      const pub = { xp, level, grade: grade || "", wins: wins || 0, problemsSolved, updatedAt: serverTimestamp() };
+      if (avatarEmoji) pub.avatar = avatarEmoji;
+      await setDoc(doc(db, "public_profiles", user.uid), pub, { merge: true });
+    } catch(e) {}
+    // Private, teacher-visible-only mastery data — deliberately NOT in
+    // public_profiles (see the privacy note above recordTopicAnswer()).
+    try {
+      await setDoc(doc(db, "topic_stats", user.uid), {
+        topics: topicStats, classCode: classCode || null, updatedAt: serverTimestamp()
       }, { merge: true });
     } catch(e) {}
   };
@@ -5982,6 +6777,141 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     if (!user) return null;
     const snap = await getDoc(doc(db, "users", user.uid));
     return snap.exists() ? snap.data() : null;
+  };
+
+  // ── CLASSROOMS (Teacher <-> Student linking) ─────────────────
+  // A classroom doc is just a code -> teacher lookup, used so a student can
+  // verify a code is real before tagging their own public_profiles doc with
+  // it. Rosters are read straight off public_profiles (no private data).
+  window.createClassroom = async function(teacherName, school) {
+    const user = auth.currentUser;
+    if (!user) return null;
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    await setDoc(doc(db, "classrooms", code), {
+      teacherUid: user.uid, teacherName: teacherName || "", school: school || "",
+      createdAt: serverTimestamp()
+    });
+    await updateDoc(doc(db, "users", user.uid), { classCode: code });
+    return code;
+  };
+
+  window.joinClassroom = async function(classCode) {
+    const user = auth.currentUser;
+    if (!user) return { ok: false, error: "Not signed in." };
+    classCode = (classCode || "").trim();
+    if (!/^\d{6}$/.test(classCode)) return { ok: false, error: "Class codes are 6 digits." };
+    try {
+      const snap = await getDoc(doc(db, "classrooms", classCode));
+      if (!snap.exists()) return { ok: false, error: "No class found with that code." };
+      await updateDoc(doc(db, "users", user.uid), { classCode });
+      await setDoc(doc(db, "public_profiles", user.uid), { classCode }, { merge: true });
+      await setDoc(doc(db, "topic_stats", user.uid), { classCode, topics: {} }, { merge: true });
+      return { ok: true, teacherName: snap.data().teacherName || "your teacher" };
+    } catch (e) {
+      return { ok: false, error: e.message || "Could not join class." };
+    }
+  };
+
+  window.fetchClassRoster = async function(classCode) {
+    if (!classCode) return [];
+    try {
+      const snap = await getDocs(query(collection(db, "public_profiles"), where("classCode", "==", classCode)));
+      return snap.docs.map(d => ({
+        uid: d.id, name: d.data().displayLabel || "Student",
+        grade: d.data().grade || "", xp: d.data().xp || 0,
+        level: d.data().level || 1, wins: d.data().wins || 0,
+        problemsSolved: d.data().problemsSolved || 0,
+        avatar: d.data().avatar || (d.data().displayLabel || "S")[0].toUpperCase()
+      }));
+    } catch (e) {
+      console.log("fetchClassRoster error:", e.message);
+      return [];
+    }
+  };
+
+  // ── CLASS SESSION: same question set, everyone's own pace ─────
+  // (see the design note in index.html's main script for why this is
+  // NOT a Kahoot-style lockstep game.)
+  window.startClassSession = async function(classCode, questions, durationMin) {
+    const user = auth.currentUser;
+    if (!user) return { ok: false, error: "Not signed in." };
+    const sessionId = String(Date.now());
+    try {
+      await updateDoc(doc(db, "classrooms", classCode), {
+        session: {
+          active: true, sessionId, questions,
+          startedAt: serverTimestamp(),
+          endsAt: Date.now() + (durationMin || 10) * 60000,
+          durationMin: durationMin || 10
+        }
+      });
+      return { ok: true, sessionId };
+    } catch (e) {
+      return { ok: false, error: e.message || "Could not start session." };
+    }
+  };
+
+  window.endClassSession = async function(classCode) {
+    try {
+      await updateDoc(doc(db, "classrooms", classCode), { "session.active": false });
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  };
+
+  window.getClassSession = async function(classCode) {
+    if (!classCode) return null;
+    try {
+      const snap = await getDoc(doc(db, "classrooms", classCode));
+      return snap.exists() ? (snap.data().session || null) : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  window.submitClassSessionScore = async function(classCode, sessionId, score, total) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const name = (window.displayLabel && window.S) ? window.displayLabel(window.S.name) : "Student";
+    const avatar = window.myAvatarGlyph ? window.myAvatarGlyph() : "S";
+    try {
+      await setDoc(doc(db, "classrooms", classCode, "scores", user.uid), {
+        name, avatar, sessionId, score, total,
+        finishedAt: serverTimestamp()
+      });
+    } catch (e) {
+      console.log("submitClassSessionScore error:", e.message);
+    }
+  };
+
+  window.fetchClassSessionScores = async function(classCode, sessionId) {
+    try {
+      const snap = await getDocs(collection(db, "classrooms", classCode, "scores"));
+      return snap.docs
+        .map(d => ({ uid: d.id, ...d.data() }))
+        .filter(s => s.sessionId === sessionId)
+        .sort((a, b) => b.score - a.score);
+    } catch (e) {
+      console.log("fetchClassSessionScores error:", e.message);
+      return [];
+    }
+  };
+
+  // Per-topic mastery for a whole class — teacher-only data (see the
+  // topic_stats security rule: readable by the student themselves or by
+  // the teacher of record for their classCode, nobody else). Returns raw
+  // per-student topic maps; the caller merges in names from the roster
+  // and computes "weakest topics" client-side (see getWeakTopics()).
+  window.fetchClassTopicStats = async function(classCode) {
+    if (!classCode) return [];
+    try {
+      const snap = await getDocs(query(collection(db, "topic_stats"), where("classCode", "==", classCode)));
+      return snap.docs.map(d => ({ uid: d.id, topics: d.data().topics || {} }));
+    } catch (e) {
+      console.log("fetchClassTopicStats error:", e.message);
+      return [];
+    }
   };
 
   // Persists the Stripe plan key after checkout so it survives refresh/re-login.

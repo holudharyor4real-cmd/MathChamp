@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="1100" viewBox="0 0 850 1100" font-family="Verdana, sans-serif">
+  <rect width="850" height="1100" fill="#ffffff"/>
+
+  <text x="425" y="50" text-anchor="middle" font-size="30" font-weight="bold" fill="#1C3A6E">MathCrown — Papercraft Dragon</text>
+  <text x="425" y="80" text-anchor="middle" font-size="16" fill="#555">Print on card stock, cut the solid lines, fold the dashed lines, and glue the tabs.</text>
+
+  <!-- Dragon head (hand puppet style) -->
+  <g transform="translate(175,130)">
+    <path d="M0,120 Q0,20 120,10 Q260,0 300,60 L340,40 L320,90 L500,90 Q520,150 460,180 L460,230 Q300,260 120,230 Q0,220 0,120 Z"
+      fill="#2FD675" stroke="#111" stroke-width="3"/>
+    <circle cx="150" cy="110" r="14" fill="#fff" stroke="#111" stroke-width="2"/>
+    <circle cx="155" cy="110" r="6" fill="#111"/>
+    <polygon points="300,60 340,40 320,90" fill="#FF6B6B" stroke="#111" stroke-width="2"/>
+    <text x="250" y="300" text-anchor="middle" font-size="14" fill="#555">Head + Jaw — cut as one piece, fold along the dashed jaw line to open the mouth</text>
+    <line x1="120" y1="230" x2="460" y2="180" stroke="#111" stroke-width="2" stroke-dasharray="6,4"/>
+  </g>
+
+  <!-- Spikes strip -->
+  <g transform="translate(175,430)">
+    <polygon points="0,40 40,0 80,40 120,0 160,40 200,0 240,40 280,0 320,40 320,60 0,60"
+      fill="#1C9E56" stroke="#111" stroke-width="3"/>
+    <text x="160" y="90" text-anchor="middle" font-size="14" fill="#555">Back Spikes — glue along the ridge of the head/body</text>
+  </g>
+
+  <!-- Wings -->
+  <g transform="translate(120,560)">
+    <path d="M0,120 Q40,20 160,0 Q140,60 190,60 Q160,90 200,100 Q150,110 160,140 Q80,160 0,120 Z"
+      fill="#4ecdc4" stroke="#111" stroke-width="3"/>
+    <text x="100" y="180" text-anchor="middle" font-size="14" fill="#555">Left Wing</text>
+  </g>
+  <g transform="translate(480,560) scale(-1,1)">
+    <path d="M0,120 Q40,20 160,0 Q140,60 190,60 Q160,90 200,100 Q150,110 160,140 Q80,160 0,120 Z"
+      fill="#4ecdc4" stroke="#111" stroke-width="3"/>
+  </g>
+  <text x="680" y="700" text-anchor="middle" font-size="14" fill="#555">Right Wing</text>
+
+  <!-- Body tube -->
+  <g transform="translate(275,780)">
+    <rect x="0" y="0" width="300" height="140" rx="20" fill="#2FD675" stroke="#111" stroke-width="3"/>
+    <line x1="0" y1="0" x2="0" y2="140" stroke="#111" stroke-width="2" stroke-dasharray="6,4"/>
+    <line x1="300" y1="0" x2="300" y2="140" stroke="#111" stroke-width="2" stroke-dasharray="6,4"/>
+    <text x="150" y="80" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">MathCrown Dragon</text>
+    <text x="150" y="180" text-anchor="middle" font-size="14" fill="#555">Body Tube — roll into a cylinder and glue the side tab</text>
+  </g>
+
+  <text x="425" y="990" text-anchor="middle" font-size="14" fill="#555">1. Cut out the head, spikes, wings, and body tube.</text>
+  <text x="425" y="1015" text-anchor="middle" font-size="14" fill="#555">2. Roll the body into a tube and glue the seam; glue the spikes along the top.</text>
+  <text x="425" y="1040" text-anchor="middle" font-size="14" fill="#555">3. Attach the head to one end and both wings to the sides.</text>
+  <text x="425" y="1070" text-anchor="middle" font-size="16" font-weight="bold" fill="#1C3A6E">🐉 Fly proud, Dragon Tamer! 🐉</text>
+</svg>
