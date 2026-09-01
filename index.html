@@ -2691,6 +2691,13 @@ body{
       <!-- Prize Store -->
       <div class="sec-title" style="margin-bottom:14px">🎁 Prize Store (Parent Redeems)</div>
       <div class="prize-grid" id="prize-store"></div>
+      <div style="font-size:11px;color:var(--text2);margin:-6px 0 20px">Redeeming submits a request — we fulfill real gift cards and 529 contributions by hand, so it may take a few days.</div>
+
+      <!-- Real redemption request history (Firestore-backed, not demo data) -->
+      <div id="redemption-history-wrap" style="display:none;margin-bottom:20px">
+        <div class="sec-title" style="margin-bottom:14px">📦 Your Redemption Requests</div>
+        <div class="card" id="redemption-history"></div>
+      </div>
 
       <!-- Earnings history -->
       <div class="sec-title" style="margin-bottom:14px">📜 Recent Earnings</div>
@@ -2982,7 +2989,8 @@ var S = {
   xp:0, level:1, streak:0, coins:0, wins:0, problemsSolved:0, avatarId:"", classCode:"", vault:null, topicStats:{},
   isPreview:false, triviaMode:"trivia",
   plan:"free", linkCode:"",
-  coinCapDate:"", coinCapEarned:0, coinCapNotified:false
+  coinCapDate:"", coinCapEarned:0, coinCapNotified:false,
+  myRedemptions:[]
 };
 
 // ═══ AXIOM ACCESS CONTROL ═══
@@ -3988,7 +3996,7 @@ async function loginStudent(){
 function logout(){
   saveSession();
   // Reset student state
-  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier="";
+  S.name=""; S.grade=""; S.gradeNum=0; S.xp=0; S.level=1; S.streak=0; S.coins=0; S.isPreview=false; S.tier=""; S.myRedemptions=[];
   document.body.removeAttribute("data-tier");
   // Reset parent state
   PARENT.isLoggedIn=false;
@@ -5703,11 +5711,12 @@ function showPracticeResult(){
 // cap bounds how fast a balance can grow.
 function openPrizeStore(){
   if(!isPaidPlan()){ upgradeToPlan("premium"); return; }
-  showToast("🎁 Opening prize store...");
+  var grid=$$("prize-store"); if(grid) grid.scrollIntoView({behavior:"smooth", block:"center"});
+  showToast("🎁 Pick a prize below to send a redemption request!");
 }
 function open529Option(){
   if(!isPaidPlan()){ upgradeToPlan("premium"); return; }
-  showToast("🎓 529 College Savings setup...");
+  showToast("🎓 Pick 'College Savings' in the Prize Store below to request a 529 contribution!");
 }
 function renderWallet(){
   var wc=$$("wallet-coins"); if(wc) wc.textContent=S.coins.toLocaleString();
@@ -5725,23 +5734,15 @@ function renderWallet(){
     });
     cg.innerHTML=html;
   }
-  var ps=$$("prize-store");
-  if(ps){
-    ps.innerHTML="";
-    var paid=isPaidPlan();
-    PRIZES.forEach(function(p){
-      var card=document.createElement("div"); card.className="card prize-card"; card.style.cursor="pointer";
-      if(!paid) card.style.opacity="0.55";
-      var affordable = S.coins >= p.cost;
-      card.setAttribute("data-msg", !paid ? "Upgrade to Premium to unlock prize redemption!" :
-        (affordable ? p.n+" costs "+p.cost+" MathCoins — ask your parent to redeem it!" :
-          p.n+" costs "+p.cost+" MathCoins — you have "+S.coins.toLocaleString()+", keep earning!"));
-      card.addEventListener("click",function(){
-        if(!paid){ upgradeToPlan("premium"); return; }
-        showToast(this.getAttribute("data-msg"));
-      });
-      card.innerHTML="<div class='prize-emo'>"+p.e+"</div><div class='prize-name'>"+p.n+"</div><div class='prize-cost'>"+p.cost+" coins</div><div style='font-size:11px;color:var(--text2);margin-top:2px'>"+p.val+"</div>";
-      ps.appendChild(card);
+  renderPrizeGrid();
+  // Real redemption history — fetched async, then re-render whatever
+  // reads it (the grid shows "already requested", the history card lists
+  // status) once the real data is back.
+  if(window.fetchMyRedemptions){
+    window.fetchMyRedemptions().then(function(reqs){
+      S.myRedemptions=reqs||[];
+      renderPrizeGrid();
+      renderRedemptionHistory();
     });
   }
   var eg=$$("earnings");
@@ -5754,6 +5755,69 @@ function renderWallet(){
     });
     eg.innerHTML=ehtml;
   }
+}
+
+function pendingRedemptionFor(prizeName){
+  return (S.myRedemptions||[]).some(function(r){ return r.prizeName===prizeName && r.status==="pending"; });
+}
+
+function renderPrizeGrid(){
+  var ps=$$("prize-store"); if(!ps) return;
+  ps.innerHTML="";
+  var paid=isPaidPlan();
+  PRIZES.forEach(function(p){
+    var card=document.createElement("div"); card.className="card prize-card";
+    var pending=pendingRedemptionFor(p.n);
+    var affordable=S.coins>=p.cost;
+    var locked = !paid || pending;
+    card.style.cursor=locked?"default":"pointer";
+    if(locked) card.style.opacity="0.55";
+    var msg = !paid ? "Upgrade to Premium to unlock prize redemption!" :
+      pending ? p.n+" — request already sent, waiting on fulfillment!" :
+      (affordable ? "" : p.n+" costs "+p.cost+" MathCoins — you have "+S.coins.toLocaleString()+", keep earning!");
+    card.addEventListener("click",function(){
+      if(!paid){ upgradeToPlan("premium"); return; }
+      if(pending || !affordable){ showToast(msg); return; }
+      submitRedemption(p);
+    });
+    card.innerHTML="<div class='prize-emo'>"+p.e+"</div><div class='prize-name'>"+p.n+"</div><div class='prize-cost'>"+p.cost+" coins</div><div style='font-size:11px;color:var(--text2);margin-top:2px'>"+(pending?"⏳ Requested":p.val)+"</div>";
+    ps.appendChild(card);
+  });
+}
+
+// Coins are NOT deducted here — see the requestRedemption() comment in
+// the Firebase module script: they're deducted by hand, alongside
+// actually sending the card/contribution, when the request is fulfilled.
+function submitRedemption(prize){
+  if(!window.requestRedemption){ showToast("Redemption isn't available right now — try again soon."); return; }
+  showToast("Sending request...");
+  window.requestRedemption(prize).then(function(res){
+    if(res.ok){
+      S.myRedemptions=S.myRedemptions||[];
+      S.myRedemptions.unshift({id:res.id, prizeName:prize.n, prizeCost:prize.cost, prizeValue:prize.val, status:"pending", requestedAt:{seconds:Math.floor(Date.now()/1000)}});
+      renderPrizeGrid();
+      renderRedemptionHistory();
+      showToast("🎁 Request sent! "+prize.n+" will be fulfilled soon.");
+    } else {
+      showToast("Couldn't submit request: "+(res.error||"please try again"));
+    }
+  });
+}
+
+function renderRedemptionHistory(){
+  var wrap=$$("redemption-history-wrap"), box=$$("redemption-history");
+  if(!wrap||!box) return;
+  var list=S.myRedemptions||[];
+  if(!list.length){ wrap.style.display="none"; return; }
+  wrap.style.display="block";
+  var STATUS_LABEL={pending:"⏳ Pending",fulfilled:"✅ Fulfilled",denied:"❌ Denied"};
+  var STATUS_COLOR={pending:"var(--sun)",fulfilled:"var(--mint)",denied:"var(--coral)"};
+  box.innerHTML=list.map(function(r){
+    var d=(r.requestedAt&&r.requestedAt.seconds)?new Date(r.requestedAt.seconds*1000).toLocaleDateString():"";
+    return "<div class='earn-row'><div style='flex:1'><div style='font-size:14px;font-weight:800'>"+r.prizeName+"</div>"
+      +"<div style='font-size:12px;color:var(--text2)'>"+r.prizeCost+" coins · "+d+"</div></div>"
+      +"<div style='font-size:13px;font-weight:800;color:"+(STATUS_COLOR[r.status]||"var(--text2)")+"'>"+(STATUS_LABEL[r.status]||r.status)+"</div></div>";
+  }).join("");
 }
 
 // ── SKILLS ─────────────────────────────────────────────
@@ -6989,6 +7053,46 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     const user = auth.currentUser;
     if (!user) return;
     await updateDoc(doc(db, "users", user.uid), { plan: planKey });
+  };
+
+  // ── PRIZE REDEMPTION REQUESTS ─────────────────────────────────
+  // Logs a real request instead of pretending to fulfill one — see the
+  // openPrizeStore()/submitRedemption() comment in the main script for
+  // why this stays a manually-fulfilled queue rather than an automated
+  // payout for now. Coins are deducted only when the request is marked
+  // fulfilled (done by hand in the Firebase Console, alongside actually
+  // sending the card/contribution) — never at request time — so a
+  // denied or abandoned request never needs a refund.
+  window.requestRedemption = async function(prize) {
+    const user = auth.currentUser;
+    if (!user) return { ok: false, error: "Not signed in." };
+    try {
+      const ref = await addDoc(collection(db, "redemption_requests"), {
+        uid: user.uid,
+        name: (window.S && window.S.name) || "",
+        email: (window.S && window.S.email) || "",
+        grade: (window.S && window.S.gradeNum) || "",
+        prizeName: prize.n, prizeCost: prize.cost, prizeValue: prize.val,
+        status: "pending",
+        requestedAt: serverTimestamp()
+      });
+      return { ok: true, id: ref.id };
+    } catch (e) {
+      return { ok: false, error: e.message || "Could not submit request." };
+    }
+  };
+
+  window.fetchMyRedemptions = async function() {
+    const user = auth.currentUser;
+    if (!user) return [];
+    try {
+      const snap = await getDocs(query(collection(db, "redemption_requests"), where("uid", "==", user.uid)));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.requestedAt?.seconds || 0) - (a.requestedAt?.seconds || 0));
+    } catch (e) {
+      console.log("fetchMyRedemptions error:", e.message);
+      return [];
+    }
   };
 
   window.startLeaderboard = function(callback) {
