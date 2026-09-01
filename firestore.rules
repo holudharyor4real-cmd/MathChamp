@@ -83,5 +83,21 @@ service cloud.firestore {
       allow read: if signedIn();
       allow write: if signedIn() && request.auth.uid == uid;
     }
+
+    // Per-topic mastery ("where does this student need help") — the
+    // most sensitive student data in this app, so it gets the strictest
+    // rule here: readable ONLY by the student themselves or by the
+    // teacher of record for the classCode on the doc (one extra lookup
+    // to confirm that teacher actually owns that class) — never by
+    // classmates, unlike public_profiles/leaderboard data. A student can
+    // only write their own doc.
+    match /topic_stats/{uid} {
+      allow read: if signedIn() && (
+        request.auth.uid == uid ||
+        (resource.data.classCode != null &&
+         get(/databases/$(database)/documents/classrooms/$(resource.data.classCode)).data.teacherUid == request.auth.uid)
+      );
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
   }
 }

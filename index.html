@@ -2929,6 +2929,14 @@ body{
         <div class="card card-sky"><div class="stat-card"><div class="stat-icon" style="background:rgba(78,205,196,0.15)">🧮</div><div><div class="stat-num" id="t-stat-problems" style="color:var(--sky)">0</div><div class="stat-lbl">Problems Solved</div></div></div></div>
       </div>
 
+      <div class="card" style="margin-bottom:20px;background:rgba(255,107,107,0.06);border:1.5px solid rgba(255,107,107,0.2)">
+        <div class="sec-title" style="margin-bottom:6px">🎯 Where Your Class Needs Help</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">The topics with the lowest accuracy across your whole class (needs at least 5 attempts total to show up here — private to you, never shown to students' classmates).</div>
+        <div id="t-weak-topics">
+          <div style="padding:10px;text-align:center;color:var(--text2)">No data yet.</div>
+        </div>
+      </div>
+
       <div class="sec-head">
         <div class="sec-title">📋 Class Roster</div>
         <button class="btn btn-ghost btn-xs" onclick="renderTeacherDash()">🔄 Refresh</button>
@@ -2971,7 +2979,7 @@ window.MATHCHAMP_LOADED = true;
 // ── STATE ──────────────────────────────────────────────
 var S = {
   name:"", grade:"", gradeNum:0,
-  xp:0, level:1, streak:0, coins:0, wins:0, problemsSolved:0, avatarId:"", classCode:"", vault:null,
+  xp:0, level:1, streak:0, coins:0, wins:0, problemsSolved:0, avatarId:"", classCode:"", vault:null, topicStats:{},
   isPreview:false, triviaMode:"trivia",
   plan:"free", linkCode:""
 };
@@ -3491,6 +3499,32 @@ function gradeOrdinal(n){
   return n+(s[(v-20)%10]||s[v]||s[0])+" Grade";
 }
 
+// ── PER-TOPIC MASTERY TRACKING (teacher "where does this student need
+// help" view) — recorded on every answer, right or wrong, across trivia,
+// practice, battles, and Class Sessions. Deliberately private: only ever
+// exposed to the student themselves and their own teacher (topic_stats
+// collection, never public_profiles) — see the Firestore rules note.
+function recordTopicAnswer(topic, correct){
+  if(!topic) return;
+  if(!S.topicStats) S.topicStats={};
+  var t=S.topicStats[topic] || (S.topicStats[topic]={correct:0,attempted:0});
+  t.attempted++;
+  if(correct) t.correct++;
+}
+
+// Returns up to `max` topics with the lowest accuracy, requiring at
+// least `minAttempts` tries so a single unlucky guess doesn't brand a
+// topic "weak" — sorted worst-first.
+function getWeakTopics(topicStats, minAttempts, max){
+  minAttempts=minAttempts||3; max=max||3;
+  var rows=Object.keys(topicStats||{}).map(function(topic){
+    var t=topicStats[topic];
+    return {topic:topic, correct:t.correct, attempted:t.attempted, accuracy:t.attempted?t.correct/t.attempted:0};
+  }).filter(function(r){ return r.attempted>=minAttempts; });
+  rows.sort(function(a,b){ return a.accuracy-b.accuracy; });
+  return rows.slice(0,max);
+}
+
 // Privacy-safe label for showing a student to OTHER students/parents:
 // first name + last-initial only, never the full legal name.
 function displayLabel(fullName){
@@ -3582,7 +3616,7 @@ function saveSession(){
     var key = "mc_"+S.name.split(" ")[0].toLowerCase()+"_"+S.gradeNum;
     localStorage.setItem(key, JSON.stringify({
       xp:S.xp, level:S.level, streak:S.streak, coins:S.coins, wins:S.wins||0,
-      problemsSolved:S.problemsSolved||0, avatarId:S.avatarId||"", vault:S.vault||null,
+      problemsSolved:S.problemsSolved||0, avatarId:S.avatarId||"", vault:S.vault||null, topicStats:S.topicStats||{},
       name:S.name, grade:S.grade, gradeNum:S.gradeNum
     }));
   }catch(e){}
@@ -3874,7 +3908,7 @@ async function loginStudent(){
         S.xp=data.xp||0; S.level=data.level||1;
         S.streak=data.streak||0; S.coins=data.coins||0; S.wins=data.wins||0;
         S.problemsSolved=data.problemsSolved||0; S.avatarId=data.avatarId||"";
-        S.classCode=data.classCode||""; S.vault=data.vault||null;
+        S.classCode=data.classCode||""; S.vault=data.vault||null; S.topicStats=data.topicStats||{};
         S.plan=data.plan||"free";
         fn=data.displayName||fn;
         if(data.grade){ gr=String(data.grade); }
@@ -3906,7 +3940,7 @@ async function loginStudent(){
       var d=JSON.parse(saved);
       S.xp=d.xp||0; S.level=d.level||1; S.streak=d.streak||0; S.coins=d.coins||0;
       S.wins=d.wins||0; S.problemsSolved=d.problemsSolved||0; S.avatarId=d.avatarId||"";
-      S.vault=d.vault||null;
+      S.vault=d.vault||null; S.topicStats=d.topicStats||{};
       if(d.gradeNum){ gr=String(d.gradeNum); }
     }
   }catch(e){}
@@ -4013,6 +4047,8 @@ function answerClassSessionQ(sel, correct){
   var cs=classSessionState; if(!cs) return;
   var opts=document.querySelectorAll("#class-session-modal .q-opt");
   opts.forEach(function(o){ o.disabled=true; });
+  var q=cs.session.questions[cs.qIndex];
+  recordTopicAnswer(q && q.topic, sel===correct);
   if(sel===correct){ cs.score++; if(opts[sel]) opts[sel].classList.add("correct"); }
   else { if(opts[sel]) opts[sel].classList.add("wrong"); if(opts[correct]) opts[correct].classList.add("correct"); }
   cs.qIndex++;
@@ -4321,6 +4357,7 @@ function k5AnswerQuestion(sel,correct,btn,bs){
   if(!bs.active) return;
   var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
   opts.forEach(function(o){ o.disabled=true; });
+  recordTopicAnswer(bs.qs[bs.qi] && bs.qs[bs.qi].topic, sel===correct);
   if(sel===correct){
     btn.classList.add("correct"); bs.myScore++; S.problemsSolved=(S.problemsSolved||0)+1;
     var ms=$$("b-my-score"); if(ms) ms.textContent=bs.myScore;
@@ -4499,6 +4536,7 @@ function answerQ(sel,correct,btn){
   clearInterval(triviaTimer);
   document.querySelectorAll(".q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
+  recordTopicAnswer(session.qs[session.idx] && session.qs[session.idx].topic, right);
   if(right){ btn.classList.add("correct"); session.correct++; S.coins+=10; S.xp+=50; S.problemsSolved=(S.problemsSolved||0)+1; sndCorrect(); showToast("Correct! +10 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll(".q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); sndWrong(); showToast("Not quite!"); }
   var q=session.qs[session.idx];
@@ -5073,6 +5111,7 @@ function battleAnswer(sel,correct,btn,bs){
   clearInterval(bs.timer);
   var opts=document.querySelectorAll("#battle-q-wrap .q-opt");
   opts.forEach(function(o){ o.disabled=true; });
+  recordTopicAnswer(bs.qs[bs.round] && bs.qs[bs.round].topic, sel===correct);
   if(sel===correct){
     btn.classList.add("correct"); bs.myScore++; S.problemsSolved=(S.problemsSolved||0)+1;
     var speedBonus = timeUsed <= 5 ? " 🚀 Speed Bonus!" : timeUsed <= 10 ? " ⚡ Fast!" : "";
@@ -5587,6 +5626,7 @@ function answerPractice(sel,correct,btn){
   clearInterval(practiceTimer);
   document.querySelectorAll("#p-opts .q-opt").forEach(function(o){ o.disabled=true; });
   var right=sel===correct;
+  recordTopicAnswer(practiceSession.qs[practiceSession.idx] && practiceSession.qs[practiceSession.idx].topic, right);
   if(right){ btn.classList.add("correct"); practiceSession.correct++; S.coins+=8; S.problemsSolved=(S.problemsSolved||0)+1; showToast("Correct! +8 MathCoins"); if(S.tier==="k5") renderK5Rewards(); }
   else{ btn.classList.add("wrong"); var opts=document.querySelectorAll("#p-opts .q-opt"); if(opts[correct]) opts[correct].classList.add("correct"); }
   practiceSession.idx++; setTimeout(renderPracticeQ, right?1800:2400);
@@ -5987,6 +6027,9 @@ async function renderTeacherDash(){
   }
   if(list) list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>Loading roster...</div>";
   var roster=await window.fetchClassRoster(TEACHER.classCode);
+  var topicRows=window.fetchClassTopicStats?await window.fetchClassTopicStats(TEACHER.classCode):[];
+  var topicsByUid={};
+  topicRows.forEach(function(r){ topicsByUid[r.uid]=r.topics; });
 
   setEl("t-stat-count", roster.length);
   setEl("t-dash-students-badge", roster.length+" Students Joined");
@@ -5996,6 +6039,30 @@ async function renderTeacherDash(){
   setEl("t-stat-wins", totalWins);
   setEl("t-stat-problems", totalProblems);
 
+  // Class-wide weak topics: merge every student's per-topic tallies into
+  // one combined tally, then find the lowest-accuracy topics overall.
+  var classTopics={};
+  Object.keys(topicsByUid).forEach(function(uid){
+    var t=topicsByUid[uid]||{};
+    Object.keys(t).forEach(function(topic){
+      var c=classTopics[topic]||(classTopics[topic]={correct:0,attempted:0});
+      c.correct+=t[topic].correct||0; c.attempted+=t[topic].attempted||0;
+    });
+  });
+  var weakClassTopics=getWeakTopics(classTopics, 5, 5);
+  var wt=$$("t-weak-topics");
+  if(wt){
+    if(!weakClassTopics.length){
+      wt.innerHTML="<div style='padding:10px;text-align:center;color:var(--text2)'>Not enough answers yet to spot a pattern — check back after some practice!</div>";
+    } else {
+      wt.innerHTML=weakClassTopics.map(function(r){
+        return "<div style='display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)'>"
+          +"<span style='font-size:14px;font-weight:700'>"+r.topic+"</span>"
+          +"<span class='badge b-coral'>"+Math.round(r.accuracy*100)+"% correct ("+r.attempted+" tries)</span></div>";
+      }).join("");
+    }
+  }
+
   if(list){
     if(!roster.length){
       list.innerHTML="<div style='padding:20px;text-align:center;color:var(--text2)'>No students have joined yet — share your Class Code above!</div>";
@@ -6003,8 +6070,12 @@ async function renderTeacherDash(){
       roster.sort(function(a,b){ return b.xp-a.xp; });
       var html="";
       roster.forEach(function(s){
+        var weak=getWeakTopics(topicsByUid[s.uid]||{}, 3, 1);
+        var weakLine=weak.length
+          ? "<div style='font-size:11px;color:var(--coral);margin-top:2px'>⚠️ Needs help: "+weak[0].topic+"</div>"
+          : "";
         html+="<div class='lb-row'><div class='lb-emo' style='background:rgba(255,255,255,0.08)'>"+s.avatar+"</div>"
-          +"<div class='lb-info'><div class='lb-name'>"+s.name+"</div><div class='lb-grade'>"+(s.grade?gradeOrdinal(s.grade):"")+" · Level "+s.level+"</div></div>"
+          +"<div class='lb-info'><div class='lb-name'>"+s.name+"</div><div class='lb-grade'>"+(s.grade?gradeOrdinal(s.grade):"")+" · Level "+s.level+"</div>"+weakLine+"</div>"
           +"<div class='lb-pts-wrap'><div class='lb-pts'>"+s.xp.toLocaleString()+" XP</div>"
           +"<div style='font-size:11px;color:var(--text2)'>"+s.wins+" wins · "+s.problemsSolved+" solved</div></div></div>";
       });
@@ -6681,14 +6752,23 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
     const problemsSolved = window.S ? (window.S.problemsSolved || 0) : 0;
     const avatarId = window.S ? (window.S.avatarId || "") : "";
     const vault = window.S ? (window.S.vault || null) : null;
+    const topicStats = window.S ? (window.S.topicStats || {}) : {};
+    const classCode = window.S ? (window.S.classCode || null) : null;
     const avatarEmoji = window.myAvatarGlyph ? window.myAvatarGlyph() : null;
-    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault };
+    const upd = { xp, coins, level, streak, wins: wins || 0, problemsSolved, avatarId, vault, topicStats };
     if (linkCode) upd.linkCode = linkCode;
     await updateDoc(doc(db, "users", user.uid), upd);
     try {
       const pub = { xp, level, grade: grade || "", wins: wins || 0, problemsSolved, updatedAt: serverTimestamp() };
       if (avatarEmoji) pub.avatar = avatarEmoji;
       await setDoc(doc(db, "public_profiles", user.uid), pub, { merge: true });
+    } catch(e) {}
+    // Private, teacher-visible-only mastery data — deliberately NOT in
+    // public_profiles (see the privacy note above recordTopicAnswer()).
+    try {
+      await setDoc(doc(db, "topic_stats", user.uid), {
+        topics: topicStats, classCode: classCode || null, updatedAt: serverTimestamp()
+      }, { merge: true });
     } catch(e) {}
   };
 
@@ -6725,6 +6805,7 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
       if (!snap.exists()) return { ok: false, error: "No class found with that code." };
       await updateDoc(doc(db, "users", user.uid), { classCode });
       await setDoc(doc(db, "public_profiles", user.uid), { classCode }, { merge: true });
+      await setDoc(doc(db, "topic_stats", user.uid), { classCode, topics: {} }, { merge: true });
       return { ok: true, teacherName: snap.data().teacherName || "your teacher" };
     } catch (e) {
       return { ok: false, error: e.message || "Could not join class." };
@@ -6813,6 +6894,22 @@ console.log("✅ Question bank: "+_qbTotal+" questions loaded");
         .sort((a, b) => b.score - a.score);
     } catch (e) {
       console.log("fetchClassSessionScores error:", e.message);
+      return [];
+    }
+  };
+
+  // Per-topic mastery for a whole class — teacher-only data (see the
+  // topic_stats security rule: readable by the student themselves or by
+  // the teacher of record for their classCode, nobody else). Returns raw
+  // per-student topic maps; the caller merges in names from the roster
+  // and computes "weakest topics" client-side (see getWeakTopics()).
+  window.fetchClassTopicStats = async function(classCode) {
+    if (!classCode) return [];
+    try {
+      const snap = await getDocs(query(collection(db, "topic_stats"), where("classCode", "==", classCode)));
+      return snap.docs.map(d => ({ uid: d.id, topics: d.data().topics || {} }));
+    } catch (e) {
+      console.log("fetchClassTopicStats error:", e.message);
       return [];
     }
   };
